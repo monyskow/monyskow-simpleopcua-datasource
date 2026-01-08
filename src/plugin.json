@@ -1,0 +1,72 @@
+{
+  "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
+  "type": "datasource",
+  "name": "Simple OPC-UA",
+  "id": "monyskow-simpleopcua-datasource",
+  "metrics": true,
+  "backend": true,
+  "executable": "gpx_simpleopcua",
+  "alerting": true,
+  "category": "iot",
+  "info": {
+    "keywords": [
+      "opcua",
+      "opc-ua",
+      "opc",
+      "industrial",
+      "iot",
+      "plc",
+      "scada",
+      "automation",
+      "manufacturing"
+    ],
+    "description": "Connect to OPC-UA servers to read industrial data. Supports anonymous, username/password, and certificate authentication.",
+    "author": {
+      "name": "monyskow",
+      "email": "marcinct@onyskow.com",
+      "url": "https://github.com/monyskow"
+    },
+    "logos": {
+      "small": "img/logo.svg",
+      "large": "img/logo.svg"
+    },
+    "links": [
+      {
+        "name": "GitHub",
+        "url": "https://github.com/monyskow/monyskow-simpleopcua-datasource"
+      },
+      {
+        "name": "Documentation",
+        "url": "https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/README.md"
+      },
+      {
+        "name": "License",
+        "url": "https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/LICENSE"
+      }
+    ],
+    "screenshots": [
+      {
+        "name": "Configuration",
+        "path": "img/screenshot-config.png"
+      },
+      {
+        "name": "Query Editor",
+        "path": "img/screenshot-query.png"
+      },
+      {
+        "name": "Node Browser",
+        "path": "img/screenshot-browse.png"
+      },
+      {
+        "name": "Dashboard Example",
+        "path": "img/screenshot-dashboard.png"
+      }
+    ],
+    "version": "%VERSION%",
+    "updated": "%TODAY%"
+  },
+  "dependencies": {
+    "grafanaDependency": ">=10.4.0",
+    "plugins": []
+  }
+}

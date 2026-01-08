@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# IDE
+.idea/
+*.swp
+*.swo
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# Coverage
+coverage/
+
+# Test results
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+playwright/.auth/
+
+# Artifacts
+artifacts/
+work/
+ci/
+
+# Signed plugins
+*.zip
+
+# Go
+vendor/
+
+# Misc
+.eslintcache
+*.pid
+*.seed
+*.pid.lock

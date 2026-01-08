@@ -1,0 +1,80 @@
+package plugin
+
+import (
+	"context"
+	"encoding/json"
+	"net/http"
+
+	"github.com/grafana/grafana-plugin-sdk-go/backend"
+	"github.com/grafana/grafana-plugin-sdk-go/backend/resource/httpadapter"
+
+	"github.com/monyskow/monyskow-simpleopcua-datasource/pkg/plugin/opcua"
+)
+
+// CallResource handles HTTP-like requests from the frontend
+func (d *Datasource) CallResource(ctx context.Context, req *backend.CallResourceRequest, sender backend.CallResourceResponseSender) error {
+	return httpadapter.New(d.resourceHandler()).CallResource(ctx, req, sender)
+}
+
+// resourceHandler returns the HTTP handler for resource requests
+func (d *Datasource) resourceHandler() http.Handler {
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/browse", d.handleBrowse)
+	mux.HandleFunc("/endpoints", d.handleGetEndpoints)
+
+	return mux
+}
+
+// handleBrowse handles the browse nodes request
+func (d *Datasource) handleBrowse(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Get node ID from query parameter
+	nodeID := r.URL.Query().Get("nodeId")
+
+	// Get or create client
+	client, err := d.getOrCreateClient(ctx)
+	if err != nil {
+		d.logger.Error("Failed to get client for browse", "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Browse nodes
+	nodes, err := client.Browse(ctx, nodeID)
+	if err != nil {
+		d.logger.Error("Failed to browse nodes", "nodeId", nodeID, "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return JSON response
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(nodes); err != nil {
+		d.logger.Error("Failed to encode browse response", "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
+
+// handleGetEndpoints handles the get endpoints request
+func (d *Datasource) handleGetEndpoints(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+
+	// Get endpoints from server
+	endpoints, err := opcua.GetEndpoints(ctx, d.settings.Endpoint)
+	if err != nil {
+		d.logger.Error("Failed to get endpoints", "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return JSON response
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(endpoints); err != nil {
+		d.logger.Error("Failed to encode endpoints response", "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+}
