@@ -12,10 +12,10 @@ export class OpcuaTestHelpers {
    */
   async goToDataSourceConfig(dataSourceUid = 'opcua-test-server') {
     // Navigate directly using the data source UID
-    await this.page.goto(`/connections/datasources/edit/${dataSourceUid}`);
-    await this.page.waitForLoadState('networkidle');
-    // Give extra time for plugin to load and render (especially in CI)
-    await this.page.waitForTimeout(3000);
+    await this.page.goto(`/connections/datasources/edit/${dataSourceUid}`, { waitUntil: 'domcontentloaded' });
+    // Wait for plugin to fully load - Grafana 12 in CI needs more time
+    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
+    await this.page.waitForTimeout(5000);
   }
 
   /**
