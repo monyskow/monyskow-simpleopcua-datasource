@@ -16,9 +16,14 @@ export class OpcuaTestHelpers {
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);
 
-    // Verify config page loaded successfully
-    const hasConfig = await this.page.getByLabel(/endpoint url/i).isVisible({ timeout: 5000 }).catch(() => false);
-    if (!hasConfig) {
+    // Verify config page loaded by checking for any configuration indicator
+    // Different Grafana versions have different label associations
+    const hasEndpointUrl = await this.page.getByLabel(/endpoint url/i).isVisible({ timeout: 3000 }).catch(() => false);
+    const hasEndpointInput = await this.page.locator('input[aria-label*="Endpoint"]').or(this.page.locator('input[placeholder*="opc.tcp"]')).isVisible({ timeout: 3000 }).catch(() => false);
+    const hasSaveButton = await this.page.getByRole('button', { name: /save.*test/i }).isVisible({ timeout: 3000 }).catch(() => false);
+
+    // Accept if any indicator is present
+    if (!hasEndpointUrl && !hasEndpointInput && !hasSaveButton) {
       throw new Error(`Data source config page failed to load for UID: ${dataSourceUid}`);
     }
   }
