@@ -10,32 +10,16 @@ export class OpcuaTestHelpers {
   /**
    * Navigate to the OPC-UA data source configuration page
    */
-  async goToDataSourceConfig(dataSourceName = 'OPC-UA Test Server') {
-    // Try to navigate directly first - works if data source is provisioned
-    await this.page.goto(`/connections/datasources/edit/${encodeURIComponent(dataSourceName)}`);
+  async goToDataSourceConfig(dataSourceUid = 'opcua-test-server') {
+    // Navigate directly using the data source UID
+    await this.page.goto(`/connections/datasources/edit/${dataSourceUid}`);
     await this.page.waitForLoadState('networkidle');
     await this.page.waitForTimeout(2000);
 
-    // Check if we successfully loaded the config page
-    const hasHeading = await this.page.getByRole('heading', { name: new RegExp(dataSourceName, 'i') }).isVisible({ timeout: 3000 }).catch(() => false);
-    const hasConfig = await this.page.getByLabel(/endpoint url/i).isVisible({ timeout: 3000 }).catch(() => false);
-
-    // If direct navigation didn't work, try clicking from the list
-    if (!hasHeading && !hasConfig) {
-      await this.page.goto('/connections/datasources');
-      await this.page.waitForLoadState('networkidle');
-      await this.page.waitForTimeout(1000);
-
-      const dsLink = this.page
-        .locator('a', { hasText: dataSourceName })
-        .or(this.page.locator('[role="link"]', { hasText: dataSourceName }))
-        .first();
-
-      if (await dsLink.isVisible({ timeout: 10000 }).catch(() => false)) {
-        await dsLink.click();
-        await this.page.waitForLoadState('networkidle');
-        await this.page.waitForTimeout(2000);
-      }
+    // Verify config page loaded successfully
+    const hasConfig = await this.page.getByLabel(/endpoint url/i).isVisible({ timeout: 5000 }).catch(() => false);
+    if (!hasConfig) {
+      throw new Error(`Data source config page failed to load for UID: ${dataSourceUid}`);
     }
   }
 

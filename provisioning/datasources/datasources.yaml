@@ -2,6 +2,7 @@ apiVersion: 1
 
 datasources:
   - name: OPC-UA Test Server
+    uid: opcua-test-server
     type: monyskow-simpleopcua-datasource
     access: proxy
     isDefault: true
