@@ -150,8 +150,8 @@ test.describe('OPC-UA Query Editor', () => {
         await nodeIdInput.fill('ns=2;s=TestNode');
 
         // Run query or wait for auto-save
-        const runButton = page.getByRole('button', { name: /run query|refresh/i });
-        if (await runButton.isVisible({ timeout: 2000 })) {
+        const runButton = page.getByRole('button', { name: /^run query$/i }).first();
+        if (await runButton.isVisible({ timeout: 2000 }).catch(() => false)) {
           await runButton.click();
         }
 
