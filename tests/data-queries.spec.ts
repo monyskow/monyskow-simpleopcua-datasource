@@ -62,10 +62,10 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
           await page.waitForTimeout(2000);
 
           // Switch to table view if not already
-          const tableButton = page.getByRole('button', { name: /table/i }).or(page.locator('[aria-label*="Table"]'));
+          const tableButton = page.getByRole('button', { name: /^table$/i }).first();
 
-          if (await tableButton.isVisible({ timeout: 2000 })) {
-            await tableButton.click();
+          if (await tableButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+            await tableButton.click({ force: true });
             await page.waitForTimeout(500);
           }
 

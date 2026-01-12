@@ -101,14 +101,64 @@ docker compose up
 
 ### Testing
 
+#### Unit Tests
+
 ```bash
-# Unit tests
+# Frontend unit tests
 npm run test:ci
+
+# Backend unit tests
 mage test
 
-# E2E tests
+# Test coverage
+npm run test:coverage
+mage coverage
+```
+
+#### E2E Tests
+
+The plugin includes comprehensive end-to-end tests using Playwright that automatically test against multiple Grafana versions.
+
+```bash
+# Run all E2E tests
+npm run e2e
+
+# Run specific test suite
+npx playwright test smoke.spec.ts
+
+# Run tests in UI mode
+npx playwright test --ui
+
+# View test report
+npx playwright show-report
+```
+
+**Test Coverage:**
+- ✅ Plugin loads successfully across Grafana versions
+- ✅ Data source configuration (all auth methods)
+- ✅ Query editor functionality
+- ✅ Node browser integration
+- ✅ Data queries and visualization
+- ✅ Dashboard panel integration
+- ✅ Error handling and edge cases
+
+**Multi-Version Testing:**
+
+Tests automatically run against:
+- Grafana 10.4.0 (minimum supported version)
+- Latest LTS version
+- Latest stable version
+
+To test specific version locally:
+```bash
+# Terminal 1
+GRAFANA_VERSION=10.4.0 npm run server
+
+# Terminal 2
 npm run e2e
 ```
+
+See [tests/QUICKSTART.md](tests/QUICKSTART.md) for detailed testing instructions.
 
 ## License
 

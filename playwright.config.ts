@@ -10,8 +10,9 @@ export default defineConfig<PluginOptions>({
   testDir: './tests',
   fullyParallel: true,
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
+  retries: process.env.CI ? 1 : 0,
+  workers: process.env.CI ? 2 : undefined,
+  timeout: 30000, // 30 second timeout per test
   reporter: [
     ['list'],
     ['html', { outputFolder: 'playwright-report' }],
@@ -22,6 +23,7 @@ export default defineConfig<PluginOptions>({
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
+    actionTimeout: 10000, // 10 second timeout for actions
   },
 
   projects: [

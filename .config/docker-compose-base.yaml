@@ -1,7 +1,7 @@
 services:
   grafana:
     user: root
-    container_name: 'monyskow-simpleshiftselector-panel'
+    container_name: 'monyskow-simpleopcua-datasource'
 
     build:
       context: .
@@ -13,13 +13,13 @@ services:
     ports:
       - 3000:3000/tcp
     volumes:
-      - ../dist:/var/lib/grafana/plugins/monyskow-simpleshiftselector-panel
+      - ../dist:/var/lib/grafana/plugins/monyskow-simpleopcua-datasource
       - ../provisioning:/etc/grafana/provisioning
-      - ..:/root/monyskow-simpleshiftselector-panel
+      - ..:/root/monyskow-simpleopcua-datasource
 
     environment:
       NODE_ENV: development
-      GF_LOG_FILTERS: plugin.monyskow-simpleshiftselector-panel:debug
+      GF_LOG_FILTERS: plugin.monyskow-simpleopcua-datasource:debug
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
-      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleshiftselector-panel
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleopcua-datasource
