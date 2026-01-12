@@ -1,17 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { OpcuaTestHelpers } from './helpers';
 
 test.describe('OPC-UA Data Source Configuration', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to data sources list first
-    await page.goto('/connections/datasources');
-    await page.waitForLoadState('networkidle');
-
-    // Click on OPC-UA Test Server
-    const dsLink = page.getByText('OPC-UA Test Server');
-    if (await dsLink.isVisible({ timeout: 5000 })) {
-      await dsLink.click();
-      await page.waitForLoadState('networkidle');
-    }
+    const helpers = new OpcuaTestHelpers(page);
+    await helpers.goToDataSourceConfig();
   });
 
   test('should load the configuration page', async ({ page }) => {

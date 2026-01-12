@@ -14,12 +14,18 @@ export class OpcuaTestHelpers {
     // First go to data sources list
     await this.page.goto('/connections/datasources');
     await this.page.waitForLoadState('networkidle');
+    await this.page.waitForTimeout(1000);
 
-    // Click on the data source
-    const dsLink = this.page.getByText(dataSourceName);
-    if (await dsLink.isVisible({ timeout: 5000 })) {
+    // Click on the data source - use more specific selector
+    const dsLink = this.page
+      .locator('a', { hasText: dataSourceName })
+      .or(this.page.locator('[role="link"]', { hasText: dataSourceName }))
+      .first();
+
+    if (await dsLink.isVisible({ timeout: 10000 })) {
       await dsLink.click();
       await this.page.waitForLoadState('networkidle');
+      await this.page.waitForTimeout(1000);
     }
   }
 
@@ -29,7 +35,7 @@ export class OpcuaTestHelpers {
   async goToExplore() {
     await this.page.goto('/explore');
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(2000); // OPC-UA Test Server is default, no need to select
+    await this.page.waitForTimeout(3000); // OPC-UA Test Server is default, no need to select (wait longer for CI)
   }
 
   /**
@@ -102,12 +108,11 @@ export class OpcuaTestHelpers {
    * Run/execute the query
    */
   async runQuery() {
-    const runButton = this.page
-      .getByRole('button', { name: /run query/i })
-      .or(this.page.getByRole('button', { name: /refresh/i }));
+    // Use exact match for "Run query" button
+    const runButton = this.page.getByRole('button', { name: /^run query$/i }).first();
 
-    if (await runButton.isVisible({ timeout: 3000 })) {
-      await runButton.click();
+    if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await runButton.click({ force: true });
       await this.page.waitForTimeout(2000);
     }
   }

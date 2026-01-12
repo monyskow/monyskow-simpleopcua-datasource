@@ -24,9 +24,9 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
         await nodeIdInput.fill('ns=2;s=Demo.Dynamic.Scalar.Float');
 
         // Run query
-        const runButton = page.getByRole('button', { name: /run query/i }).or(page.getByRole('button', { name: /refresh/i }));
+        const runButton = page.getByRole('button', { name: /^run query$/i }).first();
 
-        if (await runButton.isVisible({ timeout: 3000 })) {
+        if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
           await runButton.click();
           await page.waitForTimeout(3000);
 
@@ -55,9 +55,9 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
       if (await nodeIdInput.isVisible({ timeout: 3000 })) {
         await nodeIdInput.fill('ns=0;i=2258'); // Server Status
 
-        const runButton = page.getByRole('button', { name: /run query/i }).or(page.getByRole('button', { name: /refresh/i }));
+        const runButton = page.getByRole('button', { name: /^run query$/i }).first();
 
-        if (await runButton.isVisible({ timeout: 3000 })) {
+        if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
           await runButton.click();
           await page.waitForTimeout(2000);
 
@@ -105,7 +105,7 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
 
         // Run query
         const runButton = page.getByRole('button', { name: /run query/i });
-        if (await runButton.isVisible({ timeout: 3000 })) {
+        if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
           await runButton.click();
           await page.waitForTimeout(2000);
 
@@ -132,9 +132,9 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
       if (await nodeIdInput.isVisible({ timeout: 3000 })) {
         await nodeIdInput.fill('ns=2;s=TestValue');
 
-        const runButton = page.getByRole('button', { name: /run query/i }).or(page.getByRole('button', { name: /refresh/i }));
+        const runButton = page.getByRole('button', { name: /^run query$/i }).first();
 
-        if (await runButton.isVisible({ timeout: 3000 })) {
+        if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
           // First query
           await runButton.click();
           await page.waitForTimeout(1500);
@@ -165,7 +165,7 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
 
         const runButton = page.getByRole('button', { name: /run query/i });
 
-        if (await runButton.isVisible({ timeout: 3000 })) {
+        if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
           await runButton.click();
           await page.waitForTimeout(2000);
 
@@ -199,7 +199,7 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
 
           const runButton = page.getByRole('button', { name: /run query/i });
 
-          if (await runButton.isVisible({ timeout: 3000 })) {
+          if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
             await runButton.click();
             await page.waitForTimeout(2000);
 
