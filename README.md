@@ -161,11 +161,11 @@ GRAFANA_VERSION=10.4.0 npm run server
 npm run e2e
 ```
 
-See [tests/QUICKSTART.md](tests/QUICKSTART.md) for detailed testing instructions.
+See [tests/QUICKSTART.md](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/tests/QUICKSTART.md) for detailed testing instructions.
 
 ## License
 
-Apache License 2.0. See [LICENSE](LICENSE) for details.
+Apache License 2.0. See [LICENSE](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/LICENSE) for details.
 
 ## Support
 
