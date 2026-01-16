@@ -1,4 +1,5 @@
-import { DataSourceJsonData, DataQuery } from '@grafana/data';
+import { DataSourceJsonData } from '@grafana/data';
+import { DataQuery } from '@grafana/schema';
 
 /**
  * Authentication methods supported by the OPC-UA data source

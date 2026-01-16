@@ -9,13 +9,25 @@ export class OpcuaTestHelpers {
 
   /**
    * Navigate to the OPC-UA data source configuration page
+   * Uses the standard Grafana URL pattern that works across versions
    */
   async goToDataSourceConfig(dataSourceUid = 'opcua-test-server') {
-    // Navigate directly using the data source UID
-    await this.page.goto(`/connections/datasources/edit/${dataSourceUid}`, { waitUntil: 'domcontentloaded' });
-    // Wait for plugin to fully load - Grafana 12 in CI needs more time
-    await this.page.waitForLoadState('networkidle', { timeout: 10000 });
-    await this.page.waitForTimeout(5000);
+    // Use standard /datasources/edit/ path (works in all Grafana versions)
+    await this.page.goto(`/datasources/edit/${dataSourceUid}`, { waitUntil: 'networkidle' });
+    await this.page.waitForTimeout(3000);
+
+    // Verify config page loaded - use multiple selectors for cross-version compatibility
+    // Grafana 10.x/11.x don't properly associate InlineField labels with inputs
+    const endpointInput = this.page
+      .locator('[aria-label="Endpoint URL"]')
+      .or(this.page.locator('input[placeholder*="opc.tcp"]'))
+      .or(this.page.getByLabel(/endpoint url/i));
+    try {
+      await endpointInput.first().waitFor({ state: 'visible', timeout: 5000 });
+    } catch {
+      // Fallback: wait additional time for slower Grafana versions
+      await this.page.waitForTimeout(2000);
+    }
   }
 
   /**
@@ -24,31 +36,24 @@ export class OpcuaTestHelpers {
   async goToExplore() {
     await this.page.goto('/explore');
     await this.page.waitForLoadState('networkidle');
-    await this.page.waitForTimeout(3000); // OPC-UA Test Server is default, no need to select (wait longer for CI)
+    await this.page.waitForTimeout(3000);
   }
 
   /**
    * Select a data source from the picker (only use if not already selected)
    */
   async selectDataSource(name: string) {
-    // Wait a bit for page to stabilize
     await this.page.waitForTimeout(1000);
 
-    // Check if data source is already selected by looking at the input value
-    const dataSourcePicker = this.page.locator('#data-source-picker').or(
-      this.page.getByLabel(/select.*data.*source/i)
-    );
+    const dataSourcePicker = this.page.locator('#data-source-picker').or(this.page.getByLabel(/select.*data.*source/i));
 
     if (await dataSourcePicker.isVisible({ timeout: 5000 })) {
       const currentValue = await dataSourcePicker.inputValue().catch(() => '');
 
-      // Only select if not already the current data source
       if (!currentValue.includes(name)) {
-        // Force click to bypass overlay issues
         await dataSourcePicker.click({ force: true });
         await this.page.waitForTimeout(500);
 
-        // Look for the option in the dropdown menu (more specific selector)
         const option = this.page.locator('[role="menuitem"], [role="option"]').filter({ hasText: name }).first();
         if (await option.isVisible({ timeout: 3000 })) {
           await option.click();
@@ -97,7 +102,6 @@ export class OpcuaTestHelpers {
    * Run/execute the query
    */
   async runQuery() {
-    // Use exact match for "Run query" button
     const runButton = this.page.getByRole('button', { name: /^run query$/i }).first();
 
     if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
@@ -110,10 +114,22 @@ export class OpcuaTestHelpers {
    * Check if query results are displayed (table, chart, or error)
    */
   async hasQueryResults(): Promise<boolean> {
-    const hasTable = await this.page.locator('table').isVisible({ timeout: 3000 }).catch(() => false);
-    const hasChart = await this.page.locator('canvas, svg').isVisible({ timeout: 2000 }).catch(() => false);
-    const hasError = await this.page.getByText(/error|failed/i).isVisible({ timeout: 2000 }).catch(() => false);
-    const hasNoData = await this.page.getByText(/no data/i).isVisible({ timeout: 2000 }).catch(() => false);
+    const hasTable = await this.page
+      .locator('table')
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
+    const hasChart = await this.page
+      .locator('canvas, svg')
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    const hasError = await this.page
+      .getByText(/error|failed/i)
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    const hasNoData = await this.page
+      .getByText(/no data/i)
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
 
     return hasTable || hasChart || hasError || hasNoData;
   }
@@ -158,9 +174,7 @@ export class OpcuaTestHelpers {
    * Open node browser
    */
   async openNodeBrowser() {
-    const browserButton = this.page
-      .getByRole('button', { name: /browse|browser/i })
-      .first();
+    const browserButton = this.page.getByRole('button', { name: /browse|browser/i }).first();
 
     if (await browserButton.isVisible({ timeout: 5000 })) {
       await browserButton.click();
@@ -177,14 +191,29 @@ export class OpcuaTestHelpers {
       .or(this.page.locator('.modal'))
       .or(this.page.getByText(/browse.*node|object.*folder/i));
 
-    return await browserModal.first().isVisible({ timeout: 3000 }).catch(() => false);
+    return await browserModal
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
+  }
+
+  /**
+   * Get endpoint input locator (cross-version compatible)
+   */
+  private getEndpointInput() {
+    // Use multiple selectors for cross-version compatibility
+    // Grafana 10.x/11.x don't properly associate InlineField labels with inputs
+    return this.page
+      .locator('[aria-label="Endpoint URL"]')
+      .or(this.page.locator('input[placeholder*="opc.tcp"]'))
+      .or(this.page.getByLabel(/endpoint url/i));
   }
 
   /**
    * Set endpoint URL in config
    */
   async setEndpoint(url: string) {
-    const endpointInput = this.page.getByLabel(/endpoint url/i);
+    const endpointInput = this.getEndpointInput().first();
     await endpointInput.clear();
     await endpointInput.fill(url);
   }
@@ -193,7 +222,7 @@ export class OpcuaTestHelpers {
    * Get current endpoint URL value
    */
   async getEndpoint(): Promise<string> {
-    const endpointInput = this.page.getByLabel(/endpoint url/i);
+    const endpointInput = this.getEndpointInput().first();
     return await endpointInput.inputValue();
   }
 }

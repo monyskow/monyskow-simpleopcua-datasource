@@ -1,25 +1,9 @@
 import React from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import {
-  FieldSet,
-  InlineField,
-  Input,
-  Select,
-  SecretInput,
-  SecretTextArea,
-} from '@grafana/ui';
-import {
-  OpcuaDataSourceOptions,
-  OpcuaSecureJsonData,
-  AuthMethod,
-  SecurityPolicy,
-  SecurityMode,
-} from '../../types';
+import { FieldSet, InlineField, Input, Select, SecretInput, SecretTextArea } from '@grafana/ui';
+import { OpcuaDataSourceOptions, OpcuaSecureJsonData, AuthMethod, SecurityPolicy, SecurityMode } from '../../types';
 
-type Props = DataSourcePluginOptionsEditorProps<
-  OpcuaDataSourceOptions,
-  OpcuaSecureJsonData
->;
+type Props = DataSourcePluginOptionsEditorProps<OpcuaDataSourceOptions, OpcuaSecureJsonData>;
 
 const AUTH_METHOD_OPTIONS = [
   { label: 'Anonymous', value: 'anonymous' as AuthMethod },
@@ -56,16 +40,10 @@ const SECURITY_MODE_OPTIONS = [
  * - Authentication method selection and credential input
  * - Secure storage of credentials via secureJsonData
  */
-export const ConfigEditor: React.FC<Props> = ({
-  options,
-  onOptionsChange,
-}) => {
+export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
   const { jsonData, secureJsonFields, secureJsonData } = options;
 
-  const onJsonDataChange = <K extends keyof OpcuaDataSourceOptions>(
-    key: K,
-    value: OpcuaDataSourceOptions[K]
-  ) => {
+  const onJsonDataChange = <K extends keyof OpcuaDataSourceOptions>(key: K, value: OpcuaDataSourceOptions[K]) => {
     onOptionsChange({
       ...options,
       jsonData: {
@@ -75,10 +53,7 @@ export const ConfigEditor: React.FC<Props> = ({
     });
   };
 
-  const onSecureJsonDataChange = <K extends keyof OpcuaSecureJsonData>(
-    key: K,
-    value: string
-  ) => {
+  const onSecureJsonDataChange = <K extends keyof OpcuaSecureJsonData>(key: K, value: string) => {
     onOptionsChange({
       ...options,
       secureJsonData: {
@@ -119,11 +94,7 @@ export const ConfigEditor: React.FC<Props> = ({
           />
         </InlineField>
 
-        <InlineField
-          label="Security Policy"
-          labelWidth={20}
-          tooltip="Encryption algorithm for the OPC-UA connection"
-        >
+        <InlineField label="Security Policy" labelWidth={20} tooltip="Encryption algorithm for the OPC-UA connection">
           <Select
             width={30}
             options={SECURITY_POLICY_OPTIONS}
@@ -133,11 +104,7 @@ export const ConfigEditor: React.FC<Props> = ({
           />
         </InlineField>
 
-        <InlineField
-          label="Security Mode"
-          labelWidth={20}
-          tooltip="Security mode for message signing and encryption"
-        >
+        <InlineField label="Security Mode" labelWidth={20} tooltip="Security mode for message signing and encryption">
           <Select
             width={30}
             options={SECURITY_MODE_OPTIONS}
@@ -147,18 +114,12 @@ export const ConfigEditor: React.FC<Props> = ({
           />
         </InlineField>
 
-        <InlineField
-          label="Timeout (seconds)"
-          labelWidth={20}
-          tooltip="Connection timeout in seconds"
-        >
+        <InlineField label="Timeout (seconds)" labelWidth={20} tooltip="Connection timeout in seconds">
           <Input
             type="number"
             width={10}
             value={jsonData.timeout || 10}
-            onChange={(e) =>
-              onJsonDataChange('timeout', parseInt(e.currentTarget.value, 10) || 10)
-            }
+            onChange={(e) => onJsonDataChange('timeout', parseInt(e.currentTarget.value, 10) || 10)}
             aria-label="Timeout"
           />
         </InlineField>
@@ -186,9 +147,7 @@ export const ConfigEditor: React.FC<Props> = ({
                 width={30}
                 isConfigured={!!secureJsonFields?.username}
                 value={secureJsonData?.username || ''}
-                onChange={(e) =>
-                  onSecureJsonDataChange('username', e.currentTarget.value)
-                }
+                onChange={(e) => onSecureJsonDataChange('username', e.currentTarget.value)}
                 onReset={() => onResetSecureJsonData('username')}
                 aria-label="Username"
               />
@@ -198,9 +157,7 @@ export const ConfigEditor: React.FC<Props> = ({
                 width={30}
                 isConfigured={!!secureJsonFields?.password}
                 value={secureJsonData?.password || ''}
-                onChange={(e) =>
-                  onSecureJsonDataChange('password', e.currentTarget.value)
-                }
+                onChange={(e) => onSecureJsonDataChange('password', e.currentTarget.value)}
                 onReset={() => onResetSecureJsonData('password')}
                 aria-label="Password"
               />
@@ -210,37 +167,25 @@ export const ConfigEditor: React.FC<Props> = ({
 
         {jsonData.authMethod === 'certificate' && (
           <>
-            <InlineField
-              label="Certificate (PEM)"
-              labelWidth={20}
-              tooltip="PEM-encoded X.509 certificate"
-            >
+            <InlineField label="Certificate (PEM)" labelWidth={20} tooltip="PEM-encoded X.509 certificate">
               <SecretTextArea
                 cols={50}
                 rows={5}
                 isConfigured={!!secureJsonFields?.certificate}
                 value={secureJsonData?.certificate || ''}
-                onChange={(e) =>
-                  onSecureJsonDataChange('certificate', e.currentTarget.value)
-                }
+                onChange={(e) => onSecureJsonDataChange('certificate', e.currentTarget.value)}
                 onReset={() => onResetSecureJsonData('certificate')}
                 placeholder="-----BEGIN CERTIFICATE-----"
                 aria-label="Certificate"
               />
             </InlineField>
-            <InlineField
-              label="Private Key (PEM)"
-              labelWidth={20}
-              tooltip="PEM-encoded private key"
-            >
+            <InlineField label="Private Key (PEM)" labelWidth={20} tooltip="PEM-encoded private key">
               <SecretTextArea
                 cols={50}
                 rows={5}
                 isConfigured={!!secureJsonFields?.privateKey}
                 value={secureJsonData?.privateKey || ''}
-                onChange={(e) =>
-                  onSecureJsonDataChange('privateKey', e.currentTarget.value)
-                }
+                onChange={(e) => onSecureJsonDataChange('privateKey', e.currentTarget.value)}
                 onReset={() => onResetSecureJsonData('privateKey')}
                 placeholder="-----BEGIN RSA PRIVATE KEY-----"
                 aria-label="Private Key"

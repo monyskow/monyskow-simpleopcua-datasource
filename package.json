@@ -12,9 +12,12 @@
     "lint": "eslint --cache .",
     "lint:fix": "npm run lint -- --fix && prettier --write --list-different .",
     "e2e": "playwright test",
+    "e2e:all": "./scripts/e2e-all-versions.sh",
     "server": "docker compose up --build",
+    "server:all": "./scripts/start-all-versions.sh",
+    "server:all:stop": "./scripts/stop-all-versions.sh",
     "server:opcua": "docker compose -f docker-compose.opcua.yaml up -d",
-    "sign": "npx --yes @grafana/sign-plugin@latest"
+    "sign": "npx --yes @grafana/sign-plugin@latest --signatureType community"
   },
   "author": "monyskow",
   "license": "Apache-2.0",

@@ -4,10 +4,7 @@ import { render, RenderOptions } from '@testing-library/react';
 /**
  * Custom render function that wraps components with necessary providers
  */
-const customRender = (
-  ui: React.ReactElement,
-  options?: Omit<RenderOptions, 'wrapper'>
-) => render(ui, { ...options });
+const customRender = (ui: React.ReactElement, options?: Omit<RenderOptions, 'wrapper'>) => render(ui, { ...options });
 
 // Re-export everything from testing-library
 export * from '@testing-library/react';

@@ -45,3 +45,4 @@ vendor/
 *.pid
 *.seed
 *.pid.lock
+.env.local

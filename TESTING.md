@@ -11,6 +11,7 @@ The plugin is automatically tested against multiple Grafana versions on every pu
 1. **Version Detection** - GitHub Actions automatically determines which Grafana versions to test based on `grafanaDependency: ">=10.4.0"` in [src/plugin.json](src/plugin.json)
 
 2. **Matrix Testing** - Tests run in parallel across:
+
    - **Minimum Version**: Grafana 10.4.0
    - **LTS Version**: Current long-term support release
    - **Latest Version**: Current stable release
@@ -41,6 +42,7 @@ playwright-tests:
 ### 48 End-to-End Tests Across 5 Suites
 
 #### 1. Smoke Tests (11 tests)
+
 - Plugin loads successfully
 - Provisioned data source exists
 - Configuration page opens
@@ -49,6 +51,7 @@ playwright-tests:
 - Multi-version compatibility
 
 #### 2. Data Source Configuration (9 tests)
+
 - Configuration UI renders
 - Endpoint URL field works
 - Security policy/mode selectors
@@ -57,6 +60,7 @@ playwright-tests:
 - Configuration persistence
 
 #### 3. Query Editor (10 tests)
+
 - Query editor displays
 - Add/remove nodes
 - Set node aliases
@@ -65,6 +69,7 @@ playwright-tests:
 - Query persistence
 
 #### 4. Data Queries & Visualization (8 tests)
+
 - Execute queries
 - Display results (table/chart)
 - Multiple nodes in query
@@ -74,6 +79,7 @@ playwright-tests:
 - Dashboard integration
 
 #### 5. Plugin Metadata (10 tests)
+
 - Plugin information correct
 - Installed status
 - Description and metadata
@@ -260,6 +266,7 @@ The Simple OPC-UA plugin has comprehensive automated testing that ensures:
 ---
 
 For detailed test documentation, see:
+
 - [tests/README.md](tests/README.md) - Comprehensive test docs
 - [tests/QUICKSTART.md](tests/QUICKSTART.md) - Quick start guide
 - [.github/workflows/ci.yml](.github/workflows/ci.yml) - CI configuration

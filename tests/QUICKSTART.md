@@ -3,11 +3,13 @@
 ## First Time Setup
 
 1. **Install dependencies** (if not already done):
+
 ```bash
 npm install
 ```
 
 2. **Install Playwright browsers**:
+
 ```bash
 npx playwright install chromium --with-deps
 ```
@@ -85,6 +87,7 @@ npx playwright show-report
 **Problem**: Tests can't connect to Grafana
 
 **Solution**:
+
 1. Make sure Grafana is running: `docker ps`
 2. Check Grafana is accessible: `curl http://localhost:3000`
 3. Wait longer for Grafana to start (check logs: `docker logs monyskow-simpleopcua-datasource`)
@@ -94,6 +97,7 @@ npx playwright show-report
 **Problem**: Plugin files not found
 
 **Solution**:
+
 ```bash
 # Rebuild plugin
 npm run build
@@ -109,6 +113,7 @@ npm run server
 **Problem**: Tests can't authenticate
 
 **Solution**:
+
 ```bash
 # Remove auth cache
 rm -rf playwright/.auth/
@@ -123,6 +128,7 @@ npm run e2e
 
 **Solution**:
 Test against multiple versions locally:
+
 ```bash
 for version in 10.4.0 11.0.0 11.4.0 12.0.0; do
   echo "Testing Grafana $version"
@@ -136,6 +142,7 @@ done
 ## CI/CD Testing
 
 Tests run automatically in CI against multiple Grafana versions:
+
 - Check `.github/workflows/ci.yml`
 - View test results in GitHub Actions
 - Matrix strategy tests: min version (10.4.0), LTS, and latest

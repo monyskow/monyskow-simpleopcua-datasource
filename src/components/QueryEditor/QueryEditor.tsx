@@ -1,26 +1,11 @@
 import React, { useState } from 'react';
 import { QueryEditorProps } from '@grafana/data';
-import {
-  Button,
-  InlineFieldRow,
-  InlineField,
-  Input,
-  IconButton,
-  Modal,
-} from '@grafana/ui';
+import { Button, InlineFieldRow, InlineField, Input, IconButton, Modal } from '@grafana/ui';
 import { OpcuaDataSource } from '../../datasource';
-import {
-  OpcuaDataSourceOptions,
-  OpcuaQuery,
-  OpcuaNodeQuery,
-} from '../../types';
+import { OpcuaDataSourceOptions, OpcuaQuery, OpcuaNodeQuery } from '../../types';
 import { NodeBrowser } from './NodeBrowser';
 
-type Props = QueryEditorProps<
-  OpcuaDataSource,
-  OpcuaQuery,
-  OpcuaDataSourceOptions
->;
+type Props = QueryEditorProps<OpcuaDataSource, OpcuaQuery, OpcuaDataSourceOptions>;
 
 /**
  * Query editor for the OPC-UA data source
@@ -31,12 +16,7 @@ type Props = QueryEditorProps<
  * - Configure aliases for each node
  * - Remove nodes from the query
  */
-export const QueryEditor: React.FC<Props> = ({
-  query,
-  onChange,
-  onRunQuery,
-  datasource,
-}) => {
+export const QueryEditor: React.FC<Props> = ({ query, onChange, onRunQuery, datasource }) => {
   const [showBrowser, setShowBrowser] = useState(false);
 
   const nodes = query.nodes || [];
@@ -59,11 +39,7 @@ export const QueryEditor: React.FC<Props> = ({
     onRunQuery();
   };
 
-  const onUpdateNode = (
-    index: number,
-    field: keyof OpcuaNodeQuery,
-    value: string
-  ) => {
+  const onUpdateNode = (index: number, field: keyof OpcuaNodeQuery, value: string) => {
     const newNodes = [...nodes];
     newNodes[index] = { ...newNodes[index], [field]: value };
     onChange({
@@ -107,8 +83,8 @@ export const QueryEditor: React.FC<Props> = ({
 
       {nodes.length === 0 && (
         <div style={{ marginTop: 16, color: '#8e8e8e' }}>
-          No nodes configured. Use &quot;Browse Nodes&quot; to select OPC-UA
-          variables or &quot;Add Manual&quot; to enter Node IDs directly.
+          No nodes configured. Use &quot;Browse Nodes&quot; to select OPC-UA variables or &quot;Add Manual&quot; to
+          enter Node IDs directly.
         </div>
       )}
 
@@ -118,9 +94,7 @@ export const QueryEditor: React.FC<Props> = ({
             <Input
               width={40}
               value={node.nodeId}
-              onChange={(e) =>
-                onUpdateNode(index, 'nodeId', e.currentTarget.value)
-              }
+              onChange={(e) => onUpdateNode(index, 'nodeId', e.currentTarget.value)}
               onBlur={handleBlur}
               placeholder="ns=2;s=MyVariable"
               aria-label={`Node ID ${index + 1}`}
@@ -130,9 +104,7 @@ export const QueryEditor: React.FC<Props> = ({
             <Input
               width={20}
               value={node.alias || ''}
-              onChange={(e) =>
-                onUpdateNode(index, 'alias', e.currentTarget.value)
-              }
+              onChange={(e) => onUpdateNode(index, 'alias', e.currentTarget.value)}
               onBlur={handleBlur}
               placeholder={node.displayName || 'Field name'}
               aria-label={`Alias ${index + 1}`}
@@ -147,11 +119,7 @@ export const QueryEditor: React.FC<Props> = ({
         </InlineFieldRow>
       ))}
 
-      <Modal
-        title="Browse OPC-UA Nodes"
-        isOpen={showBrowser}
-        onDismiss={() => setShowBrowser(false)}
-      >
+      <Modal title="Browse OPC-UA Nodes" isOpen={showBrowser} onDismiss={() => setShowBrowser(false)}>
         <NodeBrowser datasource={datasource} onSelect={onNodeSelect} />
       </Modal>
     </div>

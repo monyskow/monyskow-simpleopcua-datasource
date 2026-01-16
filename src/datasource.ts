@@ -1,15 +1,6 @@
-import {
-  DataSourceInstanceSettings,
-  CoreApp,
-  ScopedVars,
-} from '@grafana/data';
+import { DataSourceInstanceSettings, CoreApp, ScopedVars } from '@grafana/data';
 import { DataSourceWithBackend, getTemplateSrv } from '@grafana/runtime';
-import {
-  OpcuaDataSourceOptions,
-  OpcuaQuery,
-  OpcuaBrowseNode,
-  DEFAULT_QUERY,
-} from './types';
+import { OpcuaDataSourceOptions, OpcuaQuery, OpcuaBrowseNode, DEFAULT_QUERY } from './types';
 
 /**
  * OPC-UA Data Source
@@ -17,23 +8,15 @@ import {
  * Connects to OPC-UA servers to read industrial data.
  * Uses a Go backend for OPC-UA protocol handling.
  */
-export class OpcuaDataSource extends DataSourceWithBackend<
-  OpcuaQuery,
-  OpcuaDataSourceOptions
-> {
-  constructor(
-    instanceSettings: DataSourceInstanceSettings<OpcuaDataSourceOptions>
-  ) {
+export class OpcuaDataSource extends DataSourceWithBackend<OpcuaQuery, OpcuaDataSourceOptions> {
+  constructor(instanceSettings: DataSourceInstanceSettings<OpcuaDataSourceOptions>) {
     super(instanceSettings);
   }
 
   /**
    * Apply template variables to query before sending to backend
    */
-  applyTemplateVariables(
-    query: OpcuaQuery,
-    scopedVars: ScopedVars
-  ): OpcuaQuery {
+  applyTemplateVariables(query: OpcuaQuery, scopedVars: ScopedVars): OpcuaQuery {
     const templateSrv = getTemplateSrv();
 
     return {
@@ -41,9 +24,7 @@ export class OpcuaDataSource extends DataSourceWithBackend<
       nodes: (query.nodes || []).map((node) => ({
         ...node,
         nodeId: templateSrv.replace(node.nodeId, scopedVars),
-        alias: node.alias
-          ? templateSrv.replace(node.alias, scopedVars)
-          : undefined,
+        alias: node.alias ? templateSrv.replace(node.alias, scopedVars) : undefined,
       })),
     };
   }

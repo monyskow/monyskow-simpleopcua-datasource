@@ -1,5 +1,13 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 import { OpcuaTestHelpers } from './helpers';
+
+// Cross-version compatible selector for endpoint URL input
+function getEndpointInput(page: Page) {
+  return page
+    .locator('[aria-label="Endpoint URL"]')
+    .or(page.locator('input[placeholder*="opc.tcp"]'))
+    .or(page.getByLabel(/endpoint url/i));
+}
 
 test.describe('OPC-UA Plugin Smoke Tests', () => {
   test('should load plugin successfully', async ({ page }) => {
@@ -11,7 +19,10 @@ test.describe('OPC-UA Plugin Smoke Tests', () => {
     await page.waitForLoadState('networkidle');
 
     // Search for OPC-UA plugin
-    const searchInput = page.getByPlaceholder(/search/i).or(page.locator('input[type="text"]')).first();
+    const searchInput = page
+      .getByPlaceholder(/search/i)
+      .or(page.locator('input[type="text"]'))
+      .first();
 
     if (await searchInput.isVisible({ timeout: 5000 })) {
       await searchInput.fill('OPC-UA');
@@ -20,13 +31,17 @@ test.describe('OPC-UA Plugin Smoke Tests', () => {
 
     // Plugin should be listed
     const pluginCard = page.getByText(/Simple OPC-UA|OPC-UA/i);
-    const isVisible = await pluginCard.first().isVisible({ timeout: 5000 }).catch(() => false);
+    const isVisible = await pluginCard
+      .first()
+      .isVisible({ timeout: 5000 })
+      .catch(() => false);
 
     expect(isVisible).toBeTruthy();
   });
 
   test('should have provisioned data source', async ({ page }) => {
-    await page.goto('/connections/datasources');
+    // Use /datasources which works in all Grafana versions
+    await page.goto('/datasources');
     await page.waitForLoadState('networkidle');
 
     // Look for OPC-UA Test Server data source
@@ -38,16 +53,16 @@ test.describe('OPC-UA Plugin Smoke Tests', () => {
     const helpers = new OpcuaTestHelpers(page);
     await helpers.goToDataSourceConfig();
 
-    // Verify config page loaded - look for heading or unique element
-    await expect(page.getByRole('heading', { name: /OPC-UA Test Server/i })).toBeVisible();
+    // Verify config page loaded - use text selector (works across all Grafana versions)
+    await expect(page.getByText(/OPC-UA Test Server/i).first()).toBeVisible();
   });
 
   test('should display all configuration fields', async ({ page }) => {
     const helpers = new OpcuaTestHelpers(page);
     await helpers.goToDataSourceConfig();
 
-    // Check for key configuration fields
-    const endpointInput = page.getByLabel(/endpoint url/i);
+    // Check for key configuration fields - use cross-version selector
+    const endpointInput = getEndpointInput(page).first();
     await expect(endpointInput).toBeVisible();
 
     // Security settings should be present
@@ -101,8 +116,8 @@ test.describe('OPC-UA Plugin Smoke Tests', () => {
     const title = await page.title();
     expect(title).toContain('Grafana');
 
-    // Navigate to data sources
-    await page.goto('/connections/datasources');
+    // Navigate to data sources (works in all versions)
+    await page.goto('/datasources');
     await page.waitForLoadState('networkidle');
 
     // OPC-UA data source should be available
@@ -112,10 +127,11 @@ test.describe('OPC-UA Plugin Smoke Tests', () => {
     // Open config
     await dataSource.click();
     await page.waitForLoadState('networkidle');
+    await page.waitForTimeout(3000); // Wait for plugin to load
 
-    // Core configuration should work
-    const endpointInput = page.getByLabel(/endpoint url/i);
-    await expect(endpointInput).toBeVisible();
+    // Core configuration should work - use cross-version selector
+    const endpointInput = getEndpointInput(page).first();
+    await expect(endpointInput).toBeVisible({ timeout: 10000 });
   });
 
   test('should handle navigation between pages', async ({ page }) => {
@@ -123,7 +139,7 @@ test.describe('OPC-UA Plugin Smoke Tests', () => {
 
     // Config -> Explore
     await helpers.goToDataSourceConfig();
-    await expect(page.getByRole('heading', { name: /OPC-UA Test Server/i })).toBeVisible();
+    await expect(page.getByText(/OPC-UA Test Server/i).first()).toBeVisible();
 
     await helpers.goToExplore();
     const addButton = page.getByRole('button', { name: /add manual/i }).first();

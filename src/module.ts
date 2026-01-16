@@ -12,10 +12,6 @@ import { OpcuaDataSourceOptions, OpcuaQuery } from './types';
  * - The ConfigEditor for data source configuration UI
  * - The QueryEditor for panel query building UI
  */
-export const plugin = new DataSourcePlugin<
-  OpcuaDataSource,
-  OpcuaQuery,
-  OpcuaDataSourceOptions
->(OpcuaDataSource)
+export const plugin = new DataSourcePlugin<OpcuaDataSource, OpcuaQuery, OpcuaDataSourceOptions>(OpcuaDataSource)
   .setConfigEditor(ConfigEditor)
   .setQueryEditor(QueryEditor);

@@ -9,17 +9,7 @@
   "alerting": true,
   "category": "iot",
   "info": {
-    "keywords": [
-      "opcua",
-      "opc-ua",
-      "opc",
-      "industrial",
-      "iot",
-      "plc",
-      "scada",
-      "automation",
-      "manufacturing"
-    ],
+    "keywords": ["opcua", "opc-ua", "opc", "industrial", "iot", "plc", "scada", "automation", "manufacturing"],
     "description": "Connect to OPC-UA servers to read industrial data. Supports anonymous, username/password, and certificate authentication.",
     "author": {
       "name": "monyskow",
@@ -46,20 +36,20 @@
     ],
     "screenshots": [
       {
-        "name": "Configuration",
-        "path": "img/screenshot-config.png"
+        "name": "Dashboard with OPC-UA Data",
+        "path": "img/screenshot-1.png"
       },
       {
         "name": "Query Editor",
-        "path": "img/screenshot-query.png"
+        "path": "img/screenshot-2.png"
       },
       {
         "name": "Node Browser",
-        "path": "img/screenshot-browse.png"
+        "path": "img/screenshot-3.png"
       },
       {
-        "name": "Dashboard Example",
-        "path": "img/screenshot-dashboard.png"
+        "name": "Data Source Configuration",
+        "path": "img/screenshot-4.png"
       }
     ],
     "version": "%VERSION%",

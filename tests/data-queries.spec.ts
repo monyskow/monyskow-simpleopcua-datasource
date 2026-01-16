@@ -31,9 +31,18 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
           await page.waitForTimeout(3000);
 
           // Check for results - table, error, or just that the query was executed
-          const hasTable = await page.locator('table').isVisible({ timeout: 5000 }).catch(() => false);
-          const hasError = await page.getByText(/error|failed|timeout|cannot connect/i).isVisible({ timeout: 2000 }).catch(() => false);
-          const hasNoData = await page.getByText(/no data|no values/i).isVisible({ timeout: 2000 }).catch(() => false);
+          const hasTable = await page
+            .locator('table')
+            .isVisible({ timeout: 5000 })
+            .catch(() => false);
+          const hasError = await page
+            .getByText(/error|failed|timeout|cannot connect/i)
+            .isVisible({ timeout: 2000 })
+            .catch(() => false);
+          const hasNoData = await page
+            .getByText(/no data|no values/i)
+            .isVisible({ timeout: 2000 })
+            .catch(() => false);
 
           // Test passes if workflow worked (button click succeeded), regardless of server response
           expect(true).toBeTruthy(); // Query execution workflow works
@@ -167,8 +176,14 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
           await page.waitForTimeout(2000);
 
           // Should display error message or handle gracefully
-          const hasError = await page.getByText(/error|invalid|failed/i).isVisible({ timeout: 3000 }).catch(() => false);
-          const hasAlert = await page.locator('[role="alert"]').isVisible({ timeout: 2000 }).catch(() => false);
+          const hasError = await page
+            .getByText(/error|invalid|failed/i)
+            .isVisible({ timeout: 3000 })
+            .catch(() => false);
+          const hasAlert = await page
+            .locator('[role="alert"]')
+            .isVisible({ timeout: 2000 })
+            .catch(() => false);
 
           // Either shows error or handles silently - both are acceptable
           expect(hasError || hasAlert || true).toBeTruthy();
@@ -186,7 +201,10 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
       await page.waitForTimeout(500);
 
       const nodeIdInput = page.locator('input[placeholder*="ns="]').first();
-      const aliasInput = page.locator('input[placeholder*="alias"]').or(page.getByLabel(/alias/i)).or(page.locator('input[type="text"]').nth(1));
+      const aliasInput = page
+        .locator('input[placeholder*="alias"]')
+        .or(page.getByLabel(/alias/i))
+        .or(page.locator('input[type="text"]').nth(1));
 
       if (await nodeIdInput.isVisible({ timeout: 3000 })) {
         await nodeIdInput.fill('ns=2;s=Temperature');
@@ -201,10 +219,16 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
             await page.waitForTimeout(2000);
 
             // Look for alias in table headers or results
-            const hasAlias = await page.getByText('MyTemperature').isVisible({ timeout: 3000 }).catch(() => false);
+            const hasAlias = await page
+              .getByText('MyTemperature')
+              .isVisible({ timeout: 3000 })
+              .catch(() => false);
 
             // If table is shown, alias should appear
-            const hasTable = await page.locator('table').isVisible().catch(() => false);
+            const hasTable = await page
+              .locator('table')
+              .isVisible()
+              .catch(() => false);
 
             if (hasTable) {
               expect(hasAlias).toBeTruthy();

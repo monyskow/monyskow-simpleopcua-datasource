@@ -10,7 +10,10 @@ test.describe('OPC-UA Query Editor', () => {
 
   test('should display query editor with node list', async ({ page }) => {
     // Look for query editor elements
-    const queryEditor = page.locator('[data-testid*="query-editor"]').or(page.locator('.query-editor')).or(page.getByText(/add manual|node/i));
+    const queryEditor = page
+      .locator('[data-testid*="query-editor"]')
+      .or(page.locator('.query-editor'))
+      .or(page.getByText(/add manual|node/i));
     await expect(queryEditor.first()).toBeVisible({ timeout: 10000 });
   });
 
@@ -21,7 +24,10 @@ test.describe('OPC-UA Query Editor', () => {
 
   test('should allow adding a node manually', async ({ page }) => {
     // Click add manual button
-    const addButton = page.getByRole('button', { name: /add manual/i }).or(page.getByText(/add manual/i)).first();
+    const addButton = page
+      .getByRole('button', { name: /add manual/i })
+      .or(page.getByText(/add manual/i))
+      .first();
 
     if (await addButton.isVisible({ timeout: 5000 })) {
       await addButton.click();
@@ -29,7 +35,11 @@ test.describe('OPC-UA Query Editor', () => {
       await page.waitForTimeout(500);
 
       // Look for node ID input field
-      const nodeIdInput = page.locator('input[placeholder*="ns="]').or(page.locator('input').filter({ hasText: /node.*id/i })).or(page.locator('input[type="text"]')).first();
+      const nodeIdInput = page
+        .locator('input[placeholder*="ns="]')
+        .or(page.locator('input').filter({ hasText: /node.*id/i }))
+        .or(page.locator('input[type="text"]'))
+        .first();
 
       if (await nodeIdInput.isVisible({ timeout: 3000 })) {
         await nodeIdInput.fill('ns=2;s=Temperature');
@@ -42,14 +52,20 @@ test.describe('OPC-UA Query Editor', () => {
 
   test('should allow setting node alias', async ({ page }) => {
     // Click add manual button
-    const addButton = page.getByRole('button', { name: /add manual/i }).or(page.getByText(/add manual/i)).first();
+    const addButton = page
+      .getByRole('button', { name: /add manual/i })
+      .or(page.getByText(/add manual/i))
+      .first();
 
     if (await addButton.isVisible({ timeout: 5000 })) {
       await addButton.click();
       await page.waitForTimeout(500);
 
       // Look for alias input
-      const aliasInput = page.locator('input[placeholder*="alias"]').or(page.getByLabel(/alias/i)).or(page.locator('input[type="text"]').nth(1));
+      const aliasInput = page
+        .locator('input[placeholder*="alias"]')
+        .or(page.getByLabel(/alias/i))
+        .or(page.locator('input[type="text"]').nth(1));
 
       if (await aliasInput.isVisible({ timeout: 3000 })) {
         await aliasInput.fill('Temp1');
@@ -60,14 +76,21 @@ test.describe('OPC-UA Query Editor', () => {
 
   test('should allow removing a node', async ({ page }) => {
     // Add a node first
-    const addButton = page.getByRole('button', { name: /add manual/i }).or(page.getByText(/add manual/i)).first();
+    const addButton = page
+      .getByRole('button', { name: /add manual/i })
+      .or(page.getByText(/add manual/i))
+      .first();
 
     if (await addButton.isVisible({ timeout: 5000 })) {
       await addButton.click();
       await page.waitForTimeout(500);
 
       // Look for remove/delete button
-      const removeButton = page.getByRole('button', { name: /remove|delete|trash/i }).or(page.locator('button[aria-label*="remove"]')).or(page.locator('button[aria-label*="delete"]')).first();
+      const removeButton = page
+        .getByRole('button', { name: /remove|delete|trash/i })
+        .or(page.locator('button[aria-label*="remove"]'))
+        .or(page.locator('button[aria-label*="delete"]'))
+        .first();
 
       if (await removeButton.isVisible({ timeout: 3000 })) {
         await removeButton.click();
@@ -84,7 +107,10 @@ test.describe('OPC-UA Query Editor', () => {
     const browserButton = page.getByRole('button', { name: /browse|browser/i }).or(page.getByText(/browse.*node/i));
 
     // Node browser might be visible or might require adding a node first
-    const isVisible = await browserButton.first().isVisible({ timeout: 3000 }).catch(() => false);
+    const isVisible = await browserButton
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
 
     if (!isVisible) {
       // Try adding a node first
@@ -97,12 +123,15 @@ test.describe('OPC-UA Query Editor', () => {
 
     // Check again for browser button
     const browserButtonAfter = page.getByRole('button', { name: /browse|browser/i }).or(page.getByText(/browse/i));
-    const finalVisible = await browserButtonAfter.first().isVisible({ timeout: 3000 }).catch(() => false);
+    const finalVisible = await browserButtonAfter
+      .first()
+      .isVisible({ timeout: 3000 })
+      .catch(() => false);
 
     // If still not visible, that's OK - it might be integrated differently
     // Just verify the query editor exists
     const queryEditor = page.locator('[data-testid*="query"]');
-    expect(await queryEditor.count() > 0 || finalVisible).toBeTruthy();
+    expect((await queryEditor.count()) > 0 || finalVisible).toBeTruthy();
   });
 
   test('should open node browser when browse button is clicked', async ({ page }) => {
@@ -113,7 +142,10 @@ test.describe('OPC-UA Query Editor', () => {
       await page.waitForTimeout(1000);
 
       // Look for browser modal or tree view
-      const browserModal = page.locator('[role="dialog"]').or(page.locator('.modal')).or(page.getByText(/browse.*node|object.*folder/i));
+      const browserModal = page
+        .locator('[role="dialog"]')
+        .or(page.locator('.modal'))
+        .or(page.getByText(/browse.*node|object.*folder/i));
 
       await expect(browserModal.first()).toBeVisible({ timeout: 5000 });
     }
@@ -127,12 +159,18 @@ test.describe('OPC-UA Query Editor', () => {
       await page.waitForTimeout(1000);
 
       // Look for tree nodes or expandable items
-      const treeNode = page.locator('[role="treeitem"]').or(page.locator('.tree-node')).or(page.getByText(/objects|server|types/i));
+      const treeNode = page
+        .locator('[role="treeitem"]')
+        .or(page.locator('.tree-node'))
+        .or(page.getByText(/objects|server|types/i));
 
-      const hasNodes = await treeNode.first().isVisible({ timeout: 5000 }).catch(() => false);
+      const hasNodes = await treeNode
+        .first()
+        .isVisible({ timeout: 5000 })
+        .catch(() => false);
 
       // If no nodes visible, it might be loading or connection issue - that's OK for UI test
-      expect(hasNodes || await page.getByText(/loading|connect/i).isVisible()).toBeTruthy();
+      expect(hasNodes || (await page.getByText(/loading|connect/i).isVisible())).toBeTruthy();
     }
   });
 
@@ -158,7 +196,10 @@ test.describe('OPC-UA Query Editor', () => {
         await page.waitForTimeout(1000);
 
         // Verify the value is still there
-        const nodeIdInputAfter = page.locator('input[placeholder*="ns="]').or(page.locator('input[type="text"]')).first();
+        const nodeIdInputAfter = page
+          .locator('input[placeholder*="ns="]')
+          .or(page.locator('input[type="text"]'))
+          .first();
         await expect(nodeIdInputAfter).toHaveValue('ns=2;s=TestNode');
       }
     }

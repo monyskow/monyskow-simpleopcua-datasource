@@ -7,9 +7,9 @@ datasources:
     access: proxy
     isDefault: true
     jsonData:
-      endpoint: "opc.tcp://opcuaserver.com:48010"
-      securityPolicy: "None"
-      securityMode: "None"
-      authMethod: "anonymous"
+      endpoint: 'opc.tcp://opcuaserver.com:48010'
+      securityPolicy: 'None'
+      securityMode: 'None'
+      authMethod: 'anonymous'
       timeout: 10
     editable: true

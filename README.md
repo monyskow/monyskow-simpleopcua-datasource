@@ -33,12 +33,12 @@ A Grafana data source plugin for connecting to OPC-UA servers. Read industrial d
 
 ### Connection Settings
 
-| Setting | Description | Example |
-|---------|-------------|---------|
-| Endpoint URL | OPC-UA server endpoint | `opc.tcp://localhost:4840` |
-| Security Policy | Encryption algorithm | None, Basic256Sha256 |
-| Security Mode | Message security | None, Sign, SignAndEncrypt |
-| Timeout | Connection timeout (seconds) | 10 |
+| Setting         | Description                  | Example                    |
+| --------------- | ---------------------------- | -------------------------- |
+| Endpoint URL    | OPC-UA server endpoint       | `opc.tcp://localhost:4840` |
+| Security Policy | Encryption algorithm         | None, Basic256Sha256       |
+| Security Mode   | Message security             | None, Sign, SignAndEncrypt |
+| Timeout         | Connection timeout (seconds) | 10                         |
 
 ### Authentication
 
@@ -134,6 +134,7 @@ npx playwright show-report
 ```
 
 **Test Coverage:**
+
 - ✅ Plugin loads successfully across Grafana versions
 - ✅ Data source configuration (all auth methods)
 - ✅ Query editor functionality
@@ -145,11 +146,13 @@ npx playwright show-report
 **Multi-Version Testing:**
 
 Tests automatically run against:
+
 - Grafana 10.4.0 (minimum supported version)
 - Latest LTS version
 - Latest stable version
 
 To test specific version locally:
+
 ```bash
 # Terminal 1
 GRAFANA_VERSION=10.4.0 npm run server

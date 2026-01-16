@@ -1,0 +1,13 @@
+# Build output
+dist/
+
+# Coverage reports
+coverage/
+
+# Test output
+playwright-report/
+playwright/
+test-results/
+
+# Dependencies
+node_modules/

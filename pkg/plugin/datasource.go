@@ -76,7 +76,7 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 
 	// Close existing client if disconnected
 	if d.client != nil {
-		d.client.Close()
+		_ = d.client.Close() // Ignore error on cleanup
 		d.client = nil
 	}
 
@@ -88,7 +88,7 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 
 	// Connect
 	if err := client.Connect(ctx); err != nil {
-		client.Close()
+		_ = client.Close() // Ignore error on cleanup
 		return nil, fmt.Errorf("connect: %w", err)
 	}
 

@@ -68,9 +68,7 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
       const rootNodes = await datasource.browseNodes();
       setNodes(rootNodes.map((n) => ({ ...n, isExpanded: false })));
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Failed to browse nodes'
-      );
+      setError(err instanceof Error ? err.message : 'Failed to browse nodes');
     } finally {
       setLoading(false);
     }
@@ -84,16 +82,15 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
     try {
       return await datasource.browseNodes(nodeId);
     } catch (err) {
-      console.error('Failed to load children:', err);
+      // Only log errors in development to avoid potential information leakage in production
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Failed to load children:', err);
+      }
       return [];
     }
   };
 
-  const updateNodeAtPath = (
-    nodes: TreeNode[],
-    path: number[],
-    updater: (node: TreeNode) => TreeNode
-  ): TreeNode[] => {
+  const updateNodeAtPath = (nodes: TreeNode[], path: number[], updater: (node: TreeNode) => TreeNode): TreeNode[] => {
     if (path.length === 1) {
       const newNodes = [...nodes];
       newNodes[path[0]] = updater(newNodes[path[0]]);
@@ -103,11 +100,7 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
     const newNodes = [...nodes];
     newNodes[path[0]] = {
       ...newNodes[path[0]],
-      children: updateNodeAtPath(
-        newNodes[path[0]].children || [],
-        path.slice(1),
-        updater
-      ),
+      children: updateNodeAtPath(newNodes[path[0]].children || [], path.slice(1), updater),
     };
     return newNodes;
   };
@@ -119,9 +112,7 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
 
     if (node.isExpanded) {
       // Collapse
-      setNodes((prev) =>
-        updateNodeAtPath(prev, path, (n) => ({ ...n, isExpanded: false }))
-      );
+      setNodes((prev) => updateNodeAtPath(prev, path, (n) => ({ ...n, isExpanded: false })));
     } else {
       // Expand - show loading state
       setNodes((prev) =>
@@ -143,18 +134,12 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
           }))
         );
       } else {
-        setNodes((prev) =>
-          updateNodeAtPath(prev, path, (n) => ({ ...n, isLoading: false }))
-        );
+        setNodes((prev) => updateNodeAtPath(prev, path, (n) => ({ ...n, isLoading: false })));
       }
     }
   };
 
-  const renderNode = (
-    node: TreeNode,
-    path: number[],
-    depth: number
-  ): React.ReactNode => {
+  const renderNode = (node: TreeNode, path: number[], depth: number): React.ReactNode => {
     const isVariable = node.nodeClass === 'Variable';
 
     return (
@@ -175,10 +160,7 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
           ) : (
             <span className={styles.spacer} />
           )}
-          <Icon
-            name={isVariable ? 'tag-alt' : 'folder'}
-            className={styles.nodeIcon}
-          />
+          <Icon name={isVariable ? 'tag-alt' : 'folder'} className={styles.nodeIcon} />
           <span>{node.displayName}</span>
           {isVariable && (
             <Icon
@@ -193,11 +175,7 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
           )}
         </div>
         {node.isExpanded && node.children && (
-          <div role="group">
-            {node.children.map((child, index) =>
-              renderNode(child, [...path, index], depth + 1)
-            )}
-          </div>
+          <div role="group">{node.children.map((child, index) => renderNode(child, [...path, index], depth + 1))}</div>
         )}
       </div>
     );
@@ -226,8 +204,7 @@ export const NodeBrowser: React.FC<Props> = ({ datasource, onSelect }) => {
     return (
       <div className={styles.container}>
         <Alert title="No nodes found" severity="info">
-          The OPC-UA server returned no browseable nodes. Check that the data
-          source is configured correctly.
+          The OPC-UA server returned no browseable nodes. Check that the data source is configured correctly.
         </Alert>
       </div>
     );
