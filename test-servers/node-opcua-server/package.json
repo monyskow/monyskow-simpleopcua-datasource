@@ -1,0 +1,12 @@
+{
+  "name": "opcua-test-server",
+  "version": "1.0.0",
+  "description": "OPC UA test server for Grafana plugin testing",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "node-opcua": "^2.123.0"
+  }
+}

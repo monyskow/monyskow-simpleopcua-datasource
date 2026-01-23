@@ -40,6 +40,27 @@ A Grafana data source plugin for connecting to OPC-UA servers. Read industrial d
 | Security Mode   | Message security             | None, Sign, SignAndEncrypt |
 | Timeout         | Connection timeout (seconds) | 10                         |
 
+### Security
+
+When using security modes other than "None" (Sign or SignAndEncrypt), the plugin automatically:
+
+1. **Generates a self-signed client certificate** on first connection
+2. **Stores the certificate** in the plugin data directory for reuse
+3. **Trusts server certificates** automatically (auto-trust mode)
+
+The auto-generated certificate is valid for 3 years and is regenerated 30 days before expiration. No manual certificate configuration is required for most secure connections.
+
+**Supported Security Policies:**
+- None (no encryption)
+- Basic256Sha256
+- Aes128_Sha256_RsaOaep
+- Aes256_Sha256_RsaPss
+
+**Supported Security Modes:**
+- None
+- Sign (messages are signed but not encrypted)
+- SignAndEncrypt (messages are signed and encrypted)
+
 ### Authentication
 
 #### Anonymous
@@ -54,9 +75,13 @@ No credentials required. Select "Anonymous" as the authentication method.
 
 #### Certificate
 
+For advanced use cases where you need to use a specific client certificate:
+
 1. Select "Certificate" as the authentication method
 2. Paste your PEM-encoded certificate and private key
 3. Both are stored securely using Grafana's secure JSON data
+
+Note: When using Certificate authentication, the provided certificate is used instead of the auto-generated one.
 
 ## Usage
 
@@ -81,87 +106,108 @@ ns=2;s=${machine}/Temperature
 
 - Node.js 22+
 - Go 1.22+
-- Docker (for local testing)
+- Docker (for testing)
 
-### Building
+### Quick Start
 
 ```bash
-# Install dependencies
+# Install and build
 npm install
-
-# Build frontend
 npm run build
-
-# Build backend (all platforms)
 mage buildAll
 
-# Start development environment
+# Start development environment (choose one):
+
+# 1. Basic - Grafana + plugin (no provisioning)
 docker compose up
+
+# 2. Full - Complete test environment with OPC-UA simulators
+docker compose -f docker-compose.full.yaml up
+
+# 3. ProSys - For ProSys OPC-UA Simulator testing (requires ProSys on host)
+docker compose -f docker-compose.prosys.yaml up
+
+# Open http://localhost:3000 (or :3001 for ProSys)
+```
+
+**Docker Compose Configurations:**
+
+| Configuration | Datasources | Dashboards | OPC-UA Servers | Port | Use Case |
+|--------------|-------------|------------|----------------|------|----------|
+| `docker-compose.yaml` | None | None | None | 3000 | Manual testing, clean slate |
+| `docker-compose.e2e.yaml` | 1 (test) | None | None | 3000 | E2E tests (used by `npm run e2e`) |
+| `docker-compose.full.yaml` | 14 (docker-based) | Yes | 5 containers | 3000 | Complete integration testing |
+| `docker-compose.prosys.yaml` | 14 (ProSys) | Yes | ProSys on host | 3001 | ProSys simulator testing |
+
+### OPC-UA Test Servers
+
+For development and testing, you can use OPC-UA simulators:
+
+#### Docker-based Simulators (Included)
+
+The `docker-compose.full.yaml` setup includes 5 containerized OPC-UA test servers using [Microsoft OPC-PLC](https://github.com/Azure-Samples/iot-edge-opc-plc) and [node-opcua](https://github.com/node-opcua/node-opcua). These servers are provided **solely for testing convenience** and are not part of the plugin itself.
+
+**Available servers:**
+- `opcua-nosecurity` (port 50000) - No security, anonymous only
+- `opcua-secure-anon` (port 50001) - Security enabled, anonymous auth
+- `opcua-secure-userpass` (port 50002) - Security enabled, username/password (user1/password1)
+- `opcua-all-auth` (port 50003) - All authentication methods enabled
+- `opcua-node` (port 4840) - Node-OPCUA server with Aes256_Sha256_RsaPss support
+
+#### ProSys OPC-UA Simulator (External)
+
+[ProSys OPC-UA Simulation Server](https://www.prosysopc.com/products/opc-ua-simulation-server/) is a **third-party external tool** that can be used for testing. It is not included with this plugin.
+
+To test with ProSys:
+1. Download and install ProSys OPC-UA Simulation Server on your host machine
+2. Start the ProSys simulator
+3. Use `docker compose -f docker-compose.prosys.yaml up` to run Grafana configured to connect to ProSys via `host.docker.internal`
+
+**Note:** ProSys is a separate commercial product with its own licensing. See the [ProSys website](https://www.prosysopc.com/) for details.
+
+### Additional Commands
+
+```bash
+# Linting and validation
+npm run lint               # ESLint
+npm run lint:fix           # Auto-fix + Prettier
+npm run typecheck          # TypeScript check
+
+# Development mode
+npm run dev                # Frontend watch mode
 ```
 
 ### Testing
 
-#### Unit Tests
-
 ```bash
-# Frontend unit tests
-npm run test:ci
+# Unit tests
+npm run test:ci              # Frontend
+mage test                    # Backend
 
-# Backend unit tests
-mage test
+# E2E tests (against multiple Grafana versions)
+npm run e2e                  # Run all tests
+npx playwright test --ui     # Interactive mode
 
-# Test coverage
-npm run test:coverage
-mage coverage
-```
-
-#### E2E Tests
-
-The plugin includes comprehensive end-to-end tests using Playwright that automatically test against multiple Grafana versions.
-
-```bash
-# Run all E2E tests
-npm run e2e
-
-# Run specific test suite
-npx playwright test smoke.spec.ts
-
-# Run tests in UI mode
-npx playwright test --ui
-
-# View test report
-npx playwright show-report
-```
-
-**Test Coverage:**
-
-- ✅ Plugin loads successfully across Grafana versions
-- ✅ Data source configuration (all auth methods)
-- ✅ Query editor functionality
-- ✅ Node browser integration
-- ✅ Data queries and visualization
-- ✅ Dashboard panel integration
-- ✅ Error handling and edge cases
-
-**Multi-Version Testing:**
-
-Tests automatically run against:
-
-- Grafana 10.4.0 (minimum supported version)
-- Latest LTS version
-- Latest stable version
-
-To test specific version locally:
-
-```bash
-# Terminal 1
+# Test specific Grafana version
 GRAFANA_VERSION=10.4.0 npm run server
-
-# Terminal 2
-npm run e2e
 ```
 
-See [tests/QUICKSTART.md](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/tests/QUICKSTART.md) for detailed testing instructions.
+### Architecture
+
+**Frontend (src/):**
+- `module.ts` - Plugin entry point
+- `datasource.ts` - OpcuaDataSource (extends DataSourceWithBackend)
+- `components/ConfigEditor/` - Data source configuration UI
+- `components/QueryEditor/` - Query editor with node browser
+
+**Backend (pkg/):**
+- `plugin/datasource.go` - Query and health check handlers
+- `plugin/resources.go` - HTTP handlers for /browse and /endpoints
+- `plugin/opcua/` - OPC-UA client, auth, browsing, certificates
+
+**Key Dependencies:**
+- Go: `github.com/gopcua/opcua` - OPC-UA protocol
+- Go: `github.com/grafana/grafana-plugin-sdk-go` - Plugin SDK
 
 ## License
 

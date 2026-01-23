@@ -1,0 +1,27 @@
+apiVersion: 1
+
+# =============================================================================
+# OPC-UA Data Source for E2E Testing
+# =============================================================================
+# This datasource is used by E2E tests (Playwright) which expect:
+# - Name: "OPC-UA Test Server"
+# - UID: "opcua-test-server"
+#
+# Note: The endpoint points to localhost:4840 but no actual OPC-UA server
+# is required for most UI tests. Tests that require a real server will
+# handle connection errors gracefully.
+# =============================================================================
+
+datasources:
+  - name: "OPC-UA Test Server"
+    uid: opcua-test-server
+    type: monyskow-simpleopcua-datasource
+    access: proxy
+    isDefault: true
+    jsonData:
+      endpoint: "opc.tcp://localhost:4840"
+      securityPolicy: "None"
+      securityMode: "None"
+      authMethod: "anonymous"
+      timeout: 10
+    editable: true

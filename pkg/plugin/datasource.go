@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"os"
+	"path/filepath"
 	"sync"
 	"time"
 
@@ -15,6 +17,8 @@ import (
 	"github.com/monyskow/monyskow-simpleopcua-datasource/pkg/plugin/models"
 	"github.com/monyskow/monyskow-simpleopcua-datasource/pkg/plugin/opcua"
 )
+
+const pluginID = "monyskow-simpleopcua-datasource"
 
 // Ensure Datasource implements required interfaces
 var (
@@ -30,23 +34,50 @@ type Datasource struct {
 	client   *opcua.Client
 	logger   log.Logger
 	mu       sync.RWMutex
+	dataDir  string
 }
 
 // NewDatasource creates a new datasource instance
 func NewDatasource(ctx context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-	logger := log.DefaultLogger.With("pluginId", "monyskow-simpleopcua-datasource")
+	logger := log.DefaultLogger.With("pluginId", pluginID)
 
 	dsSettings, err := models.ParseSettings(settings)
 	if err != nil {
 		return nil, fmt.Errorf("parse settings: %w", err)
 	}
 
-	logger.Info("Creating new datasource instance", "endpoint", dsSettings.Endpoint)
+	// Create data directory for certificates and other plugin data
+	// Use user's home directory with plugin-specific subdirectory
+	dataDir := getPluginDataDir(settings.UID)
+
+	logger.Info("Creating new datasource instance",
+		"endpoint", dsSettings.Endpoint,
+		"dataDir", dataDir,
+	)
 
 	return &Datasource{
 		settings: dsSettings,
 		logger:   logger,
+		dataDir:  dataDir,
 	}, nil
+}
+
+// getPluginDataDir returns the data directory for the plugin
+func getPluginDataDir(dsUID string) string {
+	// Try to use Grafana's data directory if available via environment
+	grafanaDataDir := os.Getenv("GF_PATHS_DATA")
+	if grafanaDataDir == "" {
+		// Fall back to user's home directory
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
+			// Last resort: use temp directory
+			homeDir = os.TempDir()
+		}
+		grafanaDataDir = filepath.Join(homeDir, ".grafana")
+	}
+
+	// Create plugin-specific subdirectory with data source UID
+	return filepath.Join(grafanaDataDir, "plugins", pluginID, dsUID)
 }
 
 // Dispose cleans up datasource resources when the instance is disposed
@@ -80,8 +111,8 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 		d.client = nil
 	}
 
-	// Create new client
-	client, err := opcua.NewClient(d.settings, d.logger)
+	// Create new client with data directory for auto-certificate generation
+	client, err := opcua.NewClient(d.settings, d.logger, d.dataDir)
 	if err != nil {
 		return nil, fmt.Errorf("create client: %w", err)
 	}
@@ -98,11 +129,18 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 
 // QueryData handles multiple queries and returns data frames
 func (d *Datasource) QueryData(ctx context.Context, req *backend.QueryDataRequest) (*backend.QueryDataResponse, error) {
+	d.logger.Debug("QueryData called",
+		"numQueries", len(req.Queries),
+		"endpoint", d.settings.Endpoint)
+
 	response := backend.NewQueryDataResponse()
 
 	// Get or create client
 	client, err := d.getOrCreateClient(ctx)
 	if err != nil {
+		d.logger.Error("Failed to get or create client",
+			"endpoint", d.settings.Endpoint,
+			"error", err)
 		// Return error for all queries if we can't connect
 		for _, q := range req.Queries {
 			response.Responses[q.RefID] = backend.ErrDataResponse(
@@ -112,6 +150,10 @@ func (d *Datasource) QueryData(ctx context.Context, req *backend.QueryDataReques
 		}
 		return response, nil
 	}
+
+	d.logger.Debug("Client ready, processing queries",
+		"endpoint", d.settings.Endpoint,
+		"isConnected", client.IsConnected())
 
 	// Process each query
 	for _, q := range req.Queries {
@@ -127,28 +169,63 @@ func (d *Datasource) query(ctx context.Context, client *opcua.Client, query back
 	// Parse query
 	var opcQuery models.OpcuaQuery
 	if err := json.Unmarshal(query.JSON, &opcQuery); err != nil {
+		d.logger.Error("Failed to parse query JSON",
+			"refId", query.RefID,
+			"error", err,
+			"json", string(query.JSON))
 		return backend.ErrDataResponse(
 			backend.StatusBadRequest,
 			fmt.Sprintf("invalid query: %s", err.Error()),
 		)
 	}
 
+	d.logger.Debug("Parsed query",
+		"refId", query.RefID,
+		"numNodes", len(opcQuery.Nodes))
+
 	// Skip empty queries
 	if len(opcQuery.Nodes) == 0 {
+		d.logger.Debug("Skipping empty query", "refId", query.RefID)
 		return backend.DataResponse{}
+	}
+
+	// Log node IDs being read
+	for i, node := range opcQuery.Nodes {
+		d.logger.Debug("Reading node",
+			"refId", query.RefID,
+			"index", i,
+			"nodeId", node.NodeID,
+			"displayName", node.DisplayName)
 	}
 
 	// Read node values
 	values, err := client.ReadNodes(ctx, opcQuery.Nodes)
 	if err != nil {
+		d.logger.Error("Failed to read nodes",
+			"refId", query.RefID,
+			"error", err)
 		return backend.ErrDataResponse(
 			backend.StatusInternal,
 			fmt.Sprintf("read failed: %s", err.Error()),
 		)
 	}
 
+	// Log read values
+	for i, val := range values {
+		d.logger.Debug("Read value",
+			"refId", query.RefID,
+			"index", i,
+			"nodeId", val.NodeID,
+			"value", val.Value,
+			"status", val.StatusCode)
+	}
+
 	// Build data frame
 	frame := d.buildDataFrame(opcQuery.Nodes, values)
+
+	d.logger.Debug("Built data frame",
+		"refId", query.RefID,
+		"numFields", len(frame.Fields))
 
 	return backend.DataResponse{
 		Frames: data.Frames{frame},
@@ -230,23 +307,90 @@ func (d *Datasource) CheckHealth(ctx context.Context, req *backend.CheckHealthRe
 	// Try to connect
 	client, err := d.getOrCreateClient(ctx)
 	if err != nil {
+		d.logger.Error("Health check failed during connection", "error", err)
+		errMsg := formatConnectionError(err, d.settings)
 		return &backend.CheckHealthResult{
 			Status:  backend.HealthStatusError,
-			Message: fmt.Sprintf("Connection failed: %s", err.Error()),
+			Message: errMsg,
 		}, nil
 	}
+
+	d.logger.Info("Client created successfully, reading server state")
 
 	// Try to read server state
 	state, err := client.ReadServerState(ctx)
 	if err != nil {
+		d.logger.Error("Health check failed reading server state", "error", err)
 		return &backend.CheckHealthResult{
 			Status:  backend.HealthStatusError,
 			Message: fmt.Sprintf("Failed to read server status: %s", err.Error()),
 		}, nil
 	}
 
+	d.logger.Info("Health check successful", "state", state)
 	return &backend.CheckHealthResult{
 		Status:  backend.HealthStatusOk,
 		Message: fmt.Sprintf("Successfully connected to OPC-UA server (state: %v)", state),
 	}, nil
+}
+
+// formatConnectionError provides detailed error messages for common OPC-UA connection errors
+func formatConnectionError(err error, settings models.DataSourceSettings) string {
+	errStr := err.Error()
+
+	// Check for common OPC-UA status codes and provide helpful messages
+	if contains(errStr, "StatusBadIdentityTokenRejected") || contains(errStr, "0x80210000") {
+		hint := "The server rejected the identity token. "
+		switch settings.AuthMethod {
+		case models.AuthUserPass:
+			hint += "Possible causes: (1) Wrong username or password, (2) User account is disabled or locked, (3) Server requires encrypted password but security mode is 'None' - try using 'Sign' or 'SignAndEncrypt' security mode"
+		case models.AuthCertificate:
+			hint += "Possible causes: (1) Client certificate not trusted by server, (2) Certificate has expired, (3) Certificate doesn't match server requirements"
+		default:
+			hint += "Possible causes: (1) Server doesn't allow anonymous access, (2) Try using username/password authentication"
+		}
+		return fmt.Sprintf("Connection failed: %s. %s", errStr, hint)
+	}
+
+	if contains(errStr, "StatusBadUserAccessDenied") || contains(errStr, "0x801F0000") {
+		return fmt.Sprintf("Connection failed: %s. The user does not have permission to access the server. Check user permissions on the OPC-UA server.", errStr)
+	}
+
+	if contains(errStr, "StatusBadSecurityModeRejected") || contains(errStr, "0x80310000") {
+		return fmt.Sprintf("Connection failed: %s. The server rejected the security mode. Try a different security mode (None, Sign, or SignAndEncrypt).", errStr)
+	}
+
+	if contains(errStr, "StatusBadSecurityPolicyRejected") || contains(errStr, "0x80550000") {
+		return fmt.Sprintf("Connection failed: %s. The server rejected the security policy. Check which security policies the server supports.", errStr)
+	}
+
+	if contains(errStr, "StatusBadCertificateUntrusted") || contains(errStr, "0x801A0000") {
+		return fmt.Sprintf("Connection failed: %s. The server doesn't trust the client certificate. You may need to add the client certificate to the server's trusted certificates list.", errStr)
+	}
+
+	if contains(errStr, "StatusBadTimeout") || contains(errStr, "0x800A0000") {
+		return fmt.Sprintf("Connection failed: %s. Connection timed out. Check if the server is reachable and the endpoint URL is correct.", errStr)
+	}
+
+	if contains(errStr, "no matching endpoint") {
+		return fmt.Sprintf("Connection failed: %s. No server endpoint matches the configured security policy, mode, and authentication method. Check Grafana server logs for available endpoints.", errStr)
+	}
+
+	// Default: return the original error
+	return fmt.Sprintf("Connection failed: %s", errStr)
+}
+
+// contains checks if a string contains a substring (case-sensitive)
+func contains(s, substr string) bool {
+	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || findSubstring(s, substr))
+}
+
+// findSubstring checks if substr exists in s
+func findSubstring(s, substr string) bool {
+	for i := 0; i <= len(s)-len(substr); i++ {
+		if s[i:i+len(substr)] == substr {
+			return true
+		}
+	}
+	return false
 }

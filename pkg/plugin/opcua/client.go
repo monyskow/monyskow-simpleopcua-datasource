@@ -2,6 +2,9 @@ package opcua
 
 import (
 	"context"
+	"crypto/rsa"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
 	"sync"
 	"time"
@@ -20,6 +23,7 @@ type Client struct {
 	logger    log.Logger
 	mu        sync.RWMutex
 	connected bool
+	dataDir   string
 }
 
 // NodeValue represents the result of reading a node
@@ -33,15 +37,115 @@ type NodeValue struct {
 }
 
 // NewClient creates a new OPC-UA client
-func NewClient(settings models.DataSourceSettings, logger log.Logger) (*Client, error) {
+func NewClient(settings models.DataSourceSettings, logger log.Logger, dataDir string) (*Client, error) {
 	opts := []opcua.Option{
 		opcua.RequestTimeout(time.Duration(settings.Timeout) * time.Second),
 		opcua.AutoReconnect(true),
 		opcua.ReconnectInterval(5 * time.Second),
 	}
 
-	// Add security options
-	secOpts := getSecurityOptions(settings)
+	// Check if endpoint discovery is needed:
+	// - For any non-anonymous authentication (userpass, certificate)
+	// - For any security policy/mode other than None
+	needsEndpointDiscovery := settings.AuthMethod != models.AuthAnonymous ||
+		(settings.SecurityPolicy != "" && settings.SecurityPolicy != "None") ||
+		(settings.SecurityMode != "" && settings.SecurityMode != "None")
+
+	// For connections requiring endpoint discovery, get server endpoints first
+	if needsEndpointDiscovery {
+		logger.Info("Fetching server endpoints",
+			"authMethod", settings.AuthMethod,
+			"securityPolicy", settings.SecurityPolicy,
+			"securityMode", settings.SecurityMode)
+
+		// Fetch endpoints to get server certificate
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+
+		// Fetch endpoints without security - GetEndpoints should work without credentials
+		endpoints, err := opcua.GetEndpoints(ctx, settings.Endpoint)
+		if err != nil {
+			logger.Warn("Failed to get endpoints, will try connection without endpoint discovery", "error", err)
+		} else {
+			// Log available endpoints for debugging
+			logAvailableEndpoints(logger, endpoints, settings)
+
+			// Validate that the requested security policy is supported
+			if err := validatePolicySupport(endpoints, settings, logger); err != nil {
+				return nil, err
+			}
+
+			// Find matching endpoint
+			for _, ep := range endpoints {
+				if matchesSecuritySettings(ep, settings) {
+					logger.Info("Found matching endpoint, using SecurityFromEndpoint",
+						"securityPolicy", ep.SecurityPolicyURI,
+						"securityMode", ep.SecurityMode,
+						"userTokenTypes", getUserTokenTypes(ep))
+
+					// Determine the correct UserTokenType based on auth method
+					userTokenType := ua.UserTokenTypeAnonymous
+					switch settings.AuthMethod {
+					case models.AuthUserPass:
+						userTokenType = ua.UserTokenTypeUserName
+					case models.AuthCertificate:
+						userTokenType = ua.UserTokenTypeCertificate
+					}
+
+					// Check if this is a secure channel (not None/None)
+					isSecureChannel := ep.SecurityMode != ua.MessageSecurityModeNone
+
+					// Generate or use provided client certificate (only for secure channels)
+					// This must be done BEFORE SecurityFromEndpoint
+					if isSecureChannel {
+						certOpts, err := getClientCertificateOptions(settings, dataDir, logger)
+						if err != nil {
+							return nil, fmt.Errorf("client certificate: %w", err)
+						}
+						opts = append(opts, certOpts...)
+					}
+
+					// Use SecurityFromEndpoint to automatically configure security
+					// This sets: SecurityPolicy, SecurityMode, RemoteCertificate, and AuthPolicyID
+					opts = append(opts, opcua.SecurityFromEndpoint(ep, userTokenType))
+
+					// Add authentication options (username/password, certificate, etc.)
+					authOpts, err := GetAuthOptions(settings)
+					if err != nil {
+						return nil, fmt.Errorf("auth options: %w", err)
+					}
+					opts = append(opts, authOpts...)
+
+					// Log authentication details (without revealing password)
+					if settings.AuthMethod == models.AuthUserPass {
+						logger.Info("Using username/password authentication",
+							"username", settings.Username,
+							"hasPassword", len(settings.Password) > 0,
+							"passwordLength", len(settings.Password))
+					}
+
+					c, err := opcua.NewClient(settings.Endpoint, opts...)
+					if err != nil {
+						return nil, fmt.Errorf("create client: %w", err)
+					}
+
+					return &Client{
+						client:   c,
+						settings: settings,
+						logger:   logger,
+						dataDir:  dataDir,
+					}, nil
+				}
+			}
+			logger.Warn("No matching endpoint found, falling back to manual security configuration")
+		}
+	}
+
+	// Fallback: Add security options manually
+	secOpts, err := getSecurityOptions(settings, dataDir, logger)
+	if err != nil {
+		return nil, fmt.Errorf("security options: %w", err)
+	}
 	opts = append(opts, secOpts...)
 
 	// Add authentication options
@@ -60,7 +164,217 @@ func NewClient(settings models.DataSourceSettings, logger log.Logger) (*Client, 
 		client:   c,
 		settings: settings,
 		logger:   logger,
+		dataDir:  dataDir,
 	}, nil
+}
+
+// matchesSecuritySettings checks if an endpoint matches the configured security settings
+func matchesSecuritySettings(ep *ua.EndpointDescription, settings models.DataSourceSettings) bool {
+	// For None/None security (unsecure channel), only check that endpoint has MessageSecurityModeNone
+	if (settings.SecurityPolicy == "" || settings.SecurityPolicy == "None") &&
+		(settings.SecurityMode == "" || settings.SecurityMode == "None") {
+		if ep.SecurityMode != ua.MessageSecurityModeNone {
+			return false
+		}
+		// For unsecure channel, don't check security policy URI - just need mode None
+	} else {
+		// Check security policy for secure channels
+		if settings.SecurityPolicy != "" && settings.SecurityPolicy != "None" {
+			expectedPolicy := "http://opcfoundation.org/UA/SecurityPolicy#" + settings.SecurityPolicy
+			if ep.SecurityPolicyURI != expectedPolicy {
+				return false
+			}
+		}
+
+		// Check security mode for secure channels
+		if settings.SecurityMode != "" && settings.SecurityMode != "None" {
+			var expectedMode ua.MessageSecurityMode
+			switch settings.SecurityMode {
+			case "Sign":
+				expectedMode = ua.MessageSecurityModeSign
+			case "SignAndEncrypt":
+				expectedMode = ua.MessageSecurityModeSignAndEncrypt
+			default:
+				expectedMode = ua.MessageSecurityModeNone
+			}
+			if ep.SecurityMode != expectedMode {
+				return false
+			}
+		}
+	}
+
+	// Check if endpoint supports the required user token type
+	requiredTokenType := getRequiredTokenType(settings.AuthMethod)
+	if !endpointSupportsTokenType(ep, requiredTokenType) {
+		return false
+	}
+
+	return true
+}
+
+// getRequiredTokenType returns the UserTokenType for the given auth method
+func getRequiredTokenType(authMethod models.AuthMethod) ua.UserTokenType {
+	switch authMethod {
+	case models.AuthUserPass:
+		return ua.UserTokenTypeUserName
+	case models.AuthCertificate:
+		return ua.UserTokenTypeCertificate
+	default:
+		return ua.UserTokenTypeAnonymous
+	}
+}
+
+// validatePolicySupport checks if the requested security policy is supported by the server
+func validatePolicySupport(endpoints []*ua.EndpointDescription, settings models.DataSourceSettings, _ log.Logger) error {
+	// No validation needed for None security
+	if settings.SecurityPolicy == "" || settings.SecurityPolicy == "None" {
+		return nil
+	}
+
+	expectedPolicy := "http://opcfoundation.org/UA/SecurityPolicy#" + settings.SecurityPolicy
+
+	// Check if any endpoint supports the requested policy
+	for _, ep := range endpoints {
+		if ep.SecurityPolicyURI == expectedPolicy {
+			return nil // Policy is supported
+		}
+	}
+
+	// Collect available policies for error message
+	var available []string
+	seen := make(map[string]bool)
+	for _, ep := range endpoints {
+		policyName := extractPolicyName(ep.SecurityPolicyURI)
+		if !seen[policyName] {
+			seen[policyName] = true
+			available = append(available, policyName)
+		}
+	}
+
+	return fmt.Errorf("security policy '%s' is not supported by this server. Available policies: %v", settings.SecurityPolicy, available)
+}
+
+// extractPolicyName extracts the policy name from a full security policy URI
+func extractPolicyName(uri string) string {
+	// Extract just the policy name from URIs like "http://opcfoundation.org/UA/SecurityPolicy#Basic256Sha256"
+	const prefix = "http://opcfoundation.org/UA/SecurityPolicy#"
+	if len(uri) > len(prefix) && uri[:len(prefix)] == prefix {
+		return uri[len(prefix):]
+	}
+	return uri
+}
+
+// endpointSupportsTokenType checks if an endpoint supports the given user token type
+func endpointSupportsTokenType(ep *ua.EndpointDescription, tokenType ua.UserTokenType) bool {
+	for _, policy := range ep.UserIdentityTokens {
+		if policy.TokenType == tokenType {
+			return true
+		}
+	}
+	return false
+}
+
+// getUserTokenTypes returns a string describing supported user token types for an endpoint
+func getUserTokenTypes(ep *ua.EndpointDescription) string {
+	var types []string
+	for _, policy := range ep.UserIdentityTokens {
+		types = append(types, fmt.Sprintf("%s(policy=%s)", tokenTypeName(policy.TokenType), policy.PolicyID))
+	}
+	if len(types) == 0 {
+		return "none"
+	}
+	return fmt.Sprintf("[%s]", joinStrings(types, ", "))
+}
+
+// tokenTypeName returns a human-readable name for a UserTokenType
+func tokenTypeName(t ua.UserTokenType) string {
+	switch t {
+	case ua.UserTokenTypeAnonymous:
+		return "Anonymous"
+	case ua.UserTokenTypeUserName:
+		return "UserName"
+	case ua.UserTokenTypeCertificate:
+		return "Certificate"
+	case ua.UserTokenTypeIssuedToken:
+		return "IssuedToken"
+	default:
+		return fmt.Sprintf("Unknown(%d)", t)
+	}
+}
+
+// joinStrings joins strings with a separator (simple helper to avoid importing strings package)
+func joinStrings(strs []string, sep string) string {
+	if len(strs) == 0 {
+		return ""
+	}
+	result := strs[0]
+	for i := 1; i < len(strs); i++ {
+		result += sep + strs[i]
+	}
+	return result
+}
+
+// logAvailableEndpoints logs information about available server endpoints for debugging
+func logAvailableEndpoints(logger log.Logger, endpoints []*ua.EndpointDescription, settings models.DataSourceSettings) {
+	requiredTokenType := getRequiredTokenType(settings.AuthMethod)
+	logger.Info("Server endpoints discovery",
+		"totalEndpoints", len(endpoints),
+		"requiredSecurityPolicy", settings.SecurityPolicy,
+		"requiredSecurityMode", settings.SecurityMode,
+		"requiredAuthMethod", settings.AuthMethod,
+		"requiredTokenType", tokenTypeName(requiredTokenType),
+	)
+
+	for i, ep := range endpoints {
+		policyMatch := true
+		modeMatch := true
+		tokenMatch := endpointSupportsTokenType(ep, requiredTokenType)
+
+		// For None/None security, match any endpoint with MessageSecurityModeNone
+		if (settings.SecurityPolicy == "" || settings.SecurityPolicy == "None") &&
+			(settings.SecurityMode == "" || settings.SecurityMode == "None") {
+			policyMatch = true // Don't check policy for None security
+			modeMatch = ep.SecurityMode == ua.MessageSecurityModeNone
+		} else {
+			if settings.SecurityPolicy != "" && settings.SecurityPolicy != "None" {
+				expectedPolicy := "http://opcfoundation.org/UA/SecurityPolicy#" + settings.SecurityPolicy
+				policyMatch = ep.SecurityPolicyURI == expectedPolicy
+			}
+
+			if settings.SecurityMode != "" && settings.SecurityMode != "None" {
+				var expectedMode ua.MessageSecurityMode
+				switch settings.SecurityMode {
+				case "Sign":
+					expectedMode = ua.MessageSecurityModeSign
+				case "SignAndEncrypt":
+					expectedMode = ua.MessageSecurityModeSignAndEncrypt
+				}
+				modeMatch = ep.SecurityMode == expectedMode
+			}
+		}
+
+		logger.Info("Endpoint",
+			"index", i,
+			"securityPolicy", ep.SecurityPolicyURI,
+			"securityMode", ep.SecurityMode,
+			"userTokens", getUserTokenTypes(ep),
+			"policyMatch", policyMatch,
+			"modeMatch", modeMatch,
+			"tokenMatch", tokenMatch,
+			"overallMatch", policyMatch && modeMatch && tokenMatch,
+		)
+
+		// Log detailed token policy information for UserName tokens (diagnostic)
+		for _, policy := range ep.UserIdentityTokens {
+			if policy.TokenType == ua.UserTokenTypeUserName {
+				logger.Info("UserName token policy detail",
+					"endpointIndex", i,
+					"policyId", policy.PolicyID,
+					"securityPolicyURI", policy.SecurityPolicyURI,
+					"issuedTokenType", policy.IssuedTokenType)
+			}
+		}
+	}
 }
 
 // Connect establishes connection to the OPC-UA server
@@ -198,9 +512,79 @@ func (c *Client) ReadServerState(ctx context.Context) (ua.ServerState, error) {
 	return ua.ServerState(state), nil
 }
 
-// getSecurityOptions returns security-related client options
-func getSecurityOptions(settings models.DataSourceSettings) []opcua.Option {
+// getClientCertificateOptions returns client certificate and key options
+func getClientCertificateOptions(settings models.DataSourceSettings, dataDir string, logger log.Logger) ([]opcua.Option, error) {
 	var opts []opcua.Option
+
+	// If user provided a certificate, use it
+	if len(settings.Certificate) > 0 {
+		// This is handled by GetAuthOptions for certificate auth
+		return opts, nil
+	}
+
+	// Generate auto certificate
+	logger.Info("Security enabled without user certificate, using auto-generated certificate")
+
+	certStore := NewCertificateStore(dataDir)
+	certPEM, keyPEM, err := certStore.GetOrCreateCertificate()
+	if err != nil {
+		return nil, fmt.Errorf("get or create certificate: %w", err)
+	}
+
+	// Parse certificate
+	certBlock, _ := pem.Decode(certPEM)
+	if certBlock == nil || certBlock.Type != "CERTIFICATE" {
+		return nil, fmt.Errorf("failed to decode auto-generated certificate PEM")
+	}
+
+	cert, err := x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse auto-generated certificate: %w", err)
+	}
+
+	// Parse private key
+	keyBlock, _ := pem.Decode(keyPEM)
+	if keyBlock == nil || keyBlock.Type != "RSA PRIVATE KEY" {
+		return nil, fmt.Errorf("failed to decode auto-generated private key PEM")
+	}
+
+	key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse auto-generated private key: %w", err)
+	}
+
+	// Validate that the certificate and key match
+	if err := validateCertKeyPair(cert, key); err != nil {
+		return nil, fmt.Errorf("certificate and key validation failed: %w", err)
+	}
+
+	// Extract Application URI from the certificate
+	appURI := extractApplicationURI(cert)
+	logger.Info("Extracted Application URI from certificate", "applicationURI", appURI)
+
+	// Add certificate options
+	opts = append(opts,
+		opcua.Certificate(certBlock.Bytes),
+		opcua.PrivateKey(key),
+		opcua.ApplicationURI(appURI),
+	)
+
+	logger.Info("Using auto-generated certificate",
+		"subject", cert.Subject.CommonName,
+		"notAfter", cert.NotAfter,
+		"applicationURI", appURI,
+	)
+
+	return opts, nil
+}
+
+// getSecurityOptions returns security-related client options
+func getSecurityOptions(settings models.DataSourceSettings, dataDir string, logger log.Logger) ([]opcua.Option, error) {
+	var opts []opcua.Option
+
+	// Check if security is enabled
+	securityEnabled := (settings.SecurityPolicy != "" && settings.SecurityPolicy != "None") ||
+		(settings.SecurityMode != "" && settings.SecurityMode != "None")
 
 	if settings.SecurityPolicy != "" && settings.SecurityPolicy != "None" {
 		opts = append(opts, opcua.SecurityPolicy(settings.SecurityPolicy))
@@ -210,5 +594,86 @@ func getSecurityOptions(settings models.DataSourceSettings) []opcua.Option {
 		opts = append(opts, opcua.SecurityModeString(settings.SecurityMode))
 	}
 
-	return opts
+	// If security is enabled and user didn't provide a certificate, use auto-generated one
+	if securityEnabled && len(settings.Certificate) == 0 {
+		logger.Info("Security enabled without user certificate, using auto-generated certificate")
+
+		// Create certificate store
+		certStore := NewCertificateStore(dataDir)
+		certPEM, keyPEM, err := certStore.GetOrCreateCertificate()
+		if err != nil {
+			return nil, fmt.Errorf("get or create certificate: %w", err)
+		}
+
+		// Parse certificate
+		certBlock, _ := pem.Decode(certPEM)
+		if certBlock == nil || certBlock.Type != "CERTIFICATE" {
+			return nil, fmt.Errorf("failed to decode auto-generated certificate PEM")
+		}
+
+		cert, err := x509.ParseCertificate(certBlock.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse auto-generated certificate: %w", err)
+		}
+
+		// Parse private key
+		keyBlock, _ := pem.Decode(keyPEM)
+		if keyBlock == nil || keyBlock.Type != "RSA PRIVATE KEY" {
+			return nil, fmt.Errorf("failed to decode auto-generated private key PEM")
+		}
+
+		key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
+		if err != nil {
+			return nil, fmt.Errorf("failed to parse auto-generated private key: %w", err)
+		}
+
+		// Validate that the certificate and key match
+		if err := validateCertKeyPair(cert, key); err != nil {
+			return nil, fmt.Errorf("certificate and key validation failed: %w", err)
+		}
+
+		// Extract Application URI from the certificate
+		appURI := extractApplicationURI(cert)
+
+		// Add certificate options for secure channel
+		opts = append(opts,
+			opcua.Certificate(certBlock.Bytes),
+			opcua.PrivateKey(key),
+			opcua.ApplicationURI(appURI),
+		)
+
+		logger.Info("Using auto-generated certificate",
+			"subject", cert.Subject.CommonName,
+			"notAfter", cert.NotAfter,
+			"applicationURI", appURI,
+		)
+	}
+
+	return opts, nil
 }
+
+// validateCertKeyPair validates that a certificate and private key are a matching pair
+func validateCertKeyPair(cert *x509.Certificate, key *rsa.PrivateKey) error {
+	// Compare public key from certificate with public key derived from private key
+	certPubKey, ok := cert.PublicKey.(*rsa.PublicKey)
+	if !ok {
+		return fmt.Errorf("certificate public key is not RSA")
+	}
+
+	if certPubKey.N.Cmp(key.N) != 0 || certPubKey.E != key.E {
+		return fmt.Errorf("certificate and private key do not match")
+	}
+
+	return nil
+}
+
+// extractApplicationURI extracts the application URI from the certificate's Subject Alternative Names
+func extractApplicationURI(cert *x509.Certificate) string {
+	// Extract URI from certificate's SAN (Subject Alternative Names)
+	for _, uri := range cert.URIs {
+		return uri.String()
+	}
+	// Fallback to a default URI if none found
+	return "urn:grafana:simpleopcua:client"
+}
+

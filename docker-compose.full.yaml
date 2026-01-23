@@ -1,0 +1,151 @@
+# =============================================================================
+# Docker Compose - Full Testing Setup
+# =============================================================================
+# This setup includes:
+# - Grafana with the plugin
+# - Pre-configured OPC-UA data sources (14 combinations for docker-based servers)
+# - Test dashboard
+# - 5 OPC-UA test servers (docker-based simulators):
+#   1. opcua-nosecurity (port 50000) - No security, anonymous only
+#   2. opcua-secure-anon (port 50001) - Security enabled, anonymous only
+#   3. opcua-secure-userpass (port 50002) - Security enabled, user/pass only
+#   4. opcua-all-auth (port 50003) - All auth methods
+#   5. opcua-node (port 4840) - Node-OPCUA with Aes256_Sha256_RsaPss support
+#
+# NOTE: This does NOT include ProSys datasources. For ProSys testing, use:
+#   docker compose -f docker-compose.prosys.yaml up
+#
+# Usage:
+#   npm run build && mage buildAll                  # Build the plugin first
+#   docker compose -f docker-compose.full.yaml up   # Start everything
+#   Open http://localhost:3000
+#
+# Test credentials: user1 / password1
+# =============================================================================
+
+services:
+  grafana:
+    user: root
+    container_name: 'monyskow-simpleopcua-datasource'
+    build:
+      context: .config
+      args:
+        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_version: ${GRAFANA_VERSION:-12.2.0}
+        development: ${DEVELOPMENT:-false}
+        anonymous_auth_enabled: ${ANONYMOUS_AUTH_ENABLED:-true}
+    ports:
+      - 3000:3000/tcp
+    depends_on:
+      - opcua-nosecurity
+      - opcua-secure-anon
+      - opcua-secure-userpass
+      - opcua-all-auth
+      - opcua-node
+    volumes:
+      # Plugin mounted for Grafana to load
+      - ./dist:/var/lib/grafana/plugins/monyskow-simpleopcua-datasource
+      # Source code mounted for development
+      - .:/root/monyskow-simpleopcua-datasource
+      # Provision ONLY docker-based datasources (not ProSys)
+      - ./provisioning/datasources/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      # Provision dashboards
+      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
+    environment:
+      NODE_ENV: development
+      GF_LOG_FILTERS: plugin.monyskow-simpleopcua-datasource:debug
+      GF_LOG_LEVEL: debug
+      GF_DATAPROXY_LOGGING: 1
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleopcua-datasource
+    restart: unless-stopped
+
+  # ===========================================================================
+  # OPC-UA Test Servers (Docker-based simulators)
+  # ===========================================================================
+
+  # Server 1: No Security (Anonymous only)
+  # Endpoint: opc.tcp://opcua-nosecurity:50000
+  opcua-nosecurity:
+    image: mcr.microsoft.com/iotedge/opc-plc:latest
+    container_name: opcua-nosecurity
+    hostname: opcua-nosecurity
+    ports:
+      - "50000:50000"
+    command:
+      - --pn=50000
+      - --autoaccept
+      - --unsecuretransport
+      - --disableusernamepasswordauth
+      - --disablecertauth
+    restart: unless-stopped
+
+  # Server 2: Security Enabled + Anonymous Auth Only
+  # Endpoint: opc.tcp://opcua-secure-anon:50001
+  opcua-secure-anon:
+    image: mcr.microsoft.com/iotedge/opc-plc:latest
+    container_name: opcua-secure-anon
+    hostname: opcua-secure-anon
+    ports:
+      - "50001:50001"
+    command:
+      - --pn=50001
+      - --autoaccept
+      - --disableusernamepasswordauth
+      - --disablecertauth
+    restart: unless-stopped
+
+  # Server 3: Security Enabled + Username/Password Auth Only
+  # Endpoint: opc.tcp://opcua-secure-userpass:50002
+  # Credentials: user1 / password1
+  opcua-secure-userpass:
+    image: mcr.microsoft.com/iotedge/opc-plc:latest
+    container_name: opcua-secure-userpass
+    hostname: opcua-secure-userpass
+    ports:
+      - "50002:50002"
+    command:
+      - --pn=50002
+      - --autoaccept
+      - --disableanonymousauth
+      - --disablecertauth
+      - --defaultuser=user1
+      - --defaultpassword=password1
+    restart: unless-stopped
+
+  # Server 4: All Auth Methods (Anonymous + Username/Password + Unsecure)
+  # Endpoint: opc.tcp://opcua-all-auth:50003
+  # Credentials: user1 / password1
+  opcua-all-auth:
+    image: mcr.microsoft.com/iotedge/opc-plc:latest
+    container_name: opcua-all-auth
+    hostname: opcua-all-auth
+    ports:
+      - "50003:50003"
+    command:
+      - --pn=50003
+      - --autoaccept
+      - --unsecuretransport
+      - --defaultuser=user1
+      - --defaultpassword=password1
+    restart: unless-stopped
+
+  # ===========================================================================
+  # Node-OPCUA Server (supports all security policies including Aes256_Sha256_RsaPss)
+  # ===========================================================================
+
+  # Server 5: Node-OPCUA with all security policies
+  # Endpoint: opc.tcp://opcua-node:4840
+  # Credentials: user1 / password1
+  opcua-node:
+    build:
+      context: ./test-servers/node-opcua-server
+      dockerfile: Dockerfile
+    container_name: opcua-node
+    hostname: opcua-node
+    ports:
+      - "4840:4840"
+    environment:
+      - PORT=4840
+      - HOSTNAME=0.0.0.0
+      - SERVER_NAME=opcua-node
+    restart: unless-stopped

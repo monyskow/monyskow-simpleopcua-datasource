@@ -1,19 +1,19 @@
 # =============================================================================
-# Docker Compose - Basic Setup
+# Docker Compose - E2E Testing Setup
 # =============================================================================
-# This is the minimal setup with just Grafana and the plugin loaded.
-# Use this for basic plugin development and testing.
+# This setup is used by Playwright E2E tests (npm run e2e).
+# It provisions a single "OPC-UA Test Server" datasource that the tests expect.
+#
+# Note: No actual OPC-UA server is included - most E2E tests focus on UI
+# functionality and handle connection errors gracefully.
 #
 # Usage:
-#   npm run build && mage buildAll  # Build the plugin first
-#   docker compose up               # Start Grafana
+#   npm run build && mage buildAll    # Build the plugin first
+#   npm run e2e                        # Runs this compose automatically
+#
+# Or manually:
+#   docker compose -f docker-compose.e2e.yaml up
 #   Open http://localhost:3000
-#
-# For full testing with OPC-UA simulators, use:
-#   docker compose -f docker-compose.full.yaml up
-#
-# For ProSys OPC-UA Simulator testing, use:
-#   docker compose -f docker-compose.prosys.yaml up
 # =============================================================================
 
 services:
@@ -34,8 +34,8 @@ services:
       - ./dist:/var/lib/grafana/plugins/monyskow-simpleopcua-datasource
       # Source code mounted for development
       - .:/root/monyskow-simpleopcua-datasource
-      # NOTE: Provisioning directory intentionally NOT mounted
-      # Use docker-compose.full.yaml for pre-configured datasources and dashboards
+      # Provision E2E test datasource
+      - ./provisioning/datasources/datasources-e2e.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
     environment:
       NODE_ENV: development
       GF_LOG_FILTERS: plugin.monyskow-simpleopcua-datasource:debug

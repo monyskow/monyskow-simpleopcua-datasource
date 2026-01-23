@@ -1,0 +1,1091 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 5,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 100,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "# OPC-UA Security Test Dashboard\n\nThis dashboard tests all 14 valid security/authentication combinations. Panels 1-10 query `ns=3;s=FastUInt1` from OPC-PLC. Panels 11-14 query `ns=1;i=1001` from node-opcua.\n\n**Green** = Working | **Red** = Error | Use **Save & Test** in Data Sources to debug issues.",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.2.0",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 5
+      },
+      "id": 101,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Security Policy: None",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.2.0",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-none-none-anon"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 7
+      },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "01. None + Anonymous",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-none-none-userpass"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 7
+      },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "02. None + User/Pass",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 11
+      },
+      "id": 102,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Security Policy: Basic256Sha256",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.2.0",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-b256sha256-sign-anon"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 13
+      },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "03. Sign + Anonymous",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-b256sha256-sign-userpass"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 13
+      },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "04. Sign + User/Pass",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-b256sha256-signenc-anon"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 13
+      },
+      "id": 5,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "05. Encrypt + Anonymous",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-b256sha256-signenc-userpass"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 13
+      },
+      "id": 6,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "06. Encrypt + User/Pass",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 17
+      },
+      "id": 103,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Security Policy: Aes128_Sha256_RsaOaep",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.2.0",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes128-sign-anon"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 19
+      },
+      "id": 7,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "07. Sign + Anonymous",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes128-sign-userpass"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 19
+      },
+      "id": 8,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "08. Sign + User/Pass",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes128-signenc-anon"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 19
+      },
+      "id": 9,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "09. Encrypt + Anonymous",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes128-signenc-userpass"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 19
+      },
+      "id": 10,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "FastUInt1",
+              "nodeId": "ns=3;s=FastUInt1"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "10. Encrypt + User/Pass",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 2,
+        "w": 24,
+        "x": 0,
+        "y": 23
+      },
+      "id": 104,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Security Policy: Aes256_Sha256_RsaPss",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.2.0",
+      "title": "",
+      "type": "text"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes256-sign-anon"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 25
+      },
+      "id": 11,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "Counter",
+              "nodeId": "ns=1;i=1001"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "11. Sign + Anonymous",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes256-sign-userpass"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 25
+      },
+      "id": 12,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "Counter",
+              "nodeId": "ns=1;i=1001"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "12. Sign + User/Pass",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes256-signenc-anon"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 25
+      },
+      "id": 13,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "Counter",
+              "nodeId": "ns=1;i=1001"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "13. Encrypt + Anonymous",
+      "type": "stat"
+    },
+    {
+      "datasource": {
+        "type": "monyskow-simpleopcua-datasource",
+        "uid": "ds-aes256-signenc-userpass"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              }
+            ]
+          },
+          "unit": "none"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 25
+      },
+      "id": 14,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "percentChangeColorMode": "standard",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.2.0",
+      "targets": [
+        {
+          "nodes": [
+            {
+              "alias": "",
+              "displayName": "Counter",
+              "nodeId": "ns=1;i=1001"
+            }
+          ],
+          "refId": "A"
+        }
+      ],
+      "title": "14. Encrypt + User/Pass",
+      "type": "stat"
+    },
+    {
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 29
+      },
+      "id": 105,
+      "options": {
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        },
+        "content": "## Test Summary\n\n| # | Security Policy | Mode | Auth | User | Password | Endpoint |\n|---|-----------------|------|------|------|----------|----------|\n| 01 | None | None | Anonymous | - | - | opc.tcp://opcua-nosecurity:50000 |\n| 02 | None | None | UserPass | user1 | password1 | opc.tcp://opcua-all-auth:50003 |\n| 03 | Basic256Sha256 | Sign | Anonymous | - | - | opc.tcp://opcua-secure-anon:50001 |\n| 04 | Basic256Sha256 | Sign | UserPass | user1 | password1 | opc.tcp://opcua-secure-userpass:50002 |\n| 05 | Basic256Sha256 | SignAndEncrypt | Anonymous | - | - | opc.tcp://opcua-secure-anon:50001 |\n| 06 | Basic256Sha256 | SignAndEncrypt | UserPass | user1 | password1 | opc.tcp://opcua-secure-userpass:50002 |\n| 07 | Aes128_Sha256_RsaOaep | Sign | Anonymous | - | - | opc.tcp://opcua-secure-anon:50001 |\n| 08 | Aes128_Sha256_RsaOaep | Sign | UserPass | user1 | password1 | opc.tcp://opcua-secure-userpass:50002 |\n| 09 | Aes128_Sha256_RsaOaep | SignAndEncrypt | Anonymous | - | - | opc.tcp://opcua-secure-anon:50001 |\n| 10 | Aes128_Sha256_RsaOaep | SignAndEncrypt | UserPass | user1 | password1 | opc.tcp://opcua-secure-userpass:50002 |\n| 11 | Aes256_Sha256_RsaPss | Sign | Anonymous | - | - | opc.tcp://opcua-node:4840 |\n| 12 | Aes256_Sha256_RsaPss | Sign | UserPass | user1 | password1 | opc.tcp://opcua-node:4840 |\n| 13 | Aes256_Sha256_RsaPss | SignAndEncrypt | Anonymous | - | - | opc.tcp://opcua-node:4840 |\n| 14 | Aes256_Sha256_RsaPss | SignAndEncrypt | UserPass | user1 | password1 | opc.tcp://opcua-node:4840 |",
+        "mode": "markdown"
+      },
+      "pluginVersion": "12.2.0",
+      "title": "",
+      "type": "text"
+    }
+  ],
+  "preload": false,
+  "refresh": "5s",
+  "schemaVersion": 42,
+  "tags": [
+    "opcua",
+    "security",
+    "test"
+  ],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-5m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "OPC-UA Security Test",
+  "uid": "opcua-security-test",
+  "version": 1
+}

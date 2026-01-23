@@ -46,3 +46,8 @@ vendor/
 *.seed
 *.pid.lock
 .env.local
+
+
+# Claude
+.claude/
+CLAUDE.md

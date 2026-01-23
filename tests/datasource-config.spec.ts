@@ -25,7 +25,7 @@ test.describe('OPC-UA Data Source Configuration', () => {
   test('should display endpoint URL field', async ({ page }) => {
     const endpointInput = getEndpointInput(page).first();
     await expect(endpointInput).toBeVisible();
-    await expect(endpointInput).toHaveValue('opc.tcp://opcuaserver.com:48010');
+    await expect(endpointInput).toHaveValue('opc.tcp://localhost:4840');
   });
 
   test('should display security policy selector', async ({ page }) => {

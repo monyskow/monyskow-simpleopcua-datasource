@@ -1,0 +1,53 @@
+# =============================================================================
+# Docker Compose - ProSys OPC-UA Simulator Testing
+# =============================================================================
+# This setup includes:
+# - Grafana with the plugin (on port 3001)
+# - ProSys-specific data source configurations
+# - ProSys-specific test dashboard
+#
+# IMPORTANT: This setup expects a ProSys OPC-UA Simulator running on the host
+# machine (not containerized). The ProSys simulator should be accessible via
+# host.docker.internal.
+#
+# Setup Instructions:
+# 1. Download and install ProSys OPC-UA Simulation Server:
+#    https://www.prosysopc.com/products/opc-ua-simulation-server/
+# 2. Start the ProSys simulator on your host machine
+# 3. Configure endpoints and security as needed
+# 4. Build the plugin: npm run build && mage buildAll
+# 5. Start this compose: docker compose -f docker-compose.prosys.yaml up
+# 6. Open http://localhost:3001 (note: different port than default)
+#
+# The Grafana instance uses host.docker.internal to connect to ProSys running
+# on your host machine.
+# =============================================================================
+
+services:
+  grafana-prosys:
+    user: root
+    container_name: 'monyskow-simpleopcua-datasource-prosys'
+    build:
+      context: .config
+      args:
+        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_version: ${GRAFANA_VERSION:-12.2.0}
+        development: ${DEVELOPMENT:-false}
+        anonymous_auth_enabled: ${ANONYMOUS_AUTH_ENABLED:-true}
+    ports:
+      - 3001:3000/tcp
+    volumes:
+      - ./dist:/var/lib/grafana/plugins/monyskow-simpleopcua-datasource
+      - ./provisioning/datasources/datasources-prosys.yaml:/etc/grafana/provisioning/datasources/datasources-prosys.yaml
+      - ./provisioning/dashboards/dashboards-prosys.yaml:/etc/grafana/provisioning/dashboards/dashboards-prosys.yaml
+      - ./provisioning/dashboards/opcua-security-test-prosys.json:/etc/grafana/provisioning/dashboards/opcua-security-test-prosys.json
+      - .:/root/monyskow-simpleopcua-datasource
+    environment:
+      NODE_ENV: development
+      GF_LOG_FILTERS: plugin.monyskow-simpleopcua-datasource:debug
+      GF_LOG_LEVEL: debug
+      GF_DATAPROXY_LOGGING: 1
+      GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleopcua-datasource
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

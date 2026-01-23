@@ -1,44 +1,31 @@
 apiVersion: 1
 
-# =============================================================================
-# OPC-UA Data Sources - All Valid Security/Auth Combinations
-# =============================================================================
-#
-# Security Policies: None, Basic256Sha256, Aes128_Sha256_RsaOaep, Aes256_Sha256_RsaPss
-# Security Modes: None (only with Policy None), Sign, SignAndEncrypt
-# Auth Methods: Anonymous, Username/Password
-#
-# Test Credentials: user1 / password1
-#
-# Total: 14 valid combinations
-#
-
 datasources:
   # ===========================================================================
-  # SECURITY POLICY: NONE
+  # Prosys OPC-UA Simulation Server (Host Machine)
+  # Endpoint: opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer
   # ===========================================================================
 
-  # 1. None/None + Anonymous
-  - name: "01. None + Anonymous"
-    uid: ds-none-none-anon
+  # 01. None/None + Anonymous
+  - name: "01. None/None + Anon (Prosys)"
+    uid: ds-prosys-none-anon
     type: monyskow-simpleopcua-datasource
     access: proxy
-    isDefault: true
     jsonData:
-      endpoint: "opc.tcp://opcua-nosecurity:50000"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "None"
       securityMode: "None"
       authMethod: "anonymous"
       timeout: 10
     editable: true
 
-  # 2. None/None + User/Pass
-  - name: "02. None + User/Pass"
-    uid: ds-none-none-userpass
+  # 02. None/None + User/Pass
+  - name: "02. None/None + User (Prosys)"
+    uid: ds-prosys-none-userpass
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-all-auth:50003"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "None"
       securityMode: "None"
       authMethod: "userpass"
@@ -52,26 +39,26 @@ datasources:
   # SECURITY POLICY: Basic256Sha256
   # ===========================================================================
 
-  # 3. Basic256Sha256/Sign + Anonymous
-  - name: "03. Basic256Sha256/Sign + Anon"
-    uid: ds-b256sha256-sign-anon
+  # 03. Basic256Sha256/Sign + Anonymous
+  - name: "03. Basic256Sha256/Sign + Anon (Prosys)"
+    uid: ds-prosys-basic256-sign-anon
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-anon:50001"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Basic256Sha256"
       securityMode: "Sign"
       authMethod: "anonymous"
       timeout: 10
     editable: true
 
-  # 4. Basic256Sha256/Sign + User/Pass
-  - name: "04. Basic256Sha256/Sign + User"
-    uid: ds-b256sha256-sign-userpass
+  # 04. Basic256Sha256/Sign + User/Pass
+  - name: "04. Basic256Sha256/Sign + User (Prosys)"
+    uid: ds-prosys-basic256-sign-userpass
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-userpass:50002"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Basic256Sha256"
       securityMode: "Sign"
       authMethod: "userpass"
@@ -81,26 +68,26 @@ datasources:
       password: "password1"
     editable: true
 
-  # 5. Basic256Sha256/SignAndEncrypt + Anonymous
-  - name: "05. Basic256Sha256/Encrypt + Anon"
-    uid: ds-b256sha256-signenc-anon
+  # 05. Basic256Sha256/SignAndEncrypt + Anonymous
+  - name: "05. Basic256Sha256/Encrypt + Anon (Prosys)"
+    uid: ds-prosys-basic256-signenc-anon
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-anon:50001"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Basic256Sha256"
       securityMode: "SignAndEncrypt"
       authMethod: "anonymous"
       timeout: 10
     editable: true
 
-  # 6. Basic256Sha256/SignAndEncrypt + User/Pass
-  - name: "06. Basic256Sha256/Encrypt + User"
-    uid: ds-b256sha256-signenc-userpass
+  # 06. Basic256Sha256/SignAndEncrypt + User/Pass
+  - name: "06. Basic256Sha256/Encrypt + User (Prosys)"
+    uid: ds-prosys-basic256-signenc-userpass
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-userpass:50002"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Basic256Sha256"
       securityMode: "SignAndEncrypt"
       authMethod: "userpass"
@@ -114,26 +101,26 @@ datasources:
   # SECURITY POLICY: Aes128_Sha256_RsaOaep
   # ===========================================================================
 
-  # 7. Aes128_Sha256_RsaOaep/Sign + Anonymous
-  - name: "07. Aes128Sha256/Sign + Anon"
-    uid: ds-aes128-sign-anon
+  # 07. Aes128_Sha256_RsaOaep/Sign + Anonymous
+  - name: "07. Aes128/Sign + Anon (Prosys)"
+    uid: ds-prosys-aes128-sign-anon
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-anon:50001"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes128_Sha256_RsaOaep"
       securityMode: "Sign"
       authMethod: "anonymous"
       timeout: 10
     editable: true
 
-  # 8. Aes128_Sha256_RsaOaep/Sign + User/Pass
-  - name: "08. Aes128Sha256/Sign + User"
-    uid: ds-aes128-sign-userpass
+  # 08. Aes128_Sha256_RsaOaep/Sign + User/Pass
+  - name: "08. Aes128/Sign + User (Prosys)"
+    uid: ds-prosys-aes128-sign-userpass
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-userpass:50002"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes128_Sha256_RsaOaep"
       securityMode: "Sign"
       authMethod: "userpass"
@@ -143,13 +130,13 @@ datasources:
       password: "password1"
     editable: true
 
-  # 9. Aes128_Sha256_RsaOaep/SignAndEncrypt + Anonymous
-  - name: "09. Aes128Sha256/Encrypt + Anon"
-    uid: ds-aes128-signenc-anon
+  # 09. Aes128_Sha256_RsaOaep/SignAndEncrypt + Anonymous
+  - name: "09. Aes128/Encrypt + Anon (Prosys)"
+    uid: ds-prosys-aes128-signenc-anon
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-anon:50001"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes128_Sha256_RsaOaep"
       securityMode: "SignAndEncrypt"
       authMethod: "anonymous"
@@ -157,12 +144,12 @@ datasources:
     editable: true
 
   # 10. Aes128_Sha256_RsaOaep/SignAndEncrypt + User/Pass
-  - name: "10. Aes128Sha256/Encrypt + User"
-    uid: ds-aes128-signenc-userpass
+  - name: "10. Aes128/Encrypt + User (Prosys)"
+    uid: ds-prosys-aes128-signenc-userpass
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-secure-userpass:50002"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes128_Sha256_RsaOaep"
       securityMode: "SignAndEncrypt"
       authMethod: "userpass"
@@ -173,16 +160,16 @@ datasources:
     editable: true
 
   # ===========================================================================
-  # SECURITY POLICY: Aes256_Sha256_RsaPss (using node-opcua server)
+  # SECURITY POLICY: Aes256_Sha256_RsaPss
   # ===========================================================================
 
   # 11. Aes256_Sha256_RsaPss/Sign + Anonymous
-  - name: "11. Aes256Sha256/Sign + Anon"
-    uid: ds-aes256-sign-anon
+  - name: "11. Aes256Sha256/Sign + Anon (Prosys)"
+    uid: ds-prosys-aes256-sign-anon
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-node:4840"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes256_Sha256_RsaPss"
       securityMode: "Sign"
       authMethod: "anonymous"
@@ -190,12 +177,12 @@ datasources:
     editable: true
 
   # 12. Aes256_Sha256_RsaPss/Sign + User/Pass
-  - name: "12. Aes256Sha256/Sign + User"
-    uid: ds-aes256-sign-userpass
+  - name: "12. Aes256Sha256/Sign + User (Prosys)"
+    uid: ds-prosys-aes256-sign-userpass
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-node:4840"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes256_Sha256_RsaPss"
       securityMode: "Sign"
       authMethod: "userpass"
@@ -206,12 +193,12 @@ datasources:
     editable: true
 
   # 13. Aes256_Sha256_RsaPss/SignAndEncrypt + Anonymous
-  - name: "13. Aes256Sha256/Encrypt + Anon"
-    uid: ds-aes256-signenc-anon
+  - name: "13. Aes256Sha256/Encrypt + Anon (Prosys)"
+    uid: ds-prosys-aes256-signenc-anon
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-node:4840"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes256_Sha256_RsaPss"
       securityMode: "SignAndEncrypt"
       authMethod: "anonymous"
@@ -219,12 +206,12 @@ datasources:
     editable: true
 
   # 14. Aes256_Sha256_RsaPss/SignAndEncrypt + User/Pass
-  - name: "14. Aes256Sha256/Encrypt + User"
-    uid: ds-aes256-signenc-userpass
+  - name: "14. Aes256Sha256/Encrypt + User (Prosys)"
+    uid: ds-prosys-aes256-signenc-userpass
     type: monyskow-simpleopcua-datasource
     access: proxy
     jsonData:
-      endpoint: "opc.tcp://opcua-node:4840"
+      endpoint: "opc.tcp://host.docker.internal:53530/OPCUA/SimulationServer"
       securityPolicy: "Aes256_Sha256_RsaPss"
       securityMode: "SignAndEncrypt"
       authMethod: "userpass"
