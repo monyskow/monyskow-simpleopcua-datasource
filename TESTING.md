@@ -311,6 +311,5 @@ Expected: All 46 tests pass across smoke, configuration, query editor, and data 
 ## Need Help?
 
 - [README.md](README.md) - Full documentation
-- [CLAUDE.md](CLAUDE.md) - Developer guidance
 - [tests/README.md](tests/README.md) - E2E testing details
 - [GitHub Issues](https://github.com/monyskow/monyskow-simpleopcua-datasource/issues) - Report issues
