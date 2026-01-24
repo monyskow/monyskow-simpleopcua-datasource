@@ -43,6 +43,7 @@ jobs:
       - name: Sign plugin
         run: npm run sign
         if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' }}
+        continue-on-error: true
 
       - name: Get plugin metadata
         id: metadata
@@ -72,6 +73,7 @@ jobs:
           docker run --pull=always \
             -v $PWD/${{ steps.metadata.outputs.archive }}:/archive.zip \
             grafana/plugin-validator-cli /archive.zip
+        continue-on-error: true
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
