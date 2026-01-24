@@ -51,3 +51,6 @@ vendor/
 # Claude
 .claude/
 CLAUDE.md
+
+# Private documentation
+GRAFANA_SUBMISSION_CHECKLIST.md
