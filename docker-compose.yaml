@@ -30,6 +30,7 @@ services:
     ports:
       - 3000:3000/tcp
     volumes:
+      - grafana-data:/var/lib/grafana  # Persistent storage for Grafana DB
       # Plugin mounted for Grafana to load
       - ./dist:/var/lib/grafana/plugins/monyskow-simpleopcua-datasource
       # Source code mounted for development
@@ -43,3 +44,7 @@ services:
       GF_DATAPROXY_LOGGING: 1
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleopcua-datasource
     restart: unless-stopped
+
+volumes:
+  grafana-data:
+    name: grafana-data
