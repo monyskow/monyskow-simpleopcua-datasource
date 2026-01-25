@@ -49,8 +49,9 @@ services:
       - .:/root/monyskow-simpleopcua-datasource
       # Provision ONLY docker-based datasources (not ProSys)
       - ./provisioning/datasources/datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
-      # Provision dashboards
-      - ./provisioning/dashboards:/etc/grafana/provisioning/dashboards
+      # Provision ONLY docker-based dashboard (not ProSys)
+      - ./provisioning/dashboards/dashboards.yaml:/etc/grafana/provisioning/dashboards/dashboards.yaml
+      - ./provisioning/dashboards/opcua-security-test.json:/etc/grafana/provisioning/dashboards/opcua-security-test.json
     environment:
       NODE_ENV: development
       GF_LOG_FILTERS: plugin.monyskow-simpleopcua-datasource:debug

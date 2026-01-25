@@ -1086,6 +1086,6 @@
   "timepicker": {},
   "timezone": "browser",
   "title": "OPC-UA Security Tests - Prosys Simulator",
-  "uid": "opcua-security-test",
+  "uid": "opcua-security-test-prosys",
   "version": 1
 }
