@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
-	"path/filepath"
 	"sync"
 	"time"
 
@@ -34,50 +32,36 @@ type Datasource struct {
 	client   *opcua.Client
 	logger   log.Logger
 	mu       sync.RWMutex
-	dataDir  string
+	certMgr  *opcua.CertificateManager // One certificate manager per datasource
+	uid      string                    // Datasource UID for logging
 }
 
 // NewDatasource creates a new datasource instance
 func NewDatasource(ctx context.Context, settings backend.DataSourceInstanceSettings) (instancemgmt.Instance, error) {
-	logger := log.DefaultLogger.With("pluginId", pluginID)
+	logger := log.DefaultLogger.With("pluginId", pluginID, "uid", settings.UID)
 
 	dsSettings, err := models.ParseSettings(settings)
 	if err != nil {
 		return nil, fmt.Errorf("parse settings: %w", err)
 	}
 
-	// Create data directory for certificates and other plugin data
-	// Use user's home directory with plugin-specific subdirectory
-	dataDir := getPluginDataDir(settings.UID)
-
 	logger.Info("Creating new datasource instance",
 		"endpoint", dsSettings.Endpoint,
-		"dataDir", dataDir,
+		"uid", settings.UID,
+		"hasClientCert", len(dsSettings.ClientCert) > 0,
+		"hasClientKey", len(dsSettings.ClientKey) > 0,
+		"clientCertLen", len(dsSettings.ClientCert),
 	)
+
+	// Get or create certificate manager from GLOBAL registry (persists across instances)
+	certMgr := opcua.GetCertificateManager(settings.UID, logger)
 
 	return &Datasource{
 		settings: dsSettings,
 		logger:   logger,
-		dataDir:  dataDir,
+		certMgr:  certMgr,
+		uid:      settings.UID,
 	}, nil
-}
-
-// getPluginDataDir returns the data directory for the plugin
-func getPluginDataDir(dsUID string) string {
-	// Try to use Grafana's data directory if available via environment
-	grafanaDataDir := os.Getenv("GF_PATHS_DATA")
-	if grafanaDataDir == "" {
-		// Fall back to user's home directory
-		homeDir, err := os.UserHomeDir()
-		if err != nil {
-			// Last resort: use temp directory
-			homeDir = os.TempDir()
-		}
-		grafanaDataDir = filepath.Join(homeDir, ".grafana")
-	}
-
-	// Create plugin-specific subdirectory with data source UID
-	return filepath.Join(grafanaDataDir, "plugins", pluginID, dsUID)
 }
 
 // Dispose cleans up datasource resources when the instance is disposed
@@ -92,7 +76,11 @@ func (d *Datasource) Dispose() {
 		d.client = nil
 	}
 
-	d.logger.Info("Datasource instance disposed")
+	// NOTE: Do NOT remove certificate manager from registry here.
+	// Dispose() is called on instance recreation, not datasource deletion.
+	// Certificate should persist across "Save & Test" clicks.
+
+	d.logger.Info("Datasource instance disposed", "uid", d.uid)
 }
 
 // getOrCreateClient returns an existing client or creates a new one
@@ -111,8 +99,8 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 		d.client = nil
 	}
 
-	// Create new client with data directory for auto-certificate generation
-	client, err := opcua.NewClient(d.settings, d.logger, d.dataDir)
+	// Create new client
+	client, err := opcua.NewClient(d.settings, d.logger, d.certMgr)
 	if err != nil {
 		return nil, fmt.Errorf("create client: %w", err)
 	}

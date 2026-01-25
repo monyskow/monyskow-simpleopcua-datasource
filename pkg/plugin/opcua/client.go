@@ -23,7 +23,7 @@ type Client struct {
 	logger    log.Logger
 	mu        sync.RWMutex
 	connected bool
-	dataDir   string
+	certMgr   *CertificateManager // Reference to datasource's certificate manager
 }
 
 // NodeValue represents the result of reading a node
@@ -37,7 +37,7 @@ type NodeValue struct {
 }
 
 // NewClient creates a new OPC-UA client
-func NewClient(settings models.DataSourceSettings, logger log.Logger, dataDir string) (*Client, error) {
+func NewClient(settings models.DataSourceSettings, logger log.Logger, certMgr *CertificateManager) (*Client, error) {
 	opts := []opcua.Option{
 		opcua.RequestTimeout(time.Duration(settings.Timeout) * time.Second),
 		opcua.AutoReconnect(true),
@@ -98,7 +98,7 @@ func NewClient(settings models.DataSourceSettings, logger log.Logger, dataDir st
 					// Generate or use provided client certificate (only for secure channels)
 					// This must be done BEFORE SecurityFromEndpoint
 					if isSecureChannel {
-						certOpts, err := getClientCertificateOptions(settings, dataDir, logger)
+						certOpts, err := getClientCertificateOptions(settings, certMgr, logger)
 						if err != nil {
 							return nil, fmt.Errorf("client certificate: %w", err)
 						}
@@ -133,7 +133,7 @@ func NewClient(settings models.DataSourceSettings, logger log.Logger, dataDir st
 						client:   c,
 						settings: settings,
 						logger:   logger,
-						dataDir:  dataDir,
+						certMgr:  certMgr,
 					}, nil
 				}
 			}
@@ -142,7 +142,7 @@ func NewClient(settings models.DataSourceSettings, logger log.Logger, dataDir st
 	}
 
 	// Fallback: Add security options manually
-	secOpts, err := getSecurityOptions(settings, dataDir, logger)
+	secOpts, err := getSecurityOptions(settings, certMgr, logger)
 	if err != nil {
 		return nil, fmt.Errorf("security options: %w", err)
 	}
@@ -164,7 +164,7 @@ func NewClient(settings models.DataSourceSettings, logger log.Logger, dataDir st
 		client:   c,
 		settings: settings,
 		logger:   logger,
-		dataDir:  dataDir,
+		certMgr:  certMgr,
 	}, nil
 }
 
@@ -513,22 +513,29 @@ func (c *Client) ReadServerState(ctx context.Context) (ua.ServerState, error) {
 }
 
 // getClientCertificateOptions returns client certificate and key options
-func getClientCertificateOptions(settings models.DataSourceSettings, dataDir string, logger log.Logger) ([]opcua.Option, error) {
+func getClientCertificateOptions(settings models.DataSourceSettings, certMgr *CertificateManager, logger log.Logger) ([]opcua.Option, error) {
 	var opts []opcua.Option
 
-	// If user provided a certificate, use it
+	// If user provided a certificate for certificate auth, that's handled by GetAuthOptions
 	if len(settings.Certificate) > 0 {
-		// This is handled by GetAuthOptions for certificate auth
 		return opts, nil
 	}
 
-	// Generate auto certificate
-	logger.Info("Security enabled without user certificate, using auto-generated certificate")
+	var certPEM, keyPEM []byte
+	var err error
 
-	certStore := NewCertificateStore(dataDir)
-	certPEM, keyPEM, err := certStore.GetOrCreateCertificate()
-	if err != nil {
-		return nil, fmt.Errorf("get or create certificate: %w", err)
+	// Priority 1: Use stored client certificate from secureJsonData (persists across restarts)
+	if len(settings.ClientCert) > 0 && len(settings.ClientKey) > 0 {
+		logger.Info("Using stored client certificate from secureJsonData")
+		certPEM = settings.ClientCert
+		keyPEM = settings.ClientKey
+	} else {
+		// Priority 2: Generate new certificate (only for initial setup or if not stored)
+		logger.Info("Security enabled, generating client certificate (store it via 'Generate Certificate' button for persistence)")
+		certPEM, keyPEM, err = certMgr.GetOrCreate()
+		if err != nil {
+			return nil, fmt.Errorf("get or create certificate: %w", err)
+		}
 	}
 
 	// Parse certificate
@@ -579,7 +586,7 @@ func getClientCertificateOptions(settings models.DataSourceSettings, dataDir str
 }
 
 // getSecurityOptions returns security-related client options
-func getSecurityOptions(settings models.DataSourceSettings, dataDir string, logger log.Logger) ([]opcua.Option, error) {
+func getSecurityOptions(settings models.DataSourceSettings, certMgr *CertificateManager, logger log.Logger) ([]opcua.Option, error) {
 	var opts []opcua.Option
 
 	// Check if security is enabled
@@ -594,15 +601,23 @@ func getSecurityOptions(settings models.DataSourceSettings, dataDir string, logg
 		opts = append(opts, opcua.SecurityModeString(settings.SecurityMode))
 	}
 
-	// If security is enabled and user didn't provide a certificate, use auto-generated one
+	// If security is enabled and user didn't provide a certificate, use stored or auto-generated one
 	if securityEnabled && len(settings.Certificate) == 0 {
-		logger.Info("Security enabled without user certificate, using auto-generated certificate")
+		var certPEM, keyPEM []byte
+		var err error
 
-		// Create certificate store
-		certStore := NewCertificateStore(dataDir)
-		certPEM, keyPEM, err := certStore.GetOrCreateCertificate()
-		if err != nil {
-			return nil, fmt.Errorf("get or create certificate: %w", err)
+		// Priority 1: Use stored client certificate from secureJsonData (persists across restarts)
+		if len(settings.ClientCert) > 0 && len(settings.ClientKey) > 0 {
+			logger.Info("Using stored client certificate from secureJsonData")
+			certPEM = settings.ClientCert
+			keyPEM = settings.ClientKey
+		} else {
+			// Priority 2: Generate new certificate (only for initial setup or if not stored)
+			logger.Info("Security enabled, generating client certificate (store it via 'Generate Certificate' button for persistence)")
+			certPEM, keyPEM, err = certMgr.GetOrCreate()
+			if err != nil {
+				return nil, fmt.Errorf("get or create certificate: %w", err)
+			}
 		}
 
 		// Parse certificate
