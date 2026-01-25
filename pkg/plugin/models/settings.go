@@ -30,6 +30,10 @@ type DataSourceSettings struct {
 	Password    string `json:"-"`
 	Certificate []byte `json:"-"`
 	PrivateKey  []byte `json:"-"`
+
+	// Auto-generated client certificate for secure connections (stored in secureJsonData)
+	ClientCert []byte `json:"-"`
+	ClientKey  []byte `json:"-"`
 }
 
 // ParseSettings extracts settings from Grafana data source instance settings
@@ -67,6 +71,12 @@ func ParseSettings(settings backend.DataSourceInstanceSettings) (DataSourceSetti
 	}
 	if val, ok := settings.DecryptedSecureJSONData["privateKey"]; ok {
 		ds.PrivateKey = []byte(val)
+	}
+	if val, ok := settings.DecryptedSecureJSONData["clientCert"]; ok {
+		ds.ClientCert = []byte(val)
+	}
+	if val, ok := settings.DecryptedSecureJSONData["clientKey"]; ok {
+		ds.ClientKey = []byte(val)
 	}
 
 	return ds, nil

@@ -22,6 +22,7 @@ func (d *Datasource) resourceHandler() http.Handler {
 
 	mux.HandleFunc("/browse", d.handleBrowse)
 	mux.HandleFunc("/endpoints", d.handleGetEndpoints)
+	mux.HandleFunc("/generate-certificate", d.handleGenerateCertificate)
 
 	return mux
 }
@@ -77,4 +78,39 @@ func (d *Datasource) handleGetEndpoints(w http.ResponseWriter, r *http.Request) 
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+}
+
+// CertificateResponse is the response from the generate-certificate endpoint
+type CertificateResponse struct {
+	ClientCert string `json:"clientCert"`
+	ClientKey  string `json:"clientKey"`
+}
+
+// handleGenerateCertificate generates a new client certificate and returns it
+// The frontend should store this in secureJsonData for persistence
+func (d *Datasource) handleGenerateCertificate(w http.ResponseWriter, r *http.Request) {
+	d.logger.Info("Generating new client certificate for secure connection")
+
+	// Generate new certificate using the certificate manager
+	certPEM, keyPEM, err := d.certMgr.GetOrCreate()
+	if err != nil {
+		d.logger.Error("Failed to generate certificate", "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Return certificate and key as JSON
+	response := CertificateResponse{
+		ClientCert: string(certPEM),
+		ClientKey:  string(keyPEM),
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		d.logger.Error("Failed to encode certificate response", "error", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	d.logger.Info("Certificate generated successfully")
 }

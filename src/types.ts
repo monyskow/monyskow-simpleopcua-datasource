@@ -50,6 +50,10 @@ export interface OpcuaSecureJsonData {
   certificate?: string;
   /** PEM-encoded private key for certificate authentication */
   privateKey?: string;
+  /** Auto-generated client certificate for secure connections (PEM) */
+  clientCert?: string;
+  /** Auto-generated client private key for secure connections (PEM) */
+  clientKey?: string;
 }
 
 /**

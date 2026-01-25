@@ -1,5 +1,62 @@
 apiVersion: 1
 
+# Test client certificate for OPC-UA secure connections
+# This certificate is used for all Sign/SignAndEncrypt security modes
+# Generated with 10-year validity for testing purposes
+x-client-cert: &client-cert |
+  -----BEGIN CERTIFICATE-----
+  MIID3jCCAsagAwIBAgIQFX/I30wI00LbHchweHwiMjANBgkqhkiG9w0BAQsFADBN
+  MQswCQYDVQQGEwJVUzEQMA4GA1UEChMHR3JhZmFuYTEsMCoGA1UEAxMjR3JhZmFu
+  YSBTaW1wbGUgT1BDLVVBIENsaWVudCAoVGVzdCkwHhcNMjYwMTI1MTI0NDQ3WhcN
+  MzYwMTIzMTM0NDQ3WjBNMQswCQYDVQQGEwJVUzEQMA4GA1UEChMHR3JhZmFuYTEs
+  MCoGA1UEAxMjR3JhZmFuYSBTaW1wbGUgT1BDLVVBIENsaWVudCAoVGVzdCkwggEi
+  MA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQDLYbv67TYjLXnimyrtKTnea0t6
+  yzMra7FI02uR8PExCuCnzJxk0VNdfWkEOal6sP9bKeck7JZyvJpklGXMBm7nFJha
+  4Swhf1+rvPyPGJtT+D4TR7YHKpuknaMYgu2nV1LDmNmO9v3U2pO+gpq1CiEgLA7Z
+  JRysv32V25n+tPTpU0lfJEPQ5gMBiz+mYfy3yLaFAQp6f8viD0SAYoH1516aePz9
+  xBXiQOxkAu94tcGOx7L/EyC8YQ1PKavkXEQh24GIdqBoZ2vAZJuUlp51D2pnwA/Y
+  v4rgVm0XJCeIgI+dI8t+gBy6BGiQNZwGGhyvT5EcSgMLU+Y/QfxiQ685q/HDAgMB
+  AAGjgbkwgbYwDgYDVR0PAQH/BAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggr
+  BgEFBQcDATAMBgNVHRMBAf8EAjAAMHcGA1UdEQRwMG6CFGdyYWZhbmEtb3BjdWEt
+  Y2xpZW50gglsb2NhbGhvc3SHBH8AAAGHEAAAAAAAAAAAAAAAAAAAAAGGM3Vybjpn
+  cmFmYW5hLW9wY3VhLWNsaWVudDpncmFmYW5hOnNpbXBsZW9wY3VhOmNsaWVudDAN
+  BgkqhkiG9w0BAQsFAAOCAQEALjI+A2K8uiYzR0vj6LI+EyaqzkcarZtemzApHr8n
+  2ABuT2pHbbhyP29ZB9NIJb2wky2UAbUdOi2ZZzHweaEvqnrS8OYwmyin865P1FR7
+  5/DQTAxtTHk9Fusm0G0gIpijBkzY2XsdNEU91ZktF7U3ADyzeSXDKG9sXAoP/ipw
+  DzOJbQB/4kybdeuFF3xv4baCpeqHGqAA2iskyfBVkQJl8pAYp8P65cN16+cdmgo9
+  ZnmrpWAMpqAXaLHSlfu5BaFjKi8cDQS7W2vQ5iHwDpIN+krmVm5U7Bf79yqtgE0z
+  bnKkxHHxE3XevIjqOs8O85iT0cPd/W+7ROqS4mk6RRbf/w==
+  -----END CERTIFICATE-----
+
+x-client-key: &client-key |
+  -----BEGIN RSA PRIVATE KEY-----
+  MIIEpAIBAAKCAQEAy2G7+u02Iy154psq7Sk53mtLesszK2uxSNNrkfDxMQrgp8yc
+  ZNFTXX1pBDmperD/WynnJOyWcryaZJRlzAZu5xSYWuEsIX9fq7z8jxibU/g+E0e2
+  ByqbpJ2jGILtp1dSw5jZjvb91NqTvoKatQohICwO2SUcrL99lduZ/rT06VNJXyRD
+  0OYDAYs/pmH8t8i2hQEKen/L4g9EgGKB9edemnj8/cQV4kDsZALveLXBjsey/xMg
+  vGENTymr5FxEIduBiHagaGdrwGSblJaedQ9qZ8AP2L+K4FZtFyQniICPnSPLfoAc
+  ugRokDWcBhocr0+RHEoDC1PmP0H8YkOvOavxwwIDAQABAoIBAFRVH2RqDiPCDKNZ
+  IhCbIqLGrNKrBXnAuw9uk1E9rlVepE8P+d2YKtA+W1hkLJFyaUA8/NqDu9Kxv/dq
+  zVcvZ7csBAzTB8CQF3SX9cXEN0w3SE4oUyNfmJBGyUU1rSPRgsEWVUgBxLkJNXAu
+  qcXeAGRdwH5r9BrxgDquh4llMZS5tdDhn3TaPItLAc9AlR/s3+IhWbIAGfZ/j6ly
+  1nkLcNl0hHlCDHsdi1X1kemL5gtM3zBq5Oc2qagDK/Ids3Ka96IVY4YOtJPBUtYW
+  qRFOjgRz0RKe2Z3nIM88m2EaH7axdcegwDikD2vs3v7kb3+ngr5j886QfXB/RUcR
+  0pM28QkCgYEA8UbUzQNHUCrC6DSxqWNEx4K4/PwogqGyX5ZSHJxIhF7aAupZ7+QF
+  BnjS6g8Jis+tAtbXhUyJTfPzjO2hfW9O+03F6ayoX38hh2C1oIsI7Dn3mo9Rgt17
+  aAuOpyWScrrmTU/wpvNhdyMcqmSkbn/TGUd4ufTPy41ubBsv+AWBs7cCgYEA18rq
+  4Qhn//frHu20d4mXDKoTabwo4aimxIRzXhtcm+rzUY5WOgdfHeixKrxDal5ZDl46
+  3CUO4ITtOeJ4Ny8QbUYqBjf9diyAFuScWmniBfvMwiJwfN+zcBOgBxnqx5yfI/sB
+  wAO8FelecGdQEgW037Orf5IgxnnmbOaXk59a6lUCgYAhHnvveFe9pWEDxtfsTHgQ
+  et0xvNtCszds75Ft4/YAVZTPeaPGziHydXteLZo9t6wkC6Gh5pOiY6421heoxDKv
+  REm6fbzO/wB3OMs1smATLRHT4YBq2kQqUAvQ3dNwdD9QtXxvLlFerS8uJIp9sIYl
+  ni3wOK6dXlid9k1rWjYnmQKBgQCQ8n8kmtXorKmlA7wF00i/u/oAOuAm+3bRZ7pq
+  iuyA2qeHr5khr1PnriZa80xBRZCCQy88MjQ1AXSrPgDL6HQbQlb2CGPbHfcH6ZVQ
+  cfDdXg5ilGmEp2pLLRN/0ZvPatfGflLlnFyZR0ElNXAmOukMng3jSc90IetyWM2V
+  3iNeZQKBgQCmBqljE9YHJNeNqpYAddfVDy+Wsl3jGX60VM8jCpTKApH/o/blgnQw
+  KB7zJEjmIPGjue19+9Y3pFwyaRYF9CEC2N3FnOlL2P5hBQ5gjOYZ/+Gb4vh01iN7
+  slYVKKUTC+G8Pw1LgxJl+Y9XafwoyV0F92eNxI2ytBi1T7qWsWaNVA==
+  -----END RSA PRIVATE KEY-----
+
 datasources:
   # ===========================================================================
   # Prosys OPC-UA Simulation Server (Host Machine)
@@ -50,6 +107,9 @@ datasources:
       securityMode: "Sign"
       authMethod: "anonymous"
       timeout: 10
+    secureJsonData:
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 04. Basic256Sha256/Sign + User/Pass
@@ -66,6 +126,8 @@ datasources:
     secureJsonData:
       username: "user1"
       password: "password1"
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 05. Basic256Sha256/SignAndEncrypt + Anonymous
@@ -79,6 +141,9 @@ datasources:
       securityMode: "SignAndEncrypt"
       authMethod: "anonymous"
       timeout: 10
+    secureJsonData:
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 06. Basic256Sha256/SignAndEncrypt + User/Pass
@@ -95,6 +160,8 @@ datasources:
     secureJsonData:
       username: "user1"
       password: "password1"
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # ===========================================================================
@@ -112,6 +179,9 @@ datasources:
       securityMode: "Sign"
       authMethod: "anonymous"
       timeout: 10
+    secureJsonData:
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 08. Aes128_Sha256_RsaOaep/Sign + User/Pass
@@ -128,6 +198,8 @@ datasources:
     secureJsonData:
       username: "user1"
       password: "password1"
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 09. Aes128_Sha256_RsaOaep/SignAndEncrypt + Anonymous
@@ -141,6 +213,9 @@ datasources:
       securityMode: "SignAndEncrypt"
       authMethod: "anonymous"
       timeout: 10
+    secureJsonData:
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 10. Aes128_Sha256_RsaOaep/SignAndEncrypt + User/Pass
@@ -157,6 +232,8 @@ datasources:
     secureJsonData:
       username: "user1"
       password: "password1"
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # ===========================================================================
@@ -174,6 +251,9 @@ datasources:
       securityMode: "Sign"
       authMethod: "anonymous"
       timeout: 10
+    secureJsonData:
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 12. Aes256_Sha256_RsaPss/Sign + User/Pass
@@ -190,6 +270,8 @@ datasources:
     secureJsonData:
       username: "user1"
       password: "password1"
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 13. Aes256_Sha256_RsaPss/SignAndEncrypt + Anonymous
@@ -203,6 +285,9 @@ datasources:
       securityMode: "SignAndEncrypt"
       authMethod: "anonymous"
       timeout: 10
+    secureJsonData:
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true
 
   # 14. Aes256_Sha256_RsaPss/SignAndEncrypt + User/Pass
@@ -219,4 +304,6 @@ datasources:
     secureJsonData:
       username: "user1"
       password: "password1"
+      clientCert: *client-cert
+      clientKey: *client-key
     editable: true

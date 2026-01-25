@@ -37,6 +37,7 @@ services:
     ports:
       - 3001:3000/tcp
     volumes:
+      - grafana-prosys-data:/var/lib/grafana  # Persistent storage for Grafana DB
       - ./dist:/var/lib/grafana/plugins/monyskow-simpleopcua-datasource
       - ./provisioning/datasources/datasources-prosys.yaml:/etc/grafana/provisioning/datasources/datasources-prosys.yaml
       - ./provisioning/dashboards/dashboards-prosys.yaml:/etc/grafana/provisioning/dashboards/dashboards-prosys.yaml
@@ -51,3 +52,7 @@ services:
     extra_hosts:
       - "host.docker.internal:host-gateway"
     restart: unless-stopped
+
+volumes:
+  grafana-prosys-data:
+    name: grafana-prosys-data

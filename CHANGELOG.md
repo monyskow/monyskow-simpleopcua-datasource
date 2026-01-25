@@ -9,15 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Auto-generate self-signed client certificates for secure OPC-UA connections
-- Automatic certificate storage and reuse in plugin data directory
-- Server certificate auto-trust for simplified secure connections
-- Support for Sign and SignAndEncrypt security modes without manual certificate configuration
+- Certificate generation UI with "Generate Certificate" button for secure connections
+- Client certificates are now stored in Grafana's encrypted storage (secureJsonData)
+- Certificates persist across Grafana restarts and datasource updates
+- Certificate status indicator showing configured/not configured state
+- Support for Sign and SignAndEncrypt security modes with auto-generated certificates
+- GitHub Sponsors link for plugin support
 
 ### Changed
 
-- Security modes now work out-of-the-box without requiring user-provided certificates
-- Certificates are automatically regenerated 30 days before expiration
+- Security modes now support certificate auto-generation from the UI
+- Certificates are automatically cached during the plugin session for performance
+- Certificate lifecycle management - valid for 3 years with automatic renewal when expiring soon
 
 ## [1.0.0] - 2024-12-25
 

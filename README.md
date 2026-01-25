@@ -42,13 +42,24 @@ A Grafana data source plugin for connecting to OPC-UA servers. Read industrial d
 
 ### Security
 
-When using security modes other than "None" (Sign or SignAndEncrypt), the plugin automatically:
+When using security modes other than "None" (Sign or SignAndEncrypt), the plugin provides two options:
 
-1. **Generates a self-signed client certificate** on first connection
-2. **Stores the certificate** in the plugin data directory for reuse
-3. **Trusts server certificates** automatically (auto-trust mode)
+#### Option 1: Auto-Generated Certificate (Recommended)
 
-The auto-generated certificate is valid for 3 years and is regenerated 30 days before expiration. No manual certificate configuration is required for most secure connections.
+The plugin can automatically generate and manage client certificates:
+
+1. Click **"Generate Certificate"** button in the datasource configuration
+2. The plugin generates a self-signed client certificate
+3. Click **"Save & Test"** to persist the certificate
+4. The certificate is securely stored in Grafana's encrypted storage
+
+The auto-generated certificate is valid for 3 years and persists across Grafana restarts.
+
+#### Option 2: Provide Your Own Certificate
+
+For advanced use cases, you can provide your own client certificate using the Certificate authentication method (see Authentication section below).
+
+**Important:** For secure connections, you must either generate a certificate or provide your own. The OPC-UA server must trust the client certificate - consult your OPC-UA server documentation for adding trusted certificates.
 
 **Supported Security Policies:**
 - None (no encryption)

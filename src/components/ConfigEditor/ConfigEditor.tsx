@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
-import { FieldSet, InlineField, Input, Select, SecretInput, SecretTextArea } from '@grafana/ui';
+import { getBackendSrv } from '@grafana/runtime';
+import { FieldSet, InlineField, Input, Select, SecretInput, SecretTextArea, Button, Alert } from '@grafana/ui';
 import { OpcuaDataSourceOptions, OpcuaSecureJsonData, AuthMethod, SecurityPolicy, SecurityMode } from '../../types';
 
 type Props = DataSourcePluginOptionsEditorProps<OpcuaDataSourceOptions, OpcuaSecureJsonData>;
@@ -42,6 +43,23 @@ const SECURITY_MODE_OPTIONS = [
  */
 export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
   const { jsonData, secureJsonFields, secureJsonData } = options;
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generateError, setGenerateError] = useState<string | null>(null);
+
+  // Check if security mode requires a client certificate
+  const needsClientCertificate =
+    (jsonData.securityMode === 'Sign' || jsonData.securityMode === 'SignAndEncrypt') &&
+    jsonData.authMethod !== 'certificate'; // Certificate auth uses user-provided cert
+
+  // Check if client certificate is already configured (saved to backend)
+  const hasClientCertificateSaved = !!secureJsonFields?.clientCert && !!secureJsonFields?.clientKey;
+
+  // Check if client certificate is pending (generated but not yet saved)
+  const hasClientCertificatePending =
+    !hasClientCertificateSaved && !!secureJsonData?.clientCert && !!secureJsonData?.clientKey;
+
+  // Either saved or pending
+  const hasClientCertificate = hasClientCertificateSaved || hasClientCertificatePending;
 
   const onJsonDataChange = <K extends keyof OpcuaDataSourceOptions>(key: K, value: OpcuaDataSourceOptions[K]) => {
     onOptionsChange({
@@ -73,6 +91,60 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
       secureJsonData: {
         ...secureJsonData,
         [key]: '',
+      },
+    });
+  };
+
+  const onGenerateCertificate = async () => {
+    setIsGenerating(true);
+    setGenerateError(null);
+
+    try {
+      // Call the backend to generate a certificate
+      // Note: For unsaved datasources, we need a different approach
+      if (!options.id) {
+        // Datasource not saved yet - we can't call the backend resource API
+        // Instead, generate a temporary message
+        setGenerateError('Please save the datasource first, then click Generate Certificate.');
+        setIsGenerating(false);
+        return;
+      }
+
+      const response = await getBackendSrv().fetch<{ clientCert: string; clientKey: string }>({
+        url: `/api/datasources/${options.id}/resources/generate-certificate`,
+        method: 'GET',
+      }).toPromise();
+
+      if (response?.data) {
+        // Store the certificate in secureJsonData
+        onOptionsChange({
+          ...options,
+          secureJsonData: {
+            ...secureJsonData,
+            clientCert: response.data.clientCert,
+            clientKey: response.data.clientKey,
+          },
+        });
+      }
+    } catch (error) {
+      setGenerateError(error instanceof Error ? error.message : 'Failed to generate certificate');
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const onResetClientCertificate = () => {
+    onOptionsChange({
+      ...options,
+      secureJsonFields: {
+        ...secureJsonFields,
+        clientCert: false,
+        clientKey: false,
+      },
+      secureJsonData: {
+        ...secureJsonData,
+        clientCert: '',
+        clientKey: '',
       },
     });
   };
@@ -124,6 +196,57 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
           />
         </InlineField>
       </FieldSet>
+
+      {needsClientCertificate && (
+        <FieldSet label="Client Certificate">
+          <p style={{ marginBottom: '16px', color: '#8e8e8e' }}>
+            Secure connections (Sign/SignAndEncrypt) require a client certificate. Generate one and save the
+            datasource to persist it across Grafana restarts.
+          </p>
+
+          {generateError && (
+            <Alert title="Certificate Generation Error" severity="error" style={{ marginBottom: '16px' }}>
+              {generateError}
+            </Alert>
+          )}
+
+          <InlineField label="Status" labelWidth={20}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', height: '32px' }}>
+              {hasClientCertificateSaved ? (
+                <>
+                  <span style={{ color: '#73bf69' }}>✓ Certificate configured (saved)</span>
+                  <Button variant="secondary" size="sm" onClick={onResetClientCertificate}>
+                    Reset
+                  </Button>
+                </>
+              ) : hasClientCertificatePending ? (
+                <>
+                  <span style={{ color: '#ff9830' }}>⚠ Certificate generated - click Save &amp; Test to persist</span>
+                  <Button variant="secondary" size="sm" onClick={onResetClientCertificate}>
+                    Reset
+                  </Button>
+                </>
+              ) : (
+                <span style={{ color: '#f2495c' }}>✗ No certificate configured</span>
+              )}
+            </div>
+          </InlineField>
+
+          {!hasClientCertificate && (
+            <InlineField label="" labelWidth={20}>
+              <Button onClick={onGenerateCertificate} disabled={isGenerating}>
+                {isGenerating ? 'Generating...' : 'Generate Certificate'}
+              </Button>
+            </InlineField>
+          )}
+
+          {hasClientCertificate && (
+            <p style={{ marginTop: '8px', color: '#8e8e8e', fontSize: '12px' }}>
+              Remember to add this certificate to your OPC-UA server&apos;s trusted certificates list.
+            </p>
+          )}
+        </FieldSet>
+      )}
 
       <FieldSet label="Authentication">
         <InlineField
