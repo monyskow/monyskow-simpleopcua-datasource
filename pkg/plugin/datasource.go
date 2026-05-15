@@ -70,7 +70,9 @@ func (d *Datasource) Dispose() {
 	defer d.mu.Unlock()
 
 	if d.client != nil {
-		if err := d.client.Close(); err != nil {
+		closeCtx, cancel := context.WithTimeout(context.Background(), time.Duration(d.settings.Timeout)*time.Second)
+		defer cancel()
+		if err := d.client.Close(closeCtx); err != nil {
 			d.logger.Error("Error closing client", "error", err)
 		}
 		d.client = nil
@@ -95,7 +97,7 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 
 	// Close existing client if disconnected
 	if d.client != nil {
-		_ = d.client.Close() // Ignore error on cleanup
+		_ = d.client.Close(ctx) // Ignore error on cleanup
 		d.client = nil
 	}
 
@@ -107,7 +109,7 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 
 	// Connect
 	if err := client.Connect(ctx); err != nil {
-		_ = client.Close() // Ignore error on cleanup
+		_ = client.Close(ctx) // Ignore error on cleanup
 		return nil, fmt.Errorf("connect: %w", err)
 	}
 

@@ -396,7 +396,7 @@ func (c *Client) Connect(ctx context.Context) error {
 }
 
 // Close closes the connection
-func (c *Client) Close() error {
+func (c *Client) Close(ctx context.Context) error {
 	c.mu.Lock()
 	defer c.mu.Unlock()
 
@@ -404,12 +404,12 @@ func (c *Client) Close() error {
 		return nil
 	}
 
-	if err := c.client.Close(context.Background()); err != nil {
-		return fmt.Errorf("close: %w", err)
-	}
-
+	err := c.client.Close(ctx)
 	c.connected = false
 	c.logger.Info("Disconnected from OPC-UA server")
+	if err != nil {
+		return fmt.Errorf("close: %w", err)
+	}
 	return nil
 }
 
@@ -423,11 +423,12 @@ func (c *Client) IsConnected() bool {
 // ReadNodes reads values from multiple nodes
 func (c *Client) ReadNodes(ctx context.Context, nodes []models.NodeQuery) ([]NodeValue, error) {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
-
 	if !c.connected {
+		c.mu.RUnlock()
 		return nil, fmt.Errorf("client not connected")
 	}
+	client := c.client
+	c.mu.RUnlock()
 
 	if len(nodes) == 0 {
 		return []NodeValue{}, nil
@@ -458,7 +459,7 @@ func (c *Client) ReadNodes(ctx context.Context, nodes []models.NodeQuery) ([]Nod
 	}
 
 	// Execute read
-	resp, err := c.client.Read(ctx, req)
+	resp, err := client.Read(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("read: %w", err)
 	}
@@ -512,6 +513,36 @@ func (c *Client) ReadServerState(ctx context.Context) (ua.ServerState, error) {
 	return ua.ServerState(state), nil
 }
 
+// loadClientCert decodes and parses a PEM-encoded certificate and RSA private key,
+// validates that they form a matching pair, and returns the parsed values.
+func loadClientCert(certPEM, keyPEM []byte) (*x509.Certificate, *rsa.PrivateKey, error) {
+	certBlock, _ := pem.Decode(certPEM)
+	if certBlock == nil || certBlock.Type != "CERTIFICATE" {
+		return nil, nil, fmt.Errorf("failed to decode certificate PEM")
+	}
+
+	cert, err := x509.ParseCertificate(certBlock.Bytes)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to parse certificate: %w", err)
+	}
+
+	keyBlock, _ := pem.Decode(keyPEM)
+	if keyBlock == nil || keyBlock.Type != "RSA PRIVATE KEY" {
+		return nil, nil, fmt.Errorf("failed to decode private key PEM")
+	}
+
+	key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
+	if err != nil {
+		return nil, nil, fmt.Errorf("failed to parse private key: %w", err)
+	}
+
+	if err := validateCertKeyPair(cert, key); err != nil {
+		return nil, nil, fmt.Errorf("certificate and key validation failed: %w", err)
+	}
+
+	return cert, key, nil
+}
+
 // getClientCertificateOptions returns client certificate and key options
 func getClientCertificateOptions(settings models.DataSourceSettings, certMgr *CertificateManager, logger log.Logger) ([]opcua.Option, error) {
 	var opts []opcua.Option
@@ -538,40 +569,16 @@ func getClientCertificateOptions(settings models.DataSourceSettings, certMgr *Ce
 		}
 	}
 
-	// Parse certificate
-	certBlock, _ := pem.Decode(certPEM)
-	if certBlock == nil || certBlock.Type != "CERTIFICATE" {
-		return nil, fmt.Errorf("failed to decode auto-generated certificate PEM")
-	}
-
-	cert, err := x509.ParseCertificate(certBlock.Bytes)
+	cert, key, err := loadClientCert(certPEM, keyPEM)
 	if err != nil {
-		return nil, fmt.Errorf("failed to parse auto-generated certificate: %w", err)
+		return nil, err
 	}
 
-	// Parse private key
-	keyBlock, _ := pem.Decode(keyPEM)
-	if keyBlock == nil || keyBlock.Type != "RSA PRIVATE KEY" {
-		return nil, fmt.Errorf("failed to decode auto-generated private key PEM")
-	}
-
-	key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
-	if err != nil {
-		return nil, fmt.Errorf("failed to parse auto-generated private key: %w", err)
-	}
-
-	// Validate that the certificate and key match
-	if err := validateCertKeyPair(cert, key); err != nil {
-		return nil, fmt.Errorf("certificate and key validation failed: %w", err)
-	}
-
-	// Extract Application URI from the certificate
 	appURI := extractApplicationURI(cert)
 	logger.Info("Extracted Application URI from certificate", "applicationURI", appURI)
 
-	// Add certificate options
 	opts = append(opts,
-		opcua.Certificate(certBlock.Bytes),
+		opcua.Certificate(cert.Raw),
 		opcua.PrivateKey(key),
 		opcua.ApplicationURI(appURI),
 	)
@@ -620,39 +627,15 @@ func getSecurityOptions(settings models.DataSourceSettings, certMgr *Certificate
 			}
 		}
 
-		// Parse certificate
-		certBlock, _ := pem.Decode(certPEM)
-		if certBlock == nil || certBlock.Type != "CERTIFICATE" {
-			return nil, fmt.Errorf("failed to decode auto-generated certificate PEM")
-		}
-
-		cert, err := x509.ParseCertificate(certBlock.Bytes)
+		cert, key, err := loadClientCert(certPEM, keyPEM)
 		if err != nil {
-			return nil, fmt.Errorf("failed to parse auto-generated certificate: %w", err)
+			return nil, err
 		}
 
-		// Parse private key
-		keyBlock, _ := pem.Decode(keyPEM)
-		if keyBlock == nil || keyBlock.Type != "RSA PRIVATE KEY" {
-			return nil, fmt.Errorf("failed to decode auto-generated private key PEM")
-		}
-
-		key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
-		if err != nil {
-			return nil, fmt.Errorf("failed to parse auto-generated private key: %w", err)
-		}
-
-		// Validate that the certificate and key match
-		if err := validateCertKeyPair(cert, key); err != nil {
-			return nil, fmt.Errorf("certificate and key validation failed: %w", err)
-		}
-
-		// Extract Application URI from the certificate
 		appURI := extractApplicationURI(cert)
 
-		// Add certificate options for secure channel
 		opts = append(opts,
-			opcua.Certificate(certBlock.Bytes),
+			opcua.Certificate(cert.Raw),
 			opcua.PrivateKey(key),
 			opcua.ApplicationURI(appURI),
 		)
@@ -691,4 +674,3 @@ func extractApplicationURI(cert *x509.Certificate) string {
 	// Fallback to a default URI if none found
 	return "urn:grafana:simpleopcua:client"
 }
-
