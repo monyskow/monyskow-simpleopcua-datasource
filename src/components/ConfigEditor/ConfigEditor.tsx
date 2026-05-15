@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import { firstValueFrom } from 'rxjs';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { FieldSet, InlineField, Input, Select, SecretInput, SecretTextArea, Button, Alert } from '@grafana/ui';
+import { FieldSet, InlineField, Input, Combobox, SecretInput, SecretTextArea, Button, Alert } from '@grafana/ui';
 import { OpcuaDataSourceOptions, OpcuaSecureJsonData, AuthMethod, SecurityPolicy, SecurityMode } from '../../types';
 
 type Props = DataSourcePluginOptionsEditorProps<OpcuaDataSourceOptions, OpcuaSecureJsonData>;
@@ -45,6 +46,13 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
   const { jsonData, secureJsonFields, secureJsonData } = options;
   const [isGenerating, setIsGenerating] = useState(false);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   // Check if security mode requires a client certificate
   const needsClientCertificate =
@@ -110,10 +118,15 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
         return;
       }
 
-      const response = await getBackendSrv().fetch<{ clientCert: string; clientKey: string }>({
-        url: `/api/datasources/${options.id}/resources/generate-certificate`,
-        method: 'GET',
-      }).toPromise();
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = new AbortController();
+      const response = await firstValueFrom(
+        getBackendSrv().fetch<{ clientCert: string; clientKey: string }>({
+          url: `/api/datasources/${options.id}/resources/generate-certificate`,
+          method: 'GET',
+          abortSignal: abortControllerRef.current.signal,
+        })
+      );
 
       if (response?.data) {
         // Store the certificate in secureJsonData
@@ -167,22 +180,20 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
         </InlineField>
 
         <InlineField label="Security Policy" labelWidth={20} tooltip="Encryption algorithm for the OPC-UA connection">
-          <Select
+          <Combobox
             width={30}
             options={SECURITY_POLICY_OPTIONS}
             value={jsonData.securityPolicy || 'None'}
-            onChange={(v) => onJsonDataChange('securityPolicy', v.value!)}
-            aria-label="Security Policy"
+            onChange={(v) => onJsonDataChange('securityPolicy', v.value)}
           />
         </InlineField>
 
         <InlineField label="Security Mode" labelWidth={20} tooltip="Security mode for message signing and encryption">
-          <Select
+          <Combobox
             width={30}
             options={SECURITY_MODE_OPTIONS}
             value={jsonData.securityMode || 'None'}
-            onChange={(v) => onJsonDataChange('securityMode', v.value!)}
-            aria-label="Security Mode"
+            onChange={(v) => onJsonDataChange('securityMode', v.value)}
           />
         </InlineField>
 
@@ -200,8 +211,8 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
       {needsClientCertificate && (
         <FieldSet label="Client Certificate">
           <p style={{ marginBottom: '16px', color: '#8e8e8e' }}>
-            Secure connections (Sign/SignAndEncrypt) require a client certificate. Generate one and save the
-            datasource to persist it across Grafana restarts.
+            Secure connections (Sign/SignAndEncrypt) require a client certificate. Generate one and save the datasource
+            to persist it across Grafana restarts.
           </p>
 
           {generateError && (
@@ -254,12 +265,11 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
           labelWidth={20}
           tooltip="Authentication method to use when connecting to the OPC-UA server"
         >
-          <Select
+          <Combobox
             width={30}
             options={AUTH_METHOD_OPTIONS}
             value={jsonData.authMethod || 'anonymous'}
-            onChange={(v) => onJsonDataChange('authMethod', v.value!)}
-            aria-label="Authentication Method"
+            onChange={(v) => onJsonDataChange('authMethod', v.value)}
           />
         </InlineField>
 
