@@ -1,3 +1,7 @@
+# Generated provisioning artifacts (see scripts/gen-prosys-certs.sh)
+provisioning/certs/
+provisioning/datasources/datasources-prosys.yaml
+
 # Dependencies
 node_modules/
 
