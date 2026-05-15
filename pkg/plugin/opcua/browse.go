@@ -14,11 +14,12 @@ import (
 // Browse returns child nodes of the given node
 func (c *Client) Browse(ctx context.Context, nodeID string) ([]models.BrowseNode, error) {
 	c.mu.RLock()
-	defer c.mu.RUnlock()
-
 	if !c.connected {
+		c.mu.RUnlock()
 		return nil, fmt.Errorf("client not connected")
 	}
+	client := c.client
+	c.mu.RUnlock()
 
 	// Parse node ID (default to Objects folder)
 	var nid *ua.NodeID
@@ -45,7 +46,7 @@ func (c *Client) Browse(ctx context.Context, nodeID string) ([]models.BrowseNode
 		}},
 	}
 
-	resp, err := c.client.Browse(ctx, req)
+	resp, err := client.Browse(ctx, req)
 	if err != nil {
 		return nil, fmt.Errorf("browse: %w", err)
 	}
@@ -70,7 +71,7 @@ func (c *Client) Browse(ctx context.Context, nodeID string) ([]models.BrowseNode
 			ReleaseContinuationPoints: false,
 		}
 
-		nextResp, err := c.client.BrowseNext(ctx, nextReq)
+		nextResp, err := client.BrowseNext(ctx, nextReq)
 		if err != nil {
 			return nil, fmt.Errorf("browse next: %w", err)
 		}
