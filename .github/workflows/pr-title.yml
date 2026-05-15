@@ -1,0 +1,30 @@
+name: PR title
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate Conventional Commits in PR title
+        env:
+          TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          set -euo pipefail
+          echo "Title: $TITLE"
+          # Conventional Commits: type(scope?)!?: description
+          if [[ "$TITLE" =~ ^(feat|fix|chore|docs|refactor|test|perf|style|build|ci|revert)(\([a-z0-9._-]+\))?!?:[[:space:]].+ ]]; then
+            echo "OK"
+            exit 0
+          fi
+          echo "::error::PR title does not match Conventional Commits."
+          echo "Format: <type>(<scope>)?: <description>"
+          echo "Types: feat | fix | chore | docs | refactor | test | perf | style | build | ci | revert"
+          echo "Example: feat(parser): handle empty CSV"
+          exit 1
