@@ -205,11 +205,7 @@ func matchesSecuritySettings(ep *ua.EndpointDescription, settings models.DataSou
 
 	// Check if endpoint supports the required user token type
 	requiredTokenType := getRequiredTokenType(settings.AuthMethod)
-	if !endpointSupportsTokenType(ep, requiredTokenType) {
-		return false
-	}
-
-	return true
+	return endpointSupportsTokenType(ep, requiredTokenType)
 }
 
 // getRequiredTokenType returns the UserTokenType for the given auth method
