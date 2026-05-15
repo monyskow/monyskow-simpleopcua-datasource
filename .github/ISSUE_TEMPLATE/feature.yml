@@ -1,0 +1,33 @@
+name: Feature
+description: Nowa funkcja lub ulepszenie
+title: "feat: "
+labels: ["feat"]
+body:
+  - type: textarea
+    id: why
+    attributes:
+      label: Why
+      description: "Po co? Co problem rozwiązuje? Dla kogo (zwykle: dla mnie samego — dlaczego mi to potrzebne)?"
+    validations:
+      required: true
+  - type: textarea
+    id: ac
+    attributes:
+      label: Acceptance criteria
+      description: Co musi działać, żeby uznać za skończone. Checklisty.
+      value: |
+        - [ ] kryterium 1
+        - [ ] kryterium 2
+        - [ ] testy / weryfikacja
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: Co świadomie pomijamy w tym issue (żeby nie scope creep).
+  - type: textarea
+    id: open_questions
+    attributes:
+      label: Open questions
+      description: Pytania, na które trzeba odpowiedzieć przed startem.

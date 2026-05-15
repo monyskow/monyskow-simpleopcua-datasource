@@ -55,3 +55,128 @@ CLAUDE.md
 # Private documentation
 GRAFANA_SUBMISSION_CHECKLIST.md
 VALIDATION_REPORT.md
+
+# --- appended by solo-dev framework (adopt) ---
+# =============================================================================
+# Solo Dev Framework — universal .gitignore
+# Stack: Go, Python (polars/duckdb), TypeScript/Node, C#, SQL (MSSQL/DuckDB)
+# =============================================================================
+# --- OS / Editor ---
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+desktop.ini
+*~
+.vscode/*
+!.vscode/settings.json.example
+!.vscode/extensions.json
+*.iml
+.vs/
+# --- Secrets / env ---
+.env
+.env.*
+!.env.example
+!.env.sample
+*.pem
+*.key
+*.crt
+secrets/
+credentials.json
+*.local
+# --- Logs / coverage / artifacts ---
+*.lcov
+.nyc_output/
+htmlcov/
+.coverage
+.coverage.*
+# --- Go ---
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work.sum
+bin/
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg
+*.egg-info/
+.eggs/
+build/
+develop-eggs/
+downloads/
+.Python
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.venv/
+venv/
+env/
+ENV/
+.python-version
+pip-log.txt
+pip-delete-this-directory.txt
+.ipynb_checkpoints/
+*.pkl
+*.parquet.tmp
+# --- TypeScript / Node ---
+*.tsbuildinfo
+.npm/
+.yarn/
+.pnp.*
+.next/
+.nuxt/
+.cache/
+.parcel-cache/
+.turbo/
+out/
+.svelte-kit/
+# --- C# / .NET ---
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+packages/
+project.lock.json
+project.fragment.lock.json
+*.nupkg
+# --- SQL / DuckDB / data ---
+*.duckdb
+*.duckdb.wal
+*.db
+*.sqlite
+*.sqlite3
+*.bak
+data/local/
+data/cache/
+*.csv.tmp
+# --- Build / temp ---
+tmp/
+temp/
+.tmp/
+*.tmp
+# --- Solo Dev Framework — local ---
+# .solo-dev-version is checked in (tracks framework version per project)
+# .claude/settings.local.json is per-developer overrides (NOT checked in)
+.claude/settings.local.json

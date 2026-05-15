@@ -1,0 +1,45 @@
+name: Bug
+description: Coś nie działa zgodnie z oczekiwaniem
+title: "fix: "
+labels: ["fix", "bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Konkretne objawy. Cytaty z logów, traceback, screenshot.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+      description: Jak powinno działać.
+    validations:
+      required: true
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Minimalne kroki do odtworzenia. Jeśli niedeterministyczny — częstotliwość.
+      value: |
+        1.
+        2.
+        3.
+    validations:
+      required: true
+  - type: textarea
+    id: env
+    attributes:
+      label: Environment
+      description: Wersja, OS, stack relevantny dla buga.
+  - type: textarea
+    id: ac
+    attributes:
+      label: Acceptance criteria
+      value: |
+        - [ ] regression test failuje na obecnym kodzie
+        - [ ] regression test przechodzi po fixie
+        - [ ] objaw nie wraca w smoke test
+    validations:
+      required: true

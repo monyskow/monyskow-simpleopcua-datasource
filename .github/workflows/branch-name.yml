@@ -1,0 +1,28 @@
+name: Branch name
+
+on:
+  pull_request:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Validate branch name
+        env:
+          BRANCH: ${{ github.head_ref }}
+        run: |
+          set -euo pipefail
+          echo "Branch: $BRANCH"
+          if [[ "$BRANCH" =~ ^(feat|fix|chore|docs|refactor|test|spike)/[a-z0-9][a-z0-9._-]*$ ]]; then
+            echo "OK"
+            exit 0
+          fi
+          echo "::error::Branch '$BRANCH' does not match required pattern."
+          echo "Required prefix: feat/ fix/ chore/ docs/ refactor/ test/ spike/"
+          echo "Format: <prefix>/<lower-kebab-slug>[-<issue-number>]"
+          exit 1

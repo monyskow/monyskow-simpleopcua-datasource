@@ -1,0 +1,35 @@
+name: Spike
+description: Timeboxed eksploracja techniczna z jasnym pytaniem
+title: "spike: "
+labels: ["spike"]
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question
+      description: Jedno konkretne pytanie, na które spike ma odpowiedzieć.
+    validations:
+      required: true
+  - type: input
+    id: timebox
+    attributes:
+      label: Timebox
+      description: Maksymalny czas (godziny / dni). Spike kończy się gdy timebox minie, niezależnie od stanu.
+      placeholder: "4h"
+    validations:
+      required: true
+  - type: textarea
+    id: deliverable
+    attributes:
+      label: Deliverable
+      description: Co dokładnie zostawisz po spike'u (notatka w docs/ideas/, ADR, kod demo do wyrzucenia, benchmark).
+      value: |
+        - [ ] notatka / dokument: ...
+        - [ ] decyzja: ...
+    validations:
+      required: true
+  - type: textarea
+    id: out_of_scope
+    attributes:
+      label: Out of scope
+      description: Co świadomie nie eksplorujemy w tym spike'u.
