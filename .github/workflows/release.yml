@@ -7,8 +7,8 @@ on:
 
 permissions:
   contents: write
-  id-token: write      # Required for build provenance attestation
-  attestations: write  # Required for build provenance attestation
+  id-token: write # Required for build provenance attestation
+  attestations: write # Required for build provenance attestation
 
 jobs:
   release:
@@ -28,7 +28,7 @@ jobs:
       - name: Setup Go environment
         uses: actions/setup-go@v5
         with:
-          go-version: '1.25'
+          go-version-file: go.mod
 
       - name: Install dependencies
         run: npm ci
@@ -45,7 +45,6 @@ jobs:
       - name: Sign plugin
         run: npm run sign
         if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' }}
-        continue-on-error: true
 
       - name: Get plugin metadata
         id: metadata
@@ -80,7 +79,6 @@ jobs:
           docker run --pull=always \
             -v $PWD/${{ steps.metadata.outputs.archive }}:/archive.zip \
             grafana/plugin-validator-cli /archive.zip
-        continue-on-error: true
 
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
