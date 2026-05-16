@@ -58,7 +58,7 @@ func generateTestCertAndKey(t *testing.T) (certPEM, keyPEM []byte) {
 func TestLoadClientCert_ValidPair_ReturnsParsedValues(t *testing.T) {
 	certPEM, keyPEM := generateTestCertAndKey(t)
 
-	cert, key, err := loadClientCert(certPEM, keyPEM)
+	cert, key, err := loadClientCert(certPEM, keyPEM, log.DefaultLogger)
 
 	require.NoError(t, err)
 	require.NotNil(t, cert)
@@ -75,7 +75,7 @@ func TestLoadClientCert_MismatchedKey_ReturnsValidationError(t *testing.T) {
 	// Generate a completely different key — the public key won't match the cert.
 	_, differentKeyPEM := generateTestCertAndKey(t)
 
-	_, _, err := loadClientCert(certPEM, differentKeyPEM)
+	_, _, err := loadClientCert(certPEM, differentKeyPEM, log.DefaultLogger)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "certificate and key validation failed",
@@ -85,7 +85,7 @@ func TestLoadClientCert_MismatchedKey_ReturnsValidationError(t *testing.T) {
 func TestLoadClientCert_GarbageCertPEM_ReturnsError(t *testing.T) {
 	_, keyPEM := generateTestCertAndKey(t)
 
-	_, _, err := loadClientCert([]byte("not a pem block"), keyPEM)
+	_, _, err := loadClientCert([]byte("not a pem block"), keyPEM, log.DefaultLogger)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to decode", "should report decode failure")
@@ -94,7 +94,7 @@ func TestLoadClientCert_GarbageCertPEM_ReturnsError(t *testing.T) {
 func TestLoadClientCert_GarbageKeyPEM_ReturnsError(t *testing.T) {
 	certPEM, _ := generateTestCertAndKey(t)
 
-	_, _, err := loadClientCert(certPEM, []byte("not a pem block"))
+	_, _, err := loadClientCert(certPEM, []byte("not a pem block"), log.DefaultLogger)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to decode", "should report key decode failure")
@@ -105,7 +105,7 @@ func TestLoadClientCert_WrongPEMType_ReturnsError(t *testing.T) {
 	_, keyPEM := generateTestCertAndKey(t)
 	wrongTypePEM := pem.EncodeToMemory(&pem.Block{Type: "PUBLIC KEY", Bytes: []byte("irrelevant")})
 
-	_, _, err := loadClientCert(wrongTypePEM, keyPEM)
+	_, _, err := loadClientCert(wrongTypePEM, keyPEM, log.DefaultLogger)
 
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to decode certificate PEM")
@@ -114,14 +114,54 @@ func TestLoadClientCert_WrongPEMType_ReturnsError(t *testing.T) {
 func TestLoadClientCert_EmptyInputs_DoNotPanic(t *testing.T) {
 	// Regression: nil/empty slices must not panic — they should return an error.
 	require.NotPanics(t, func() {
-		_, _, err := loadClientCert(nil, nil)
+		_, _, err := loadClientCert(nil, nil, log.DefaultLogger)
 		assert.Error(t, err)
 	})
 
 	require.NotPanics(t, func() {
-		_, _, err := loadClientCert([]byte{}, []byte{})
+		_, _, err := loadClientCert([]byte{}, []byte{}, log.DefaultLogger)
 		assert.Error(t, err)
 	})
+}
+
+// capturingLogger wraps log.DefaultLogger and records all Warn calls so tests
+// can assert that the warning was actually emitted.
+type capturingLogger struct {
+	log.Logger
+	warns []string
+}
+
+func (c *capturingLogger) Warn(msg string, args ...interface{}) {
+	c.warns = append(c.warns, msg)
+}
+
+// Fix #3 regression: trailing garbage after cert PEM must not cause an error.
+func TestLoadClientCert_TrailingDataAfterCertPEM_Succeeds(t *testing.T) {
+	certPEM, keyPEM := generateTestCertAndKey(t)
+	cl := &capturingLogger{Logger: log.DefaultLogger}
+
+	certPEMWithTrailing := append(certPEM, []byte("garbage trailing bytes")...)
+
+	cert, key, err := loadClientCert(certPEMWithTrailing, keyPEM, cl)
+
+	require.NoError(t, err, "trailing garbage after cert PEM must not cause an error")
+	require.NotNil(t, cert)
+	require.NotNil(t, key)
+	assert.Equal(t, "test-opcua-client", cert.Subject.CommonName)
+}
+
+// Fix #3 regression: trailing garbage after key PEM must not cause an error.
+func TestLoadClientCert_TrailingDataAfterKeyPEM_Succeeds(t *testing.T) {
+	certPEM, keyPEM := generateTestCertAndKey(t)
+	cl := &capturingLogger{Logger: log.DefaultLogger}
+
+	keyPEMWithTrailing := append(keyPEM, []byte("garbage trailing bytes")...)
+
+	cert, key, err := loadClientCert(certPEM, keyPEMWithTrailing, cl)
+
+	require.NoError(t, err, "trailing garbage after key PEM must not cause an error")
+	require.NotNil(t, cert)
+	require.NotNil(t, key)
 }
 
 // ---------------------------------------------------------------------------

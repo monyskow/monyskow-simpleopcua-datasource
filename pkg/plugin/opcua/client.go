@@ -511,10 +511,13 @@ func (c *Client) ReadServerState(ctx context.Context) (ua.ServerState, error) {
 
 // loadClientCert decodes and parses a PEM-encoded certificate and RSA private key,
 // validates that they form a matching pair, and returns the parsed values.
-func loadClientCert(certPEM, keyPEM []byte) (*x509.Certificate, *rsa.PrivateKey, error) {
-	certBlock, _ := pem.Decode(certPEM)
+func loadClientCert(certPEM, keyPEM []byte, logger log.Logger) (*x509.Certificate, *rsa.PrivateKey, error) {
+	certBlock, certRest := pem.Decode(certPEM)
 	if certBlock == nil || certBlock.Type != "CERTIFICATE" {
 		return nil, nil, fmt.Errorf("failed to decode certificate PEM")
+	}
+	if next, _ := pem.Decode(certRest); next != nil {
+		logger.Debug("certificate PEM contains multiple blocks; only the first is used")
 	}
 
 	cert, err := x509.ParseCertificate(certBlock.Bytes)
@@ -522,9 +525,12 @@ func loadClientCert(certPEM, keyPEM []byte) (*x509.Certificate, *rsa.PrivateKey,
 		return nil, nil, fmt.Errorf("failed to parse certificate: %w", err)
 	}
 
-	keyBlock, _ := pem.Decode(keyPEM)
+	keyBlock, keyRest := pem.Decode(keyPEM)
 	if keyBlock == nil || keyBlock.Type != "RSA PRIVATE KEY" {
 		return nil, nil, fmt.Errorf("failed to decode private key PEM")
+	}
+	if next, _ := pem.Decode(keyRest); next != nil {
+		logger.Debug("private key PEM contains multiple blocks; only the first is used")
 	}
 
 	key, err := x509.ParsePKCS1PrivateKey(keyBlock.Bytes)
@@ -565,7 +571,7 @@ func getClientCertificateOptions(settings models.DataSourceSettings, certMgr *Ce
 		}
 	}
 
-	cert, key, err := loadClientCert(certPEM, keyPEM)
+	cert, key, err := loadClientCert(certPEM, keyPEM, logger)
 	if err != nil {
 		return nil, err
 	}
@@ -623,7 +629,7 @@ func getSecurityOptions(settings models.DataSourceSettings, certMgr *Certificate
 			}
 		}
 
-		cert, key, err := loadClientCert(certPEM, keyPEM)
+		cert, key, err := loadClientCert(certPEM, keyPEM, logger)
 		if err != nil {
 			return nil, err
 		}

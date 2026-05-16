@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"net/http"
@@ -50,13 +51,14 @@ func (d *Datasource) handleBrowse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Return JSON response
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(nodes); err != nil {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(nodes); err != nil {
 		d.logger.Error("Failed to encode browse response", "error", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(buf.Bytes()) //nolint:errcheck
 }
 
 // handleGetEndpoints handles the get endpoints request
@@ -71,13 +73,14 @@ func (d *Datasource) handleGetEndpoints(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Return JSON response
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(endpoints); err != nil {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(endpoints); err != nil {
 		d.logger.Error("Failed to encode endpoints response", "error", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(buf.Bytes()) //nolint:errcheck
 }
 
 // CertificateResponse is the response from the generate-certificate endpoint
@@ -105,12 +108,14 @@ func (d *Datasource) handleGenerateCertificate(w http.ResponseWriter, r *http.Re
 		ClientKey:  string(keyPEM),
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	var buf bytes.Buffer
+	if err := json.NewEncoder(&buf).Encode(response); err != nil {
 		d.logger.Error("Failed to encode certificate response", "error", err)
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "internal error", http.StatusInternalServerError)
 		return
 	}
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(buf.Bytes()) //nolint:errcheck
 
 	d.logger.Info("Certificate generated successfully")
 }
