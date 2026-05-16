@@ -6,6 +6,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -71,7 +72,7 @@ func NewClient(settings models.DataSourceSettings, logger log.Logger, certMgr *C
 			logAvailableEndpoints(logger, endpoints, settings)
 
 			// Validate that the requested security policy is supported
-			if err := validatePolicySupport(endpoints, settings, logger); err != nil {
+			if err := validatePolicySupport(endpoints, settings); err != nil {
 				return nil, err
 			}
 
@@ -221,7 +222,7 @@ func getRequiredTokenType(authMethod models.AuthMethod) ua.UserTokenType {
 }
 
 // validatePolicySupport checks if the requested security policy is supported by the server
-func validatePolicySupport(endpoints []*ua.EndpointDescription, settings models.DataSourceSettings, _ log.Logger) error {
+func validatePolicySupport(endpoints []*ua.EndpointDescription, settings models.DataSourceSettings) error {
 	// No validation needed for None security
 	if settings.SecurityPolicy == "" || settings.SecurityPolicy == "None" {
 		return nil
@@ -279,7 +280,7 @@ func getUserTokenTypes(ep *ua.EndpointDescription) string {
 	if len(types) == 0 {
 		return "none"
 	}
-	return fmt.Sprintf("[%s]", joinStrings(types, ", "))
+	return fmt.Sprintf("[%s]", strings.Join(types, ", "))
 }
 
 // tokenTypeName returns a human-readable name for a UserTokenType
@@ -296,18 +297,6 @@ func tokenTypeName(t ua.UserTokenType) string {
 	default:
 		return fmt.Sprintf("Unknown(%d)", t)
 	}
-}
-
-// joinStrings joins strings with a separator (simple helper to avoid importing strings package)
-func joinStrings(strs []string, sep string) string {
-	if len(strs) == 0 {
-		return ""
-	}
-	result := strs[0]
-	for i := 1; i < len(strs); i++ {
-		result += sep + strs[i]
-	}
-	return result
 }
 
 // logAvailableEndpoints logs information about available server endpoints for debugging

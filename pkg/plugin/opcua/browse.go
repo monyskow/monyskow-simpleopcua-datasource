@@ -96,7 +96,10 @@ func referencesToNodes(refs []*ua.ReferenceDescription) []models.BrowseNode {
 	nodes := make([]models.BrowseNode, len(refs))
 	for i, ref := range refs {
 		nodeClass := nodeClassToString(ref.NodeClass)
-		hasChildren := nodeClass == "Object" // Objects typically have children
+		// Approximation: assume Object nodes may have children. Determining this
+		// accurately would require an extra Browse call per node (expensive); the
+		// UI handles the "no children" case gracefully via lazy expansion.
+		hasChildren := nodeClass == "Object"
 
 		nodes[i] = models.BrowseNode{
 			NodeID:      ref.NodeID.NodeID.String(),

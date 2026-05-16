@@ -7,21 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-
-- Certificate generation UI with "Generate Certificate" button for secure connections
-- Client certificates are now stored in Grafana's encrypted storage (secureJsonData)
-- Certificates persist across Grafana restarts and datasource updates
-- Certificate status indicator showing configured/not configured state
-- Support for Sign and SignAndEncrypt security modes with auto-generated certificates
-- GitHub Sponsors link for plugin support
-
-### Changed
-
-- Security modes now support certificate auto-generation from the UI
-- Certificates are automatically cached during the plugin session for performance
-- Certificate lifecycle management - valid for 3 years with automatic renewal when expiring soon
-
 ## [1.0.0] - 2024-12-25
 
 ### Added
@@ -36,3 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Connection timeout configuration
 - Template variable support
 - Health check implementation
+- Certificate generation UI with "Generate Certificate" button for secure connections
+- Client certificates stored in Grafana's encrypted storage (secureJsonData)
+- Certificates persist across Grafana restarts and datasource updates
+- Certificate status indicator showing configured/not configured state
+- Support for Sign and SignAndEncrypt security modes with auto-generated certificates
+- GitHub Sponsors link for plugin support
+
+### Changed
+
+- Security modes now support certificate auto-generation from the UI
+- Certificates are automatically cached during the plugin session for performance
+- Certificate lifecycle management - valid for 3 years with automatic renewal when expiring soon
