@@ -11,6 +11,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
   changes:
@@ -56,13 +57,13 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
         with:
-          go-version-file: go.mod
+          go-version: stable
           cache: true
       - run: go build ./...
       - run: go test ./... -race -count=1
-      - uses: golangci/golangci-lint-action@v7
+      - uses: golangci/golangci-lint-action@v6
         with:
-          version: v2.12.2
+          version: latest
 
   python:
     needs: changes
@@ -72,7 +73,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
       - name: Install uv
         run: pip install uv
       - name: Install deps
@@ -97,7 +98,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: "20"
           cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || 'npm' }}
       - name: Install
         run: |
@@ -112,7 +113,7 @@ jobs:
           if [[ -f pnpm-lock.yaml ]]; then pnpm run lint --if-present; else npm run lint --if-present; fi
       - name: Test
         run: |
-          if [[ -f pnpm-lock.yaml ]]; then pnpm run test:ci --if-present; else npm run test:ci --if-present; fi
+          if [[ -f pnpm-lock.yaml ]]; then pnpm test --if-present; else npm test --if-present; fi
 
   dotnet:
     needs: changes
@@ -122,7 +123,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: "8.0.x"
       - run: dotnet restore
       - run: dotnet build --no-restore --configuration Release
       - run: dotnet test --no-build --configuration Release --verbosity normal
