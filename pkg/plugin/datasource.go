@@ -73,7 +73,7 @@ func (d *Datasource) Dispose() {
 		closeCtx, cancel := context.WithTimeout(context.Background(), time.Duration(d.settings.Timeout)*time.Second)
 		defer cancel()
 		if err := d.client.Close(closeCtx); err != nil {
-			d.logger.Error("Error closing client", "error", err)
+			d.logger.Warn("error closing OPC UA client", "error", err)
 		}
 		d.client = nil
 	}
@@ -97,7 +97,9 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 
 	// Close existing client if disconnected
 	if d.client != nil {
-		_ = d.client.Close(ctx) // Ignore error on cleanup
+		if err := d.client.Close(ctx); err != nil {
+			d.logger.Warn("error closing OPC UA client", "error", err)
+		}
 		d.client = nil
 	}
 
@@ -109,7 +111,9 @@ func (d *Datasource) getOrCreateClient(ctx context.Context) (*opcua.Client, erro
 
 	// Connect
 	if err := client.Connect(ctx); err != nil {
-		_ = client.Close(ctx) // Ignore error on cleanup
+		if cerr := client.Close(ctx); cerr != nil {
+			d.logger.Warn("error closing OPC UA client", "error", cerr)
+		}
 		return nil, fmt.Errorf("connect: %w", err)
 	}
 
@@ -226,9 +230,19 @@ func (d *Datasource) query(ctx context.Context, client *opcua.Client, query back
 func (d *Datasource) buildDataFrame(nodes []models.NodeQuery, values []opcua.NodeValue) *data.Frame {
 	frame := data.NewFrame("response")
 
-	// Add timestamp field
-	timestamps := make([]time.Time, 1)
-	timestamps[0] = time.Now()
+	// Add timestamp field: prefer SourceTimestamp, then ServerTimestamp, then wall clock
+	var ts time.Time
+	if len(values) > 0 {
+		if !values[0].SourceTimestamp.IsZero() {
+			ts = values[0].SourceTimestamp
+		} else if !values[0].ServerTimestamp.IsZero() {
+			ts = values[0].ServerTimestamp
+		}
+	}
+	if ts.IsZero() {
+		ts = time.Now()
+	}
+	timestamps := []time.Time{ts}
 	frame.Fields = append(frame.Fields, data.NewField("time", nil, timestamps))
 
 	// Add value fields
