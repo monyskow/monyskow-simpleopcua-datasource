@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"sync"
 	"time"
 
@@ -343,7 +344,7 @@ func formatConnectionError(err error, settings models.DataSourceSettings) string
 	errStr := err.Error()
 
 	// Check for common OPC-UA status codes and provide helpful messages
-	if contains(errStr, "StatusBadIdentityTokenRejected") || contains(errStr, "0x80210000") {
+	if strings.Contains(errStr, "StatusBadIdentityTokenRejected") || strings.Contains(errStr, "0x80210000") {
 		hint := "The server rejected the identity token. "
 		switch settings.AuthMethod {
 		case models.AuthUserPass:
@@ -356,45 +357,30 @@ func formatConnectionError(err error, settings models.DataSourceSettings) string
 		return fmt.Sprintf("Connection failed: %s. %s", errStr, hint)
 	}
 
-	if contains(errStr, "StatusBadUserAccessDenied") || contains(errStr, "0x801F0000") {
+	if strings.Contains(errStr, "StatusBadUserAccessDenied") || strings.Contains(errStr, "0x801F0000") {
 		return fmt.Sprintf("Connection failed: %s. The user does not have permission to access the server. Check user permissions on the OPC-UA server.", errStr)
 	}
 
-	if contains(errStr, "StatusBadSecurityModeRejected") || contains(errStr, "0x80310000") {
+	if strings.Contains(errStr, "StatusBadSecurityModeRejected") || strings.Contains(errStr, "0x80310000") {
 		return fmt.Sprintf("Connection failed: %s. The server rejected the security mode. Try a different security mode (None, Sign, or SignAndEncrypt).", errStr)
 	}
 
-	if contains(errStr, "StatusBadSecurityPolicyRejected") || contains(errStr, "0x80550000") {
+	if strings.Contains(errStr, "StatusBadSecurityPolicyRejected") || strings.Contains(errStr, "0x80550000") {
 		return fmt.Sprintf("Connection failed: %s. The server rejected the security policy. Check which security policies the server supports.", errStr)
 	}
 
-	if contains(errStr, "StatusBadCertificateUntrusted") || contains(errStr, "0x801A0000") {
+	if strings.Contains(errStr, "StatusBadCertificateUntrusted") || strings.Contains(errStr, "0x801A0000") {
 		return fmt.Sprintf("Connection failed: %s. The server doesn't trust the client certificate. You may need to add the client certificate to the server's trusted certificates list.", errStr)
 	}
 
-	if contains(errStr, "StatusBadTimeout") || contains(errStr, "0x800A0000") {
+	if strings.Contains(errStr, "StatusBadTimeout") || strings.Contains(errStr, "0x800A0000") {
 		return fmt.Sprintf("Connection failed: %s. Connection timed out. Check if the server is reachable and the endpoint URL is correct.", errStr)
 	}
 
-	if contains(errStr, "no matching endpoint") {
+	if strings.Contains(errStr, "no matching endpoint") {
 		return fmt.Sprintf("Connection failed: %s. No server endpoint matches the configured security policy, mode, and authentication method. Check Grafana server logs for available endpoints.", errStr)
 	}
 
 	// Default: return the original error
 	return fmt.Sprintf("Connection failed: %s", errStr)
-}
-
-// contains checks if a string contains a substring (case-sensitive)
-func contains(s, substr string) bool {
-	return len(s) >= len(substr) && (s == substr || len(substr) == 0 || findSubstring(s, substr))
-}
-
-// findSubstring checks if substr exists in s
-func findSubstring(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
-	return false
 }

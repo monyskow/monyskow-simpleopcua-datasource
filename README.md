@@ -62,12 +62,14 @@ For advanced use cases, you can provide your own client certificate using the Ce
 **Important:** For secure connections, you must either generate a certificate or provide your own. The OPC-UA server must trust the client certificate - consult your OPC-UA server documentation for adding trusted certificates.
 
 **Supported Security Policies:**
+
 - None (no encryption)
 - Basic256Sha256
 - Aes128_Sha256_RsaOaep
 - Aes256_Sha256_RsaPss
 
 **Supported Security Modes:**
+
 - None
 - Sign (messages are signed but not encrypted)
 - SignAndEncrypt (messages are signed and encrypted)
@@ -143,12 +145,12 @@ docker compose -f docker-compose.prosys.yaml up
 
 **Docker Compose Configurations:**
 
-| Configuration | Datasources | Dashboards | OPC-UA Servers | Port | Use Case |
-|--------------|-------------|------------|----------------|------|----------|
-| `docker-compose.yaml` | None | None | None | 3000 | Manual testing, clean slate |
-| `docker-compose.e2e.yaml` | 1 (test) | None | None | 3000 | E2E tests (used by `npm run e2e`) |
-| `docker-compose.full.yaml` | 14 (docker-based) | Yes | 5 containers | 3000 | Complete integration testing |
-| `docker-compose.prosys.yaml` | 14 (ProSys) | Yes | ProSys on host | 3001 | ProSys simulator testing |
+| Configuration                | Datasources       | Dashboards | OPC-UA Servers | Port | Use Case                          |
+| ---------------------------- | ----------------- | ---------- | -------------- | ---- | --------------------------------- |
+| `docker-compose.yaml`        | None              | None       | None           | 3000 | Manual testing, clean slate       |
+| `docker-compose.e2e.yaml`    | 1 (test)          | None       | None           | 3000 | E2E tests (used by `npm run e2e`) |
+| `docker-compose.full.yaml`   | 14 (docker-based) | Yes        | 5 containers   | 3000 | Complete integration testing      |
+| `docker-compose.prosys.yaml` | 14 (ProSys)       | Yes        | ProSys on host | 3001 | ProSys simulator testing          |
 
 ### OPC-UA Test Servers
 
@@ -159,6 +161,7 @@ For development and testing, you can use OPC-UA simulators:
 The `docker-compose.full.yaml` setup includes 5 containerized OPC-UA test servers using [Microsoft OPC-PLC](https://github.com/Azure-Samples/iot-edge-opc-plc) and [node-opcua](https://github.com/node-opcua/node-opcua). These servers are provided **solely for testing convenience** and are not part of the plugin itself.
 
 **Available servers:**
+
 - `opcua-nosecurity` (port 50000) - No security, anonymous only
 - `opcua-secure-anon` (port 50001) - Security enabled, anonymous auth
 - `opcua-secure-userpass` (port 50002) - Security enabled, username/password (user1/password1)
@@ -170,6 +173,7 @@ The `docker-compose.full.yaml` setup includes 5 containerized OPC-UA test server
 [ProSys OPC-UA Simulation Server](https://www.prosysopc.com/products/opc-ua-simulation-server/) is a **third-party external tool** that can be used for testing. It is not included with this plugin.
 
 To test with ProSys:
+
 1. Download and install ProSys OPC-UA Simulation Server on your host machine
 2. Start the ProSys simulator
 3. Use `docker compose -f docker-compose.prosys.yaml up` to run Grafana configured to connect to ProSys via `host.docker.internal`
@@ -203,20 +207,31 @@ npx playwright test --ui     # Interactive mode
 GRAFANA_VERSION=10.4.0 npm run server
 ```
 
+### Multi-version testing
+
+The following scripts test the plugin against all supported Grafana versions (currently 10.4.19, 11.1.13, 11.4.8, 12.1.5, 12.3.1). They build the plugin once, then iterate over each version.
+
+- `scripts/e2e-all-versions.sh` — builds the plugin, starts each Grafana version sequentially via `docker compose`, runs `npm run e2e` against it, and writes a timestamped results file.
+- `scripts/start-all-versions.sh` — builds the plugin, then starts all versions simultaneously as individual Docker containers on consecutive ports starting at 3000 (e.g. 3000, 3001, 3002, ...) for side-by-side manual comparison.
+- `scripts/stop-all-versions.sh` — stops and removes all containers started by `start-all-versions.sh`.
+
 ### Architecture
 
 **Frontend (src/):**
+
 - `module.ts` - Plugin entry point
 - `datasource.ts` - OpcuaDataSource (extends DataSourceWithBackend)
 - `components/ConfigEditor/` - Data source configuration UI
 - `components/QueryEditor/` - Query editor with node browser
 
 **Backend (pkg/):**
+
 - `plugin/datasource.go` - Query and health check handlers
 - `plugin/resources.go` - HTTP handlers for /browse and /endpoints
 - `plugin/opcua/` - OPC-UA client, auth, browsing, certificates
 
 **Key Dependencies:**
+
 - Go: `github.com/gopcua/opcua` - OPC-UA protocol
 - Go: `github.com/grafana/grafana-plugin-sdk-go` - Plugin SDK
 
