@@ -1,83 +1,27 @@
-# Generated provisioning artifacts (see scripts/gen-prosys-certs.sh)
-provisioning/certs/
-provisioning/datasources/datasources-prosys.yaml
-
-# Dependencies
-node_modules/
-
-# Build output
-dist/
-
-# IDE
-.idea/
-*.swp
-*.swo
-.vscode/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-logs/
-*.log
-npm-debug.log*
-
-# Coverage
-coverage/
-
-# Test results
-test-results/
-playwright-report/
-blob-report/
-playwright/.cache/
-playwright/.auth/
-
-# Artifacts
-artifacts/
-work/
-ci/
-
-# Signed plugins
-*.zip
-
-# Go
-vendor/
-
-# Misc
-.eslintcache
-*.pid
-*.seed
-*.pid.lock
-.env.local
-
-
-# Claude
-.claude/
-CLAUDE.md
-
-# Private documentation
-GRAFANA_SUBMISSION_CHECKLIST.md
-VALIDATION_REPORT.md
-
-# --- appended by solo-dev framework (adopt) ---
 # =============================================================================
 # Solo Dev Framework — universal .gitignore
 # Stack: Go, Python (polars/duckdb), TypeScript/Node, C#, SQL (MSSQL/DuckDB)
 # =============================================================================
+
 # --- OS / Editor ---
+.DS_Store
 .DS_Store?
 ._*
 .Spotlight-V100
 .Trashes
 ehthumbs.db
+Thumbs.db
 desktop.ini
+*.swp
+*.swo
 *~
+.idea/
 .vscode/*
 !.vscode/settings.json.example
 !.vscode/extensions.json
 *.iml
 .vs/
+
 # --- Secrets / env ---
 .env
 .env.*
@@ -89,12 +33,17 @@ desktop.ini
 secrets/
 credentials.json
 *.local
+
 # --- Logs / coverage / artifacts ---
+*.log
+logs/
+coverage/
 *.lcov
 .nyc_output/
 htmlcov/
 .coverage
 .coverage.*
+
 # --- Go ---
 *.exe
 *.exe~
@@ -104,7 +53,10 @@ htmlcov/
 *.test
 *.out
 go.work.sum
+vendor/
 bin/
+dist/
+
 # --- Python ---
 __pycache__/
 *.py[cod]
@@ -130,7 +82,9 @@ pip-delete-this-directory.txt
 .ipynb_checkpoints/
 *.pkl
 *.parquet.tmp
+
 # --- TypeScript / Node ---
+node_modules/
 *.tsbuildinfo
 .npm/
 .yarn/
@@ -142,6 +96,7 @@ pip-delete-this-directory.txt
 .turbo/
 out/
 .svelte-kit/
+
 # --- C# / .NET ---
 [Bb]in/
 [Oo]bj/
@@ -164,7 +119,9 @@ bld/
 packages/
 project.lock.json
 project.fragment.lock.json
+artifacts/
 *.nupkg
+
 # --- SQL / DuckDB / data ---
 *.duckdb
 *.duckdb.wal
@@ -175,11 +132,13 @@ project.fragment.lock.json
 data/local/
 data/cache/
 *.csv.tmp
+
 # --- Build / temp ---
 tmp/
 temp/
 .tmp/
 *.tmp
+
 # --- Solo Dev Framework — local ---
 # .solo-dev-version is checked in (tracks framework version per project)
 # .claude/settings.local.json is per-developer overrides (NOT checked in)

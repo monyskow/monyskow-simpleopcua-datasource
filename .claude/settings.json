@@ -1,0 +1,132 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Bash(git status*)",
+      "Bash(git log*)",
+      "Bash(git diff*)",
+      "Bash(git show*)",
+      "Bash(git branch*)",
+      "Bash(git rev-parse*)",
+      "Bash(git fetch*)",
+      "Bash(git ls-files*)",
+      "Bash(gh issue list*)",
+      "Bash(gh issue view*)",
+      "Bash(gh pr list*)",
+      "Bash(gh pr view*)",
+      "Bash(gh pr diff*)",
+      "Bash(gh release list*)",
+      "Bash(gh release view*)",
+      "Bash(gh repo view*)",
+      "Bash(gh api repos/*)",
+      "Bash(gh auth status*)",
+      "Bash(gh --version)",
+      "Bash(jq:*)",
+      "Bash(ls*)",
+      "Bash(find . *)",
+      "Bash(grep*)",
+      "Bash(rg*)",
+      "Bash(cat *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(sort *)",
+      "Bash(uniq *)",
+      "Bash(date*)",
+      "Bash(echo*)",
+      "Bash(pwd)",
+      "Bash(go build*)",
+      "Bash(go test*)",
+      "Bash(go vet*)",
+      "Bash(gofmt*)",
+      "Bash(goimports*)",
+      "Bash(golangci-lint*)",
+      "Bash(python -m pytest*)",
+      "Bash(pytest*)",
+      "Bash(ruff*)",
+      "Bash(uv run*)",
+      "Bash(npm test*)",
+      "Bash(npm run*)",
+      "Bash(pnpm test*)",
+      "Bash(pnpm run*)",
+      "Bash(eslint*)",
+      "Bash(prettier*)",
+      "Bash(dotnet build*)",
+      "Bash(dotnet test*)",
+      "Bash(dotnet format*)",
+      "Bash(shellcheck*)",
+      "Bash(shfmt*)",
+      "Bash(bash -n*)",
+      "Bash(yamllint*)",
+      "Read(**)",
+      "Glob(**)",
+      "Grep(**)"
+    ],
+    "ask": [
+      "Bash(git push*)",
+      "Bash(git commit*)",
+      "Bash(git checkout*)",
+      "Bash(git switch*)",
+      "Bash(git merge*)",
+      "Bash(git rebase*)",
+      "Bash(git tag*)",
+      "Bash(gh issue create*)",
+      "Bash(gh issue edit*)",
+      "Bash(gh issue close*)",
+      "Bash(gh pr create*)",
+      "Bash(gh pr edit*)",
+      "Bash(gh pr merge*)",
+      "Bash(gh release create*)",
+      "Bash(gh repo create*)",
+      "Bash(npm install*)",
+      "Bash(pnpm install*)",
+      "Bash(go get*)",
+      "Bash(pip install*)",
+      "Bash(uv add*)",
+      "Bash(dotnet add*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /*)",
+      "Bash(rm -rf ~*)",
+      "Bash(rm -rf $HOME*)",
+      "Bash(git push --force *main*)",
+      "Bash(git push --force *master*)",
+      "Bash(git push -f *main*)",
+      "Bash(gh repo delete*)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/credentials.json)",
+      "Read(**/*.pem)",
+      "Read(**/*.key)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/session-context.sh" }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/dangerous-ops.sh" },
+          { "type": "command", "command": ".claude/hooks/block-main-push.sh" },
+          { "type": "command", "command": ".claude/hooks/validate-branch-name.sh" },
+          { "type": "command", "command": ".claude/hooks/validate-commit-msg.sh" }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          { "type": "command", "command": ".claude/hooks/auto-format.sh" },
+          { "type": "command", "command": ".claude/hooks/lint-feedback.sh" }
+        ]
+      }
+    ]
+  }
+}
