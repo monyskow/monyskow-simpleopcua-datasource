@@ -112,7 +112,7 @@ jobs:
           if [[ -f pnpm-lock.yaml ]]; then pnpm run lint --if-present; else npm run lint --if-present; fi
       - name: Test
         run: |
-          if [[ -f pnpm-lock.yaml ]]; then pnpm test --if-present; else npm test --if-present; fi
+          if [[ -f pnpm-lock.yaml ]]; then pnpm run test:ci --if-present; else npm run test:ci --if-present; fi
 
   dotnet:
     needs: changes
