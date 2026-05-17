@@ -55,14 +55,24 @@ services:
       - ./dist:/var/lib/grafana/plugins/monyskow-simpleopcua-datasource
       # Source code mounted for development
       - .:/root/monyskow-simpleopcua-datasource
-      # Provision E2E test datasource
-      - ./provisioning/datasources/datasources-e2e.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      # Provision E2E test datasource. AUTH_CONFIG selects the combination:
+      # anon-none | userpass-none | userpass-b256-sign | cert-b256-sign | cert-aes256-sign
+      - ./provisioning/datasources/datasources-e2e-${AUTH_CONFIG:-anon-none}.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
     environment:
       NODE_ENV: development
       GF_LOG_FILTERS: plugin.monyskow-simpleopcua-datasource:debug
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleopcua-datasource
+    healthcheck:
+      # Grafana's health endpoint returns 200 once the HTTP server is up and
+      # plugins are loaded. Without this, `docker compose up --wait` exits as
+      # soon as the container starts — before Grafana actually serves requests.
+      test: ['CMD-SHELL', 'wget -qO- http://localhost:3000/api/health || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
     depends_on:
       opcua-server:
         condition: service_healthy
