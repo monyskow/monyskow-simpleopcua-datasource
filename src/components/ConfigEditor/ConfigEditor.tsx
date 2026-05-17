@@ -108,16 +108,6 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
     setGenerateError(null);
 
     try {
-      // Call the backend to generate a certificate
-      // Note: For unsaved datasources, we need a different approach
-      if (!options.id) {
-        // Datasource not saved yet - we can't call the backend resource API
-        // Instead, generate a temporary message
-        setGenerateError('Please save the datasource first, then click Generate Certificate.');
-        setIsGenerating(false);
-        return;
-      }
-
       abortControllerRef.current?.abort();
       abortControllerRef.current = new AbortController();
       const response = await firstValueFrom(
