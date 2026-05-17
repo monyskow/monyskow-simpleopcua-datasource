@@ -30,7 +30,8 @@ The E2E test suite validates the complete user experience of the OPC-UA plugin a
 - 11.1.13 (Grafana 11.1.x)
 - 11.4.8 (Grafana 11.4.x)
 - 12.1.5 (Grafana 12.1.x)
-- 12.3.1 (Grafana 12.3.x - latest)
+- 12.3.1 (Grafana 12.3.x)
+- 13.0.1 (Grafana 13.x - latest-stable)
 
 ## Test Structure
 
@@ -39,6 +40,7 @@ tests/
 ├── README.md                      # This file
 ├── auth.setup.ts                  # Authentication setup (runs before all tests)
 ├── helpers.ts                     # Shared test utilities
+├── cert-generation.spec.ts        # Certificate generation and rotation tests
 ├── data-queries.spec.ts           # Query execution and data visualization tests
 ├── datasource-config.spec.ts      # Data source configuration tests
 ├── plugin-metadata.spec.ts        # Plugin installation and metadata tests
@@ -250,21 +252,21 @@ npm run e2e:all
 **What it does:**
 
 1. Builds plugin (frontend + backend)
-2. For each Grafana version (10.4.19, 11.1.13, 11.4.8, 12.1.5, 12.3.1):
+2. For each Grafana version (10.4.19, 11.1.13, 11.4.8, 12.1.5, 12.3.1, 13.0.1):
    - Starts Grafana container
-   - Runs full test suite (46 tests)
+   - Runs full test suite (51 tests)
    - Saves results
    - Stops container
 3. Displays summary
 
 **Output:** `e2e-results-YYYYMMDD-HHMMSS.txt`
 
-**Expected:** ~10 minutes total (2 min per version)
+**Expected:** ~12 minutes total (2 min per version)
 
 ### All Grafana Versions (Manual Testing)
 
 ```bash
-# Start all 5 versions on different ports
+# Start all 6 versions on different ports
 npm run server:all
 ```
 
@@ -275,6 +277,7 @@ npm run server:all
 - Grafana 11.4.8: http://localhost:3002
 - Grafana 12.1.5: http://localhost:3003
 - Grafana 12.3.1: http://localhost:3004
+- Grafana 13.0.1: http://localhost:3005
 
 **Useful pages to test:**
 
@@ -409,8 +412,8 @@ docker inspect <container> | grep -A5 Mounts
 
 | Metric          | Time                     |
 | --------------- | ------------------------ |
-| Single version  | ~2 minutes (46 tests)    |
-| All versions    | ~10 minutes (5 versions) |
+| Single version  | ~2 minutes (51 tests)    |
+| All versions    | ~12 minutes (6 versions) |
 | Auth setup      | ~4 seconds               |
 | Individual test | ~3-10 seconds            |
 
@@ -423,18 +426,18 @@ docker inspect <container> | grep -A5 Mounts
 
 ## CI/CD Integration
 
-**File:** `.github/workflows/ci.yml`
+**File:** `.github/workflows/e2e-matrix.yml`
 
 **Triggers:**
 
-- Pull requests
-- Push to main
-- Version tags
+- Push of `v*` tags
+- `workflow_dispatch`
 
 **Matrix:**
 
-- Tests run against all 5 Grafana versions in parallel
-- Artifacts (screenshots, videos) saved on failure
+- 7 Grafana versions × 5 auth configs = 35 jobs run in parallel
+- Playwright HTML reports uploaded as artifacts on failure (7-day retention)
+- `summary` job posts a pass/fail results table to `GITHUB_STEP_SUMMARY`
 
 ## Contributing
 
