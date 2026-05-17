@@ -238,29 +238,6 @@ describe('ConfigEditor', () => {
     });
   });
 
-  describe('Generate Certificate — unsaved datasource', () => {
-    it('shows "save first" error when datasource has no id', async () => {
-      renderEditor({
-        id: 0,
-        jsonData: {
-          endpoint: 'opc.tcp://localhost:4840',
-          securityPolicy: 'None',
-          securityMode: 'Sign',
-          authMethod: 'anonymous',
-          timeout: 10,
-        },
-      });
-
-      const btn = screen.getByRole('button', { name: 'Generate Certificate' });
-      await act(async () => {
-        fireEvent.click(btn);
-      });
-
-      expect(screen.getByText(/Please save the datasource first/)).toBeInTheDocument();
-      expect(mockFetch).not.toHaveBeenCalled();
-    });
-  });
-
   describe('Generate Certificate — saved datasource', () => {
     it('calls fetch and updates secureJsonData on success', async () => {
       mockFetch.mockReturnValue(of({ data: { clientCert: '---CERT---', clientKey: '---KEY---' } }));

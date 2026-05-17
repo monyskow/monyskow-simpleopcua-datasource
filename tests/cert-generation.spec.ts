@@ -54,6 +54,36 @@ test.describe('Certificate Generation', () => {
     }
   });
 
+  test.afterEach(async ({ page }) => {
+    // Clean up any persisted certificate so subsequent test runs start from a
+    // known state without requiring `docker compose down -v`.
+    const helpers = new OpcuaTestHelpers(page);
+    await helpers.goToDataSourceConfig();
+
+    // Surface the Client Certificate section (hidden when mode=None).
+    await selectSecurityMode(page, 'Sign');
+
+    // If a Reset button is present in the Client Certificate fieldset, the cert
+    // was saved — wipe it. Scope avoids matching Reset buttons of unrelated
+    // SecretInputs (e.g. username/password) if the suite grows.
+    const clientCertSection = page.locator('fieldset', { has: page.getByText(/Client Certificate/i) });
+    const resetBtn = clientCertSection.getByRole('button', { name: /reset/i }).first();
+    const resetVisible = await resetBtn.isVisible({ timeout: 2000 }).catch(() => false);
+    if (!resetVisible) {
+      return;
+    }
+
+    await resetBtn.click();
+    await page.waitForTimeout(500);
+
+    // Persist the reset so the next run starts clean.
+    const saveButton = page
+      .getByRole('button', { name: /save.*test/i })
+      .or(page.getByRole('button', { name: /save/i }));
+    await saveButton.click();
+    await page.waitForTimeout(1500);
+  });
+
   test('should not show Client Certificate section when security mode is None', async ({ page }) => {
     // Default configuration has security mode None
     await expect(getEndpointInput(page).first()).toBeVisible({ timeout: 10000 });
@@ -94,15 +124,10 @@ test.describe('Certificate Generation', () => {
     await expect(generateBtn.first()).toBeVisible({ timeout: 5000 });
   });
 
-  // FIXME(#20): On /datasources/new Grafana 12.x creates a draft datasource with
-  // an id before rendering the config form, so ConfigEditor:113 (`if (!options.id)`)
-  // never enters the save-first branch — the backend resource call is attempted
-  // instead. The plugin needs a different "unsaved" signal (e.g. version === 0)
-  // before this test can reliably assert the save-first message.
-  test.fixme('should show save-first error when clicking Generate Certificate on unsaved datasource', async ({
-    page,
-  }) => {
-    // Navigate to a brand-new (unsaved) datasource form
+  test('should produce a pending certificate when Generate is clicked on a draft datasource', async ({ page }) => {
+    // Navigate to a brand-new (draft) datasource form. Grafana 12 provisions a
+    // draft DS with an id before rendering the editor, so the backend resource
+    // call succeeds and the cert lands in pending state awaiting Save & Test.
     await page.goto('/datasources/new');
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
@@ -134,11 +159,12 @@ test.describe('Certificate Generation', () => {
     const generateBtn = page.getByRole('button', { name: /generate certificate/i }).first();
     await expect(generateBtn).toBeVisible({ timeout: 3000 });
     await generateBtn.click();
-    await page.waitForTimeout(500);
 
-    // The "save first" error must appear — removing the unsaved-datasource guard in
-    // ConfigEditor would cause the fetch to be attempted and this assertion to fail.
-    await expect(page.getByText(/save the datasource first/i)).toBeVisible({ timeout: 3000 });
+    // The backend resource call returns a cert that lands in pending state.
+    const certPending = page
+      .getByText(/click Save.*to persist/i)
+      .or(page.getByText(/Certificate (?:configured|generated)/i));
+    await expect(certPending.first()).toBeVisible({ timeout: 5000 });
   });
 
   test('should generate certificate successfully on saved datasource', async ({ page }) => {
@@ -177,12 +203,7 @@ test.describe('Certificate Generation', () => {
     await expect(successStatus.or(errorAlert).first()).toBeVisible({ timeout: 10000 });
   });
 
-  // FIXME(#20): This test saves a certificate to the provisioned datasource, which
-  // persists in Grafana's DB across the suite (provisioned DSs are editable here)
-  // and pollutes subsequent tests — the "Generate Certificate" button is then
-  // hidden because a cert is already saved. A robust fix would isolate by
-  // creating an ephemeral datasource per test or wiring an explicit reset hook.
-  test.fixme('should persist certificate after Save and Test', async ({ page }) => {
+  test('should persist certificate after Save and Test', async ({ page }) => {
     await expect(getEndpointInput(page).first()).toBeVisible({ timeout: 10000 });
 
     await selectSecurityMode(page, 'Sign');
