@@ -4,19 +4,40 @@
 # This setup is used by Playwright E2E tests (npm run e2e).
 # It provisions a single "OPC-UA Test Server" datasource that the tests expect.
 #
-# Note: No actual OPC-UA server is included - most E2E tests focus on UI
-# functionality and handle connection errors gracefully.
-#
 # Usage:
 #   npm run build && mage buildAll    # Build the plugin first
 #   npm run e2e                        # Runs this compose automatically
 #
 # Or manually:
-#   docker compose -f docker-compose.e2e.yaml up
+#   docker compose -f docker-compose.e2e.yaml up --wait
 #   Open http://localhost:3000
+#
+# Test credentials (username/password auth): user1 / password1, admin / admin123
 # =============================================================================
 
 services:
+  opcua-server:
+    build:
+      context: ./test-servers/node-opcua-server
+      dockerfile: Dockerfile
+    container_name: opcua-server
+    hostname: opcua-server
+    ports:
+      - '4840:4840'
+    environment:
+      - PORT=4840
+      # Set HOSTNAME to service name so the advertised endpoint URL is resolvable
+      # within the compose network. node-opcua uses this in the endpoint descriptor.
+      - HOSTNAME=opcua-server
+      - SERVER_NAME=opcua-e2e
+    healthcheck:
+      test: ['CMD', 'nc', '-z', 'localhost', '4840']
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 15s
+    restart: unless-stopped
+
   grafana:
     user: root
     container_name: 'monyskow-simpleopcua-datasource'
@@ -42,4 +63,7 @@ services:
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleopcua-datasource
+    depends_on:
+      opcua-server:
+        condition: service_healthy
     restart: unless-stopped

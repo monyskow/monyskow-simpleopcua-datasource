@@ -25,7 +25,7 @@ test.describe('OPC-UA Data Source Configuration', () => {
   test('should display endpoint URL field', async ({ page }) => {
     const endpointInput = getEndpointInput(page).first();
     await expect(endpointInput).toBeVisible();
-    await expect(endpointInput).toHaveValue('opc.tcp://localhost:4840');
+    await expect(endpointInput).toHaveValue('opc.tcp://opcua-server:4840');
   });
 
   test('should display security policy selector', async ({ page }) => {
@@ -68,34 +68,21 @@ test.describe('OPC-UA Data Source Configuration', () => {
   });
 
   test('should test connection successfully', async ({ page }) => {
-    // Click Save & Test button
+    // Real OPC-UA server is available in e2e compose — assert actual success.
     const saveButton = page
       .getByRole('button', { name: /save.*test/i })
       .or(page.getByRole('button', { name: /test/i }));
 
-    if (await saveButton.isVisible({ timeout: 3000 })) {
-      await saveButton.click();
+    await expect(saveButton.first()).toBeVisible({ timeout: 5000 });
+    await saveButton.first().click();
 
-      // Wait for health check response
-      await page.waitForTimeout(3000);
+    // Backend health-check goes through Grafana proxy to opcua-server:4840.
+    const successMessage = page
+      .getByText(/Data source connected|success/i)
+      .or(page.locator('[data-testid*="success"]'))
+      .or(page.locator('.alert-success'));
 
-      // Look for success indicator or error - either means the test workflow worked
-      const successMessage = page
-        .getByText(/success|connected|ok/i)
-        .or(page.locator('[data-testid*="success"]'))
-        .or(page.locator('.alert-success'));
-      const errorMessage = page
-        .getByText(/error|failed|timeout|cannot connect/i)
-        .or(page.locator('[data-testid*="error"]'))
-        .or(page.locator('.alert-error'));
-
-      const hasResponse =
-        (await successMessage.isVisible({ timeout: 5000 }).catch(() => false)) ||
-        (await errorMessage.isVisible({ timeout: 5000 }).catch(() => false));
-
-      // If no response, that's also OK - the button click worked, server might be unavailable
-      expect(true).toBeTruthy(); // Test always passes if Save & Test button exists and is clickable
-    }
+    await expect(successMessage.first()).toBeVisible({ timeout: 15000 });
   });
 
   test('should allow changing endpoint URL', async ({ page }) => {
