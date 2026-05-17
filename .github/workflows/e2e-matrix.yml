@@ -1,0 +1,152 @@
+name: E2E Matrix
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: read
+
+jobs:
+  matrix:
+    name: ${{ matrix.grafana_version }} / ${{ matrix.auth_config }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        grafana_version:
+          - '10.4.19'
+          - '11.1.13'
+          - '11.4.8'
+          - '12.1.5'
+          - '12.3.1'
+          - '12.4.3'
+          - '13.0.1'
+        auth_config:
+          - 'anon-none'
+          - 'userpass-none'
+          - 'userpass-b256-sign'
+          - 'cert-b256-sign'
+          - 'cert-aes256-sign'
+    env:
+      GRAFANA_VERSION: ${{ matrix.grafana_version }}
+      AUTH_CONFIG: ${{ matrix.auth_config }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build backend
+        uses: magefile/mage-action@6f50bbb8ea47d56e62dee92392788acbc8192d0b
+        with:
+          version: latest
+          args: buildAll
+
+      - name: Install Playwright browsers
+        run: npx playwright install chromium --with-deps
+
+      - name: Start services
+        run: docker compose -f docker-compose.e2e.yaml up -d --wait
+
+      - name: Run E2E tests
+        run: CI=1 npm run e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        continue-on-error: true
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-report-${{ matrix.grafana_version }}-${{ matrix.auth_config }}
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Write result (pass)
+        if: success()
+        run: |
+          mkdir -p /tmp/e2e-results
+          echo "pass" > /tmp/e2e-results/result-${{ matrix.grafana_version }}-${{ matrix.auth_config }}.txt
+
+      - name: Write result (fail)
+        if: failure()
+        run: |
+          mkdir -p /tmp/e2e-results
+          echo "fail" > /tmp/e2e-results/result-${{ matrix.grafana_version }}-${{ matrix.auth_config }}.txt
+
+      - name: Upload result for summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: result-${{ matrix.grafana_version }}-${{ matrix.auth_config }}
+          path: /tmp/e2e-results/
+
+      - name: Tear down services
+        if: always()
+        run: docker compose -f docker-compose.e2e.yaml down -v
+
+  summary:
+    name: Workflow Summary
+    needs: matrix
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all result artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: 'result-*'
+          merge-multiple: true
+          path: /tmp/e2e-results/
+
+      - name: Render summary table
+        run: |
+          GRAFANA_VERSIONS="10.4.19 11.1.13 11.4.8 12.1.5 12.3.1 12.4.3 13.0.1"
+          AUTH_CONFIGS="anon-none userpass-none userpass-b256-sign cert-b256-sign cert-aes256-sign"
+
+          {
+            echo "## E2E Matrix Results"
+            echo ""
+
+            # Header row
+            header="| Grafana |"
+            separator="|---------|"
+            for auth in $AUTH_CONFIGS; do
+              header="${header} ${auth} |"
+              separator="${separator}---------|"
+            done
+            echo "$header"
+            echo "$separator"
+
+            # Data rows
+            for gv in $GRAFANA_VERSIONS; do
+              row="| ${gv} |"
+              for auth in $AUTH_CONFIGS; do
+                result_file="/tmp/e2e-results/result-${gv}-${auth}.txt"
+                if [ -f "$result_file" ]; then
+                  result=$(cat "$result_file")
+                  if [ "$result" = "pass" ]; then
+                    row="${row} :white_check_mark: pass |"
+                  else
+                    row="${row} :x: fail |"
+                  fi
+                else
+                  row="${row} :grey_question: n/a |"
+                fi
+              done
+              echo "$row"
+            done
+          } >> "$GITHUB_STEP_SUMMARY"

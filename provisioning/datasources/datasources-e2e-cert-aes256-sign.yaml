@@ -1,0 +1,72 @@
+apiVersion: 1
+
+# E2E datasource: certificate auth, Aes256_Sha256_RsaPss / SignAndEncrypt.
+# Same fixture cert as cert-b256-sign — the OPC UA security policy only affects
+# the channel cipher suite, not the identity token cert.
+# URI SAN in the cert: urn:grafana-opcua-client:grafana:simpleopcua:client
+
+datasources:
+  - name: 'OPC-UA Test Server'
+    uid: opcua-test-server
+    type: monyskow-simpleopcua-datasource
+    access: proxy
+    isDefault: true
+    jsonData:
+      endpoint: 'opc.tcp://opcua-server:4840'
+      securityPolicy: 'Aes256_Sha256_RsaPss'
+      securityMode: 'SignAndEncrypt'
+      authMethod: 'certificate'
+      timeout: 10
+    secureJsonData:
+      certificate: |
+        -----BEGIN CERTIFICATE-----
+        MIIDqjCCApKgAwIBAgIUdcc1D9EY4wB8FpqmhjwJkhjoH5EwDQYJKoZIhvcNAQEL
+        BQAwPjEdMBsGA1UEAwwUZ3JhZmFuYS1vcGN1YS1jbGllbnQxEDAOBgNVBAoMB0dy
+        YWZhbmExCzAJBgNVBAYTAlVTMB4XDTI2MDUxNzEwNDczNloXDTM2MDUxNDEwNDcz
+        NlowPjEdMBsGA1UEAwwUZ3JhZmFuYS1vcGN1YS1jbGllbnQxEDAOBgNVBAoMB0dy
+        YWZhbmExCzAJBgNVBAYTAlVTMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKC
+        AQEAv1IODWxoHXuS6z8FkphZC9BA85OjlI3RwQwEl55EMIaPkhFvIjmdZ8UrfXP4
+        P53GuUz209AoLFLUGT1dYa89wG0Osj/YHrwinHIW/5YSPftx7Hw3C+lwO2ZA8naE
+        lygUwPTJiCXWKomNUWNjNDkVLZA86etByW/vaqiwZwDGTiqEGsntoihv0FWjF66i
+        0qtJ380eLtegbytSoxcecPyhruBnTfCQVMRD3MYd10zupJmYyGIX8T3/juUJXPmL
+        lOWWe1V1e42D7NiJANVIM14MXp4oKtZpEsLBRWxBMGf06lYi2TAQMPe1QVyYOepX
+        bG9yKfSjv9bbHTjPO1UrxBDTjQIDAQABo4GfMIGcMAwGA1UdEwEB/wQCMAAwDgYD
+        VR0PAQH/BAQDAgSwMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcDATA+BgNV
+        HREENzA1hjN1cm46Z3JhZmFuYS1vcGN1YS1jbGllbnQ6Z3JhZmFuYTpzaW1wbGVv
+        cGN1YTpjbGllbnQwHQYDVR0OBBYEFIlLIoTCodmqMRsX5T1mgrlX2pe/MA0GCSqG
+        SIb3DQEBCwUAA4IBAQCbY7ZYj0djTHbkMdO4g5HWnrn1KZWRKz17JCtbQ3mQ616w
+        xFpOELZMLDslXcnMcBtvMdQuaZ+7XMHmTZ09N4gDp7wuAuBTdxzHva5i5msEKAw/
+        QWZxQBhdvbmOhxCsqOexZpmEplwU3JPh3sUFhMJhPkT30xGvlD6ekWXJo8XOK9B0
+        vjwRznTpQ+ttJZxi3h22B6xx6a38LqvMAPmJZKP7V9BIJPta4MkPoD0aDZ/QUZ+R
+        aUcsIDnzc7EZku155Fjiol2XdvDqqyWMo+/zpBSwJXmFGHLrR+hE5mgNFgAMhWN5
+        czZEOPX4R4Cxri+6D7zb/MnrtNrYa10TfLmfVOvh
+        -----END CERTIFICATE-----
+      privateKey: |
+        -----BEGIN RSA PRIVATE KEY-----
+        MIIEpQIBAAKCAQEAv1IODWxoHXuS6z8FkphZC9BA85OjlI3RwQwEl55EMIaPkhFv
+        IjmdZ8UrfXP4P53GuUz209AoLFLUGT1dYa89wG0Osj/YHrwinHIW/5YSPftx7Hw3
+        C+lwO2ZA8naElygUwPTJiCXWKomNUWNjNDkVLZA86etByW/vaqiwZwDGTiqEGsnt
+        oihv0FWjF66i0qtJ380eLtegbytSoxcecPyhruBnTfCQVMRD3MYd10zupJmYyGIX
+        8T3/juUJXPmLlOWWe1V1e42D7NiJANVIM14MXp4oKtZpEsLBRWxBMGf06lYi2TAQ
+        MPe1QVyYOepXbG9yKfSjv9bbHTjPO1UrxBDTjQIDAQABAoIBAEFIRABDlfE9ed/o
+        tMOVVYko6gjTP3WQwNqA+c4slHMEb1f1t/izNSk0B8d6e2JluWoAP5b+B788EiB8
+        pnEPJWCUNfgPvfSa2KqOaZeTwyzAMFrz9aqMYJ38Ibw6Qbr8U7yVqnDZDE+eeQil
+        A7RNqBLQjWB6RIvyNH0uC2dSRdhkpXR/FGztuElzYEuJy1HyFwweqcy/UZcJS+zv
+        z8U/M+YekMl1xSQ4aMTLcTKx4Y8UZQ7K4vv1Ja9imMXklsabC5jEkWC4WAoMpTUk
+        20wExM3f1rrWbcQvwlSDX9H9ZhlwBGW+iN8Y4I0uFDypic5kArPRoFxWGAVDH43+
+        OaygBLcCgYEA4rgTN192fRqhEvUESsand0f29uBzINJIHOf+f2yuAOLb3QS4/8xy
+        PhLrAChuVSYVYxHpEmAerEY30/XgWtGmdGEG1Z1fKxYzlOnPo2qZq5tBkx2WrgQr
+        4Yd4AyUluic1v/SYtZdZAxcY+tmnqzSsX8nby+yxRzOKEzeKTSWSlWcCgYEA2Aec
+        u3I92qf4zk8drnaQ1f8UzVzFAq9zixr6zZvC0LO4ZwD4QHBDLM5HLsL0JC2iC/jh
+        tr7KpogNw0HpeXEvgTZzEolcuvPW9cCUVyQzDQ4+0SIX7PwnCP8cvCL51UHLXDFp
+        e0PCUFrgHKqWYnjpxRCm1rb8Yn6dr2RxRxfGIusCgYEA2fok754m681IhFNyVvp8
+        VGCqf135EttaXgBnXdf9y/hRb0R1IetNA4Voz/QPcGp3MZMsxXAIzZWNY4sItAjR
+        wx7uVT9DGsfzu/64leON78IL4AgYsSJtlh6LMmrqxPmh4fanRCBJgoEYkUXmwOKZ
+        wFbxrjTZlR1maWeC3v16240CgYEAtdIaWS2636jWYRX3nloOZv5NDNdSvYLcFa08
+        gAbj/fH1d0Q6rUmPUEvBX5sYDscVh0wO9Vc5itYh90AneF4KJI+mZGiWUodeWfKf
+        J4TBLvDZb/1o8736QLku/y3U5md8+HhiFiwehLEnxRjSf8jSwFjWgwr5+xAkOXWp
+        XbOlwMcCgYEAuylDZof/6WxFPbGDawbC+F4qjrmbM6j6d0FsYCCJhj6EqU5qX4WF
+        J/arvDQ0jvMlrYHmxnIl0d34rhI9v9JcURU/JZ6i/qKGEszW4IZQvyO5NBS6EpyC
+        DGKWccvrj/PbVxPcIqSYFgGtcfr5YBAXEY916URM2CYlkJenGKaE9hM=
+        -----END RSA PRIVATE KEY-----
+    editable: true

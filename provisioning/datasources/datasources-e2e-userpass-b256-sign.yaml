@@ -1,0 +1,22 @@
+apiVersion: 1
+
+# E2E datasource: username/password auth, Basic256Sha256 / SignAndEncrypt.
+# The plugin auto-generates a channel cert for secure connections when none is stored.
+# Credentials: user1 / password1 (defined in test-servers/node-opcua-server/server.js).
+
+datasources:
+  - name: 'OPC-UA Test Server'
+    uid: opcua-test-server
+    type: monyskow-simpleopcua-datasource
+    access: proxy
+    isDefault: true
+    jsonData:
+      endpoint: 'opc.tcp://opcua-server:4840'
+      securityPolicy: 'Basic256Sha256'
+      securityMode: 'SignAndEncrypt'
+      authMethod: 'userpass'
+      timeout: 10
+    secureJsonData:
+      username: 'user1'
+      password: 'password1'
+    editable: true
