@@ -39,7 +39,7 @@ async function isCertificateAuthMode(page: Page): Promise<boolean> {
   // Combobox order in ConfigEditor: [0] Security Policy, [1] Security Mode, [2] Auth Method
   const authCombobox = page.locator('input[role="combobox"]').nth(2);
   const value = await authCombobox.inputValue().catch(() => '');
-  return value === 'certificate' || value === 'Certificate';
+  return value === 'certificate';
 }
 
 test.describe('Certificate Generation', () => {
