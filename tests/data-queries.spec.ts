@@ -9,46 +9,34 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
   });
 
   test('should execute query and display results', async ({ page }) => {
-    // Add a node
+    // Real OPC-UA server is available — assert query executes without connection error.
+    // ns=0;i=2258 is ServerStatus/CurrentTime, present on all OPC-UA servers.
     const addButton = page.getByRole('button', { name: /add manual/i }).first();
+    await expect(addButton).toBeVisible({ timeout: 5000 });
+    await addButton.click();
+    await page.waitForTimeout(500);
 
-    if (await addButton.isVisible({ timeout: 5000 })) {
-      await addButton.click();
-      await page.waitForTimeout(500);
+    const nodeIdInput = page.locator('input[placeholder*="ns="]').or(page.locator('input[type="text"]')).first();
+    await expect(nodeIdInput).toBeVisible({ timeout: 3000 });
+    await nodeIdInput.fill('ns=0;i=2258');
 
-      // Fill in a test node
-      const nodeIdInput = page.locator('input[placeholder*="ns="]').or(page.locator('input[type="text"]')).first();
-
-      if (await nodeIdInput.isVisible({ timeout: 3000 })) {
-        // Use a common OPC-UA test node
-        await nodeIdInput.fill('ns=2;s=Demo.Dynamic.Scalar.Float');
-
-        // Run query
-        const runButton = page.getByRole('button', { name: /^run query$/i }).first();
-
-        if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
-          await runButton.click();
-          await page.waitForTimeout(3000);
-
-          // Check for results - table, error, or just that the query was executed
-          const hasTable = await page
-            .locator('table')
-            .isVisible({ timeout: 5000 })
-            .catch(() => false);
-          const hasError = await page
-            .getByText(/error|failed|timeout|cannot connect/i)
-            .isVisible({ timeout: 2000 })
-            .catch(() => false);
-          const hasNoData = await page
-            .getByText(/no data|no values/i)
-            .isVisible({ timeout: 2000 })
-            .catch(() => false);
-
-          // Test passes if workflow worked (button click succeeded), regardless of server response
-          expect(true).toBeTruthy(); // Query execution workflow works
-        }
-      }
+    const runButton = page.getByRole('button', { name: /^run query$/i }).first();
+    if (await runButton.isVisible({ timeout: 3000 }).catch(() => false)) {
+      await runButton.click();
     }
+
+    // Wait for Explore to settle (auto-run or manual run)
+    await page.waitForTimeout(4000);
+
+    // A real OPC-UA server is present, so the query must not surface a
+    // connection-level error. Positive rendering of the visualization is
+    // intentionally not asserted — panel selectors vary across Grafana
+    // versions and this test runs across the full version matrix.
+    const hasConnectionError = await page
+      .getByText(/cannot connect|connection refused|dial tcp/i)
+      .isVisible({ timeout: 2000 })
+      .catch(() => false);
+    expect(hasConnectionError).toBeFalsy();
   });
 
   test('should display data in table format', async ({ page }) => {
@@ -78,12 +66,14 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
             await page.waitForTimeout(500);
           }
 
-          // Check for table elements
-          const table = page.locator('table').or(page.locator('[role="grid"]'));
-          const hasTable = await table.isVisible({ timeout: 3000 }).catch(() => false);
-
-          // Test passes if query workflow worked, regardless of server response
-          expect(true).toBeTruthy(); // UI workflow successful
+          // With a real OPC-UA server present, the query must not surface a
+          // connection-level error. Positive table render is not asserted —
+          // panel selectors vary across the Grafana version matrix.
+          const hasConnectionError = await page
+            .getByText(/cannot connect|connection refused|dial tcp/i)
+            .isVisible({ timeout: 2000 })
+            .catch(() => false);
+          expect(hasConnectionError).toBeFalsy();
         }
       }
     }
@@ -118,8 +108,12 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
           await runButton.click();
           await page.waitForTimeout(2000);
 
-          // Test passes if workflow worked (query execution succeeded)
-          expect(true).toBeTruthy();
+          // Multi-node query must not surface a connection error.
+          const hasConnectionError = await page
+            .getByText(/cannot connect|connection refused|dial tcp/i)
+            .isVisible({ timeout: 2000 })
+            .catch(() => false);
+          expect(hasConnectionError).toBeFalsy();
         }
       }
     }
@@ -149,8 +143,12 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
           await runButton.click();
           await page.waitForTimeout(1500);
 
-          // Test passes if refresh workflow worked
-          expect(true).toBeTruthy(); // Refresh workflow successful
+          // Repeated run must not surface a connection error.
+          const hasConnectionError = await page
+            .getByText(/cannot connect|connection refused|dial tcp/i)
+            .isVisible({ timeout: 2000 })
+            .catch(() => false);
+          expect(hasConnectionError).toBeFalsy();
         }
       }
     }
@@ -175,18 +173,15 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
           await runButton.click();
           await page.waitForTimeout(2000);
 
-          // Should display error message or handle gracefully
-          const hasError = await page
-            .getByText(/error|invalid|failed/i)
-            .isVisible({ timeout: 3000 })
-            .catch(() => false);
-          const hasAlert = await page
-            .locator('[role="alert"]')
+          // An invalid node id must not produce a connection-level error —
+          // the server is reachable; this is a parse/query-level concern.
+          // We do not assert a specific user-visible error because Grafana
+          // surfaces query errors differently across versions.
+          const hasConnectionError = await page
+            .getByText(/cannot connect|connection refused|dial tcp/i)
             .isVisible({ timeout: 2000 })
             .catch(() => false);
-
-          // Either shows error or handles silently - both are acceptable
-          expect(hasError || hasAlert || true).toBeTruthy();
+          expect(hasConnectionError).toBeFalsy();
         }
       }
     }
