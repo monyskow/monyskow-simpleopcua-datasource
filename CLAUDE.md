@@ -37,7 +37,7 @@ Trzy filary:
 
 1. **Wymuszenie mechaniczne** — hooki, branch protection, CI. Tam, gdzie maszyna może egzekwować, człowiek nie powinien się tym zajmować.
 2. **Siedem komend** pokrywających cały flow: `/cx-idea` → `/cx-architecture` → `/cx-backlog` → `/cx-issue` → `/cx-build` → `/cx-merge` → `/cx-ship`.
-3. **Sześcioro agentów + dwa wewnętrzne (parser + merger)** = osiem perspektyw, każda z dopasowanym modelem.
+3. **Siedmioro agentów + dwa wewnętrzne (parser + merger)** = dziewięć perspektyw, każda z dopasowanym modelem.
 
 ---
 
@@ -51,26 +51,27 @@ Wszystkie komendy mają prefix `cx-` (od „claude-x", roboczo nazwa frameworka)
 | `/cx-architecture` | Decyzja architektoniczna → ADR w `docs/decisions/` | Design    |
 | `/cx-backlog`      | Przegląd / planowanie issues w GitHubie            | Planning  |
 | `/cx-issue`        | Tworzenie / refinement pojedynczego issue          | Planning  |
-| `/cx-build`        | Implementacja: branch → kod → PR                   | Execution |
+| `/cx-build`        | Implementacja: branch → plan → kod → PR            | Execution |
 | `/cx-merge`        | Squash merge PR + sprzątanie branchy               | Execution |
 | `/cx-ship`         | Release: tag, release notes, changelog             | Delivery  |
 
 ---
 
-## Agenci (sześć perspektyw)
+## Agenci (siedem perspektyw + dwa wewnętrzne)
 
 Pełne definicje: `.claude/agents/`.
 
-| Agent       | Model  | Rola                                                             |
-| ----------- | ------ | ---------------------------------------------------------------- |
-| `developer` | Sonnet | Pisanie kodu — głównie wykonawca w `/cx-build`                   |
-| `explorer`  | Haiku  | Szybkie szukanie po repo: gdzie jest X, kto woła Y               |
-| `architect` | Opus   | Decyzje długoterminowe: ADR, wybory technologii, granice modułów |
-| `pm`        | Sonnet | Refinement issues, priorytetyzacja, dopytywanie o intencję       |
-| `gh-parser` | Haiku  | Wewnętrzny parser: agregacja `gh` outputu, format, walidacja     |
-| `merger`    | Haiku  | Wewnętrzny: squash merge PR + cleanup branchy (lokalnie/remote)  |
-| `reviewer`  | Sonnet | Code review, zapach kodu, drobne ulepszenia                      |
-| `tester`    | Sonnet | Generowanie testów, edge cases, weryfikacja założeń              |
+| Agent       | Model  | Rola                                                                       |
+| ----------- | ------ | -------------------------------------------------------------------------- |
+| `pm`        | Sonnet | Refinement issues, priorytetyzacja, dopytywanie o intencję                 |
+| `architect` | Opus   | Decyzje długoterminowe: ADR, wybory technologii, granice modułów           |
+| `tech-lead` | Opus   | Plan implementacji dla dużych issues (label `epic`/`complex` lub `--plan`) |
+| `developer` | Sonnet | Pisanie kodu — głównie wykonawca w `/cx-build`                             |
+| `tester`    | Sonnet | Generowanie testów, edge cases, weryfikacja założeń                        |
+| `reviewer`  | Sonnet | Code review, zapach kodu, drobne ulepszenia                                |
+| `explorer`  | Haiku  | Szybkie szukanie po repo: gdzie jest X, kto woła Y                         |
+| `gh-parser` | Haiku  | **Wewnętrzny** parser: agregacja `gh` outputu, format, walidacja           |
+| `merger`    | Haiku  | **Wewnętrzny**: squash merge PR + cleanup branchy (lokalnie/remote)        |
 
 `gh-parser` i `merger` są **wewnętrzne** — nie wołasz ich bezpośrednio, używają ich komendy. `gh-parser` tylko czyta, `merger` wykonuje merge + cleanup po pre-checkach komendy.
 
@@ -82,11 +83,13 @@ Pełne definicje: `.claude/agents/`.
 
 - **Haiku** — mechanika: parsing `gh`, agregacja, format, status checks, walidacje, transformacje danych.
 - **Sonnet** — osąd: kodowanie, code review, planowanie, dopytywanie o intencję.
-- **Opus** — decyzje długoterminowe: architektura (ADR), krytyczne release'y, kontrowersyjne wybory bibliotek.
+- **Opus** — decyzje długoterminowe: architektura (ADR), krytyczne release'y, kontrowersyjne wybory bibliotek. Oraz **plan implementacji dla dużych zadań** (`tech-lead`), gdzie błąd planu multiplikuje się przez wszystkie kolejne edycje.
 
 Jeśli zadanie polega na **przetwarzaniu danych z deterministycznym wynikiem** → Haiku.
 Jeśli wymaga **oceny jakości, intencji lub kompromisu** → Sonnet.
 Jeśli ma **długoterminowe konsekwencje** (architektura, release na produkcję) → Opus.
+
+**Widoczność wyboru (kluczowa).** Za każdym razem gdy deleguję do sub-agenta — przez `Agent` tool, w planach, w opisach kroków komendy — wprost wymieniam **agenta i model** w formacie `` `<agent>` (<Model>) ``, np. `` `developer` (Sonnet) ``, `` `tech-lead` (Opus) ``, `` `gh-parser` (Haiku) ``. To utrzymuje regułę doboru w widoku użytkownika i pozwala wcześnie wyłapać niepotrzebne eskalacje.
 
 ---
 
