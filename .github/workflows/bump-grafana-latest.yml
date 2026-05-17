@@ -1,0 +1,77 @@
+name: Bump Grafana latest-stable
+
+on:
+  schedule:
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: bump-grafana-latest
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch latest stable Grafana version
+        id: latest
+        run: |
+          set -euo pipefail
+          NEW=$(curl -s 'https://hub.docker.com/v2/repositories/grafana/grafana/tags?ordering=last_updated&page_size=100' \
+            | jq -r '.results[].name' \
+            | { grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || true; } \
+            | sort -V \
+            | tail -1)
+          if [ -z "$NEW" ]; then
+            echo "No stable X.Y.Z tag found in last 100 updates" >&2
+            exit 1
+          fi
+          echo "version=$NEW" >> "$GITHUB_OUTPUT"
+
+      - name: Check if bump is needed
+        id: check
+        run: |
+          current=$(sed -n '6p' .grafana-versions)
+          new="${{ steps.latest.outputs.version }}"
+          higher=$(printf '%s\n%s\n' "$current" "$new" | sort -V | tail -1)
+          if [ "$current" = "$new" ] || [ "$higher" = "$current" ]; then
+            echo "No bump needed: current $current >= new $new"
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Bump needed: $current -> $new"
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Update .grafana-versions
+        if: steps.check.outputs.needed == 'true'
+        run: |
+          NEW="${{ steps.latest.outputs.version }}"
+          sed -i "6s/.*/$NEW/" .grafana-versions
+
+      - name: Create PR
+        if: steps.check.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          NEW="${{ steps.latest.outputs.version }}"
+          BRANCH="chore/bump-grafana-latest-${NEW}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git checkout -b "$BRANCH"
+          git add .grafana-versions
+          git commit -m "chore: bump grafana latest-stable to ${NEW}"
+          git push origin "$BRANCH"
+
+          gh pr create \
+            --title "chore: bump grafana latest-stable to ${NEW}" \
+            --body "Weekly automated bump of the latest-stable Grafana slot (line 6 of \`.grafana-versions\`) from the previous version to \`${NEW}\`." \
+            --base main \
+            --head "$BRANCH"

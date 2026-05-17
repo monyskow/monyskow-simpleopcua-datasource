@@ -3,13 +3,10 @@
 
 set -e
 
-VERSIONS=(
-  "10.4.19"
-  "11.1.13"
-  "11.4.8"
-  "12.1.5"
-  "12.3.1"
-)
+# Versions are read from .grafana-versions at repo root.
+# Lines 1-5: manually curated anchors. Line 6: latest-stable slot,
+# auto-bumped weekly by .github/workflows/bump-grafana-latest.yml
+mapfile -t VERSIONS < "$(git rev-parse --show-toplevel)/.grafana-versions"
 
 RESULTS=()
 FAILED=0
