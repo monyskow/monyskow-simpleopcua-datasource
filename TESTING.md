@@ -111,6 +111,23 @@ The `AUTH_CONFIG` environment variable selects which provisioned data source con
 
 Default (when `AUTH_CONFIG` is unset): `anon-none`.
 
+#### Manual testing of a specific (version × auth) combination
+
+`docker-compose.e2e.yaml` also accepts `GRAFANA_VERSION` (default `12.2.0`). Combine both env vars to spin up any matrix cell for browser-based exploration:
+
+```bash
+docker compose -f docker-compose.e2e.yaml down 2>/dev/null
+GRAFANA_VERSION=12.3.1 AUTH_CONFIG=cert-b256-sign \
+  docker compose -f docker-compose.e2e.yaml up --wait --build
+
+# Open http://localhost:3000  (Grafana: admin / admin)
+# The provisioned "OPC-UA Test Server" data source uses the selected auth config.
+
+docker compose -f docker-compose.e2e.yaml down
+```
+
+For an automated sweep of **all** combinations locally, use `npm run e2e:matrix` (see Automated Testing below).
+
 ---
 
 ## Manual Testing Guide
@@ -273,6 +290,18 @@ Backed by `scripts/e2e-all-versions.sh`. Reads `.grafana-versions` (currently 6 
 **Expected runtime:** ~12 minutes total (~2 min per version)
 
 **Output file:** `e2e-results-YYYYMMDD-HHMMSS.txt` at repo root — contains pass/fail summary for every version.
+
+### Run the full (version × auth) matrix locally
+
+```bash
+npm run e2e:matrix
+```
+
+Backed by `scripts/e2e-all-auth-versions.sh`. Nested loop over all versions in `.grafana-versions` (6) × all 5 auth configs = **30 combinations**. Uses `docker-compose.e2e.yaml` (provisioned data source + real OPC-UA server) — mirrors what CI runs.
+
+**Expected runtime:** ~90–120 minutes sequential. Use sparingly — for routine dev iteration prefer single-axis (`npm run e2e:all`) or single-combo manual testing. The CI matrix (`e2e-matrix.yml`) provides the same coverage in ~10 min wall-clock via parallel jobs.
+
+**Output file:** `e2e-matrix-results-YYYYMMDD-HHMMSS.txt` at repo root — one line per combination, pass/fail summary at the end.
 
 ### .grafana-versions and version management
 

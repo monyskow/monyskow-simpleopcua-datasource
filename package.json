@@ -14,6 +14,7 @@
     "lint:fix": "npm run lint -- --fix && prettier --write --list-different .",
     "e2e": "playwright test",
     "e2e:all": "./scripts/e2e-all-versions.sh",
+    "e2e:matrix": "./scripts/e2e-all-auth-versions.sh",
     "server": "docker compose -f docker-compose.full.yaml down >/dev/null 2>&1; docker compose -f docker-compose.e2e.yaml up --build",
     "server:all": "./scripts/start-all-versions.sh",
     "server:all:stop": "./scripts/stop-all-versions.sh",
