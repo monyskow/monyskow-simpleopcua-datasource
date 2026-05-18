@@ -81,12 +81,7 @@ test.describe('OPC-UA Data Source Configuration', () => {
     await expect(authMethodSelect.first()).toBeVisible({ timeout: 5000 });
   });
 
-  // Skipped pending opcua-server connection-limit fix (follow-up issue).
-  // Per-test datasource isolation creates a fresh DS each test; combined with the
-  // 14 provisioned datasources that already saturate node-opcua's 10-slot pool on
-  // startup, this test's Save & Test connection attempt is refused. Re-enable
-  // once the server limit is lifted or provisioning trimmed.
-  test.skip('should test connection successfully', async ({ page, isolatedDatasource }) => {
+  test('should test connection successfully', async ({ page, isolatedDatasource }) => {
     const helpers = new OpcuaTestHelpers(page);
     await helpers.goToDataSourceConfig(isolatedDatasource.uid);
 
