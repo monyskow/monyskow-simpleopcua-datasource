@@ -59,12 +59,19 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
     (jsonData.securityMode === 'Sign' || jsonData.securityMode === 'SignAndEncrypt') &&
     jsonData.authMethod !== 'certificate'; // Certificate auth uses user-provided cert
 
-  // Check if client certificate is already configured (saved to backend)
-  const hasClientCertificateSaved = !!secureJsonFields?.clientCert && !!secureJsonFields?.clientKey;
-
-  // Check if client certificate is pending (generated but not yet saved)
+  // Check if client certificate is pending (generated in-session but not yet saved via Save & Test).
+  // Must be evaluated before hasClientCertificateSaved because the saved check uses it.
   const hasClientCertificatePending =
-    !hasClientCertificateSaved && !!secureJsonData?.clientCert && !!secureJsonData?.clientKey;
+    !!secureJsonData?.clientCert && !!secureJsonData?.clientKey && !secureJsonFields?.clientCert;
+
+  // Check if client certificate is already configured (saved to backend).
+  // Falls back to jsonData.clientCertConfigured so provisioned datasources — whose
+  // secureJsonFields are cleared when the YAML is re-applied on restart — still show
+  // the correct "saved" status. The flag is not declared in the provisioning YAML and
+  // is therefore preserved across Grafana restarts.
+  const hasClientCertificateSaved =
+    (!!secureJsonFields?.clientCert && !!secureJsonFields?.clientKey) ||
+    (!!jsonData.clientCertConfigured && !hasClientCertificatePending);
 
   // Either saved or pending
   const hasClientCertificate = hasClientCertificateSaved || hasClientCertificatePending;
@@ -119,9 +126,14 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
       );
 
       if (response?.data) {
-        // Store the certificate in secureJsonData
+        // Store the certificate in secureJsonData and mark it as configured in jsonData.
+        // The jsonData flag persists across provisioning re-apply (secureJsonFields does not).
         onOptionsChange({
           ...options,
+          jsonData: {
+            ...jsonData,
+            clientCertConfigured: true,
+          },
           secureJsonData: {
             ...secureJsonData,
             clientCert: response.data.clientCert,
@@ -139,6 +151,10 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
   const onResetClientCertificate = () => {
     onOptionsChange({
       ...options,
+      jsonData: {
+        ...jsonData,
+        clientCertConfigured: false,
+      },
       secureJsonFields: {
         ...secureJsonFields,
         clientCert: false,

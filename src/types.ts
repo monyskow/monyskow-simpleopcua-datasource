@@ -36,6 +36,11 @@ export interface OpcuaDataSourceOptions extends DataSourceJsonData {
   authMethod: AuthMethod;
   /** Connection timeout in seconds */
   timeout: number;
+  /**
+   * True when a client certificate has been generated and persisted via Save & Test.
+   * Stored in jsonData (not secureJsonData) so provisioning re-apply does not clobber it.
+   */
+  clientCertConfigured?: boolean;
 }
 
 /**

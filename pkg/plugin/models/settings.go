@@ -24,6 +24,9 @@ type DataSourceSettings struct {
 	SecurityMode   string     `json:"securityMode"`   // None, Sign, SignAndEncrypt
 	AuthMethod     AuthMethod `json:"authMethod"`     // anonymous, userpass, certificate
 	Timeout        int        `json:"timeout"`        // Connection timeout in seconds
+	// True when a client certificate has been generated and saved. Stored in jsonData
+	// rather than secureJsonFields so provisioning re-apply does not clobber it.
+	ClientCertConfigured bool `json:"clientCertConfigured"`
 
 	// Secure settings (from secureJsonData - decrypted)
 	Username    string `json:"-"`
@@ -77,6 +80,13 @@ func ParseSettings(settings backend.DataSourceInstanceSettings) (DataSourceSetti
 	}
 	if val, ok := settings.DecryptedSecureJSONData["clientKey"]; ok {
 		ds.ClientKey = []byte(val)
+	}
+
+	// Backfill: datasources saved before clientCertConfigured was introduced have the
+	// cert bytes in secureJsonData but the flag absent from jsonData. Treat them as
+	// configured so backend code paths that inspect the flag behave consistently.
+	if !ds.ClientCertConfigured && len(ds.ClientCert) > 0 && len(ds.ClientKey) > 0 {
+		ds.ClientCertConfigured = true
 	}
 
 	return ds, nil

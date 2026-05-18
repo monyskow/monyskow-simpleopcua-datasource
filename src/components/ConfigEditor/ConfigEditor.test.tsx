@@ -222,6 +222,22 @@ describe('ConfigEditor', () => {
       expect(screen.getByText(/Certificate configured \(saved\)/)).toBeInTheDocument();
     });
 
+    it('shows saved status via clientCertConfigured flag when secureJsonFields absent', () => {
+      renderEditor({
+        jsonData: {
+          endpoint: 'opc.tcp://localhost:4840',
+          securityPolicy: 'None',
+          securityMode: 'Sign',
+          authMethod: 'anonymous',
+          timeout: 10,
+          clientCertConfigured: true,
+        },
+        secureJsonFields: {},
+      });
+      expect(screen.getByText(/Certificate configured \(saved\)/)).toBeInTheDocument();
+      expect(screen.queryByText(/No certificate configured/)).not.toBeInTheDocument();
+    });
+
     it('shows pending status when cert is in secureJsonData but not secureJsonFields', () => {
       renderEditor({
         jsonData: {
