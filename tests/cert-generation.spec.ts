@@ -1,5 +1,6 @@
-import { test, expect, Page } from '@playwright/test';
+import { expect, test } from './fixtures/isolated-datasource';
 import { OpcuaTestHelpers } from './helpers';
+import { Page } from '@playwright/test';
 
 // Cross-version compatible selector for endpoint URL input
 function getEndpointInput(page: Page) {
@@ -42,49 +43,17 @@ async function isCertificateAuthMode(page: Page): Promise<boolean> {
   return value === 'certificate';
 }
 
+// No describe.serial needed: each test operates on its own isolated datasource
+// created via the isolatedDatasource fixture, so there is no shared mutable state
+// and tests can run in parallel without 409 optimistic-concurrency conflicts.
 test.describe('Certificate Generation', () => {
-  test.beforeEach(async ({ page }) => {
+  test('should not show Client Certificate section when security mode is None', async ({
+    page,
+    isolatedDatasource,
+  }) => {
     const helpers = new OpcuaTestHelpers(page);
-    await helpers.goToDataSourceConfig();
-    // Reset security mode to None so each test starts from a known state,
-    // independent of any persistence left by previous Save & Test runs.
-    const mode = page.locator('input[role="combobox"]').nth(1);
-    if ((await mode.inputValue().catch(() => '')) !== 'None') {
-      await selectSecurityMode(page, 'None');
-    }
-  });
+    await helpers.goToDataSourceConfig(isolatedDatasource.uid);
 
-  test.afterEach(async ({ page }) => {
-    // Clean up any persisted certificate so subsequent test runs start from a
-    // known state without requiring `docker compose down -v`.
-    const helpers = new OpcuaTestHelpers(page);
-    await helpers.goToDataSourceConfig();
-
-    // Surface the Client Certificate section (hidden when mode=None).
-    await selectSecurityMode(page, 'Sign');
-
-    // If a Reset button is present in the Client Certificate fieldset, the cert
-    // was saved — wipe it. Scope avoids matching Reset buttons of unrelated
-    // SecretInputs (e.g. username/password) if the suite grows.
-    const clientCertSection = page.locator('fieldset', { has: page.getByText(/Client Certificate/i) });
-    const resetBtn = clientCertSection.getByRole('button', { name: /reset/i }).first();
-    const resetVisible = await resetBtn.isVisible({ timeout: 2000 }).catch(() => false);
-    if (!resetVisible) {
-      return;
-    }
-
-    await resetBtn.click();
-    await page.waitForTimeout(500);
-
-    // Persist the reset so the next run starts clean.
-    const saveButton = page
-      .getByRole('button', { name: /save.*test/i })
-      .or(page.getByRole('button', { name: /save/i }));
-    await saveButton.click();
-    await page.waitForTimeout(1500);
-  });
-
-  test('should not show Client Certificate section when security mode is None', async ({ page }) => {
     // Default configuration has security mode None
     await expect(getEndpointInput(page).first()).toBeVisible({ timeout: 10000 });
 
@@ -93,7 +62,10 @@ test.describe('Certificate Generation', () => {
     await expect(page.getByText(/Client Certificate/i)).not.toBeVisible({ timeout: 3000 });
   });
 
-  test('should show Client Certificate section after switching to Sign mode', async ({ page }) => {
+  test('should show Client Certificate section after switching to Sign mode', async ({ page, isolatedDatasource }) => {
+    const helpers = new OpcuaTestHelpers(page);
+    await helpers.goToDataSourceConfig(isolatedDatasource.uid);
+
     await expect(getEndpointInput(page).first()).toBeVisible({ timeout: 10000 });
     // Client Certificate auto-generate UI is hidden when authMethod=certificate;
     // user supplies their own cert in that mode — skip rather than fail.
@@ -108,7 +80,13 @@ test.describe('Certificate Generation', () => {
     await expect(page.getByText(/Client Certificate/i).first()).toBeVisible({ timeout: 5000 });
   });
 
-  test('should show Generate Certificate button in Client Certificate section', async ({ page }) => {
+  test('should show Generate Certificate button in Client Certificate section', async ({
+    page,
+    isolatedDatasource,
+  }) => {
+    const helpers = new OpcuaTestHelpers(page);
+    await helpers.goToDataSourceConfig(isolatedDatasource.uid);
+
     await expect(getEndpointInput(page).first()).toBeVisible({ timeout: 10000 });
     test.skip(
       await isCertificateAuthMode(page),
@@ -167,14 +145,17 @@ test.describe('Certificate Generation', () => {
     await expect(certPending.first()).toBeVisible({ timeout: 5000 });
   });
 
-  test('should generate certificate successfully on saved datasource', async ({ page }) => {
+  test('should generate certificate successfully on saved datasource', async ({ page, isolatedDatasource }) => {
+    const helpers = new OpcuaTestHelpers(page);
+    await helpers.goToDataSourceConfig(isolatedDatasource.uid);
+
     await expect(getEndpointInput(page).first()).toBeVisible({ timeout: 10000 });
     test.skip(
       await isCertificateAuthMode(page),
       'Datasource uses certificate auth — Client Certificate section is hidden by design'
     );
 
-    // Save the datasource first (it should already be saved as "OPC-UA Test Server")
+    // Save the datasource first to ensure it is persisted before generating a cert.
     const saveButton = page
       .getByRole('button', { name: /save.*test/i })
       .or(page.getByRole('button', { name: /save/i }));
@@ -203,7 +184,10 @@ test.describe('Certificate Generation', () => {
     await expect(successStatus.or(errorAlert).first()).toBeVisible({ timeout: 10000 });
   });
 
-  test('should persist certificate after Save and Test', async ({ page }) => {
+  test('should persist certificate after Save and Test', async ({ page, isolatedDatasource }) => {
+    const helpers = new OpcuaTestHelpers(page);
+    await helpers.goToDataSourceConfig(isolatedDatasource.uid);
+
     await expect(getEndpointInput(page).first()).toBeVisible({ timeout: 10000 });
 
     await selectSecurityMode(page, 'Sign');
