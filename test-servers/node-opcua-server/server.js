@@ -55,6 +55,11 @@ async function createServer() {
   const server = new OPCUAServer({
     port: PORT,
     hostname: HOSTNAME,
+    maxConnectionsPerEndpoint: 64, // 14 provisioned DS + per-test isolation; default 10 is too low
+    serverCapabilities: {
+      maxSessions: 64, // default 10 is too low; matches maxConnectionsPerEndpoint budget
+      maxSubscriptionsPerSession: 64, // proactive — default 10 is too low for the same reason
+    },
 
     // Server info
     serverInfo: {
