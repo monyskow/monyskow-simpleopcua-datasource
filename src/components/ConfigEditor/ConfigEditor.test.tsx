@@ -262,6 +262,7 @@ describe('ConfigEditor', () => {
       renderEditor(
         {
           id: 42,
+          uid: 'test-uid-42',
           jsonData: {
             endpoint: 'opc.tcp://localhost:4840',
             securityPolicy: 'None',
@@ -281,7 +282,7 @@ describe('ConfigEditor', () => {
       await waitFor(() => {
         expect(mockFetch).toHaveBeenCalledWith(
           expect.objectContaining({
-            url: '/api/datasources/42/resources/generate-certificate',
+            url: '/api/datasources/uid/test-uid-42/resources/generate-certificate',
             method: 'GET',
           })
         );
@@ -302,6 +303,7 @@ describe('ConfigEditor', () => {
 
       renderEditor({
         id: 42,
+        uid: 'test-uid-42',
         jsonData: {
           endpoint: 'opc.tcp://localhost:4840',
           securityPolicy: 'None',
@@ -348,6 +350,7 @@ describe('ConfigEditor', () => {
       const { unmount } = renderEditor(
         {
           id: 42,
+          uid: 'test-uid-42',
           jsonData: {
             endpoint: 'opc.tcp://localhost:4840',
             securityPolicy: 'None',

@@ -119,7 +119,7 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
       abortControllerRef.current = new AbortController();
       const response = await firstValueFrom(
         getBackendSrv().fetch<{ clientCert: string; clientKey: string }>({
-          url: `/api/datasources/${options.id}/resources/generate-certificate`,
+          url: `/api/datasources/uid/${options.uid}/resources/generate-certificate`,
           method: 'GET',
           abortSignal: abortControllerRef.current.signal,
         })

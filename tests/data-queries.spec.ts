@@ -240,8 +240,12 @@ test.describe('OPC-UA Data Queries and Visualization', () => {
     await page.waitForLoadState('networkidle');
     await page.waitForTimeout(2000);
 
-    // Add visualization
-    const addPanelButton = page.getByRole('button', { name: /add.*visualization/i }).or(page.getByText(/add.*panel/i));
+    // G12.x: "Add visualization" button. G13: side-panel button with img alt "Add new panel"
+    // (icon-only — no inner text). Role-scoped locators only; the previous bare
+    // getByText(/add.*panel/i) matched a paragraph on G13 and made click() a no-op.
+    const addPanelButton = page
+      .getByRole('button', { name: /add.*visualization/i })
+      .or(page.getByRole('button', { name: /add new panel/i }));
 
     if (await addPanelButton.first().isVisible({ timeout: 5000 })) {
       await addPanelButton.first().click();
