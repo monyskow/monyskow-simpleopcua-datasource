@@ -4,12 +4,28 @@ Quick setup instructions for Grafana plugin reviewers and end users to evaluate 
 
 ## Table of Contents
 
+- [What Do I Run?](#what-do-i-run)
 - [Quick Start](#quick-start-⭐)
 - [Test Environment Overview](#test-environment-overview)
 - [Manual Testing Guide](#manual-testing-guide)
 - [Docker Compose Options](#docker-compose-options)
 - [Automated Testing](#automated-testing)
 - [For Grafana Plugin Reviewers](#for-grafana-plugin-reviewers)
+
+---
+
+## What Do I Run?
+
+Pick the row that matches your goal. All commands assume the plugin is already built (`npm run build && mage buildAll`).
+
+| Scenario                                       | Command                                                                                                                                                                 | Approximate time                                                                                                           |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Browse the plugin manually (single combo)      | `docker compose -f docker-compose.full.yaml up -d` (14 datasources) or `GRAFANA_VERSION=x AUTH_CONFIG=y docker compose -f docker-compose.e2e.yaml up -d` (single combo) | instant start, browse freely                                                                                               |
+| Single E2E run (current Grafana, default auth) | `npm run e2e`                                                                                                                                                           | ~2 min                                                                                                                     |
+| All Grafana versions, sequential, default auth | `npm run e2e:all`                                                                                                                                                       | ~12 min (6 versions) — **Note: uses `docker-compose.yaml` (no OPC-UA server); tests against provisioned data source only** |
+| Full version × auth matrix locally             | `npm run e2e:matrix`                                                                                                                                                    | ~90–120 min (30 combos)                                                                                                    |
+| All versions in parallel for manual testing    | `npm run server:all`                                                                                                                                                    | instant start, ports 3000–3005                                                                                             |
+| Trigger CI matrix                              | `gh workflow run e2e-matrix.yml`                                                                                                                                        | ~10 min wall-clock (35 parallel jobs)                                                                                      |
 
 ---
 
@@ -258,7 +274,11 @@ Choose the right environment for your testing needs:
 
 ## Automated Testing
 
-Run automated E2E tests with Playwright:
+For comprehensive E2E testing documentation, see [tests/README.md](tests/README.md).
+
+**Test coverage**: 51 tests across plugin metadata, configuration, query editor, data queries, and cert generation.
+
+### Single Grafana version
 
 ```bash
 # Build the plugin
@@ -275,11 +295,7 @@ npx playwright test smoke.spec.ts    # Quick validation
 npx playwright test --ui             # Interactive mode
 ```
 
-**Test coverage**: 51 tests across plugin metadata, configuration, query editor, data queries, and cert generation.
-
-For comprehensive E2E testing documentation, see [tests/README.md](tests/README.md).
-
-### Run against all Grafana versions locally
+### All Grafana versions, sequential
 
 ```bash
 npm run e2e:all
@@ -291,7 +307,18 @@ Backed by `scripts/e2e-all-versions.sh`. Reads `.grafana-versions` (currently 6 
 
 **Output file:** `e2e-results-YYYYMMDD-HHMMSS.txt` at repo root — contains pass/fail summary for every version.
 
-### Run the full (version × auth) matrix locally
+#### .grafana-versions and version management
+
+File at repo root. 6 lines, one Grafana version per line:
+
+- **Lines 1–5** — manually curated anchors (LTS / known-good targets). Edit these directly to pin a specific version.
+- **Line 6** — latest-stable slot. Auto-bumped by the weekly workflow; do not edit manually.
+
+The workflow `.github/workflows/bump-grafana-latest.yml` runs every Monday at 09:00 UTC. It fetches the highest stable semver tag from Docker Hub and, if line 6 is behind, opens a PR to update it. Semver-aware: no downgrade PRs are opened.
+
+To pin a specific version: edit lines 1–5 of `.grafana-versions` directly and leave line 6 alone.
+
+### Full version × auth matrix locally
 
 ```bash
 npm run e2e:matrix
@@ -302,17 +329,6 @@ Backed by `scripts/e2e-all-auth-versions.sh`. Nested loop over all versions in `
 **Expected runtime:** ~90–120 minutes sequential. Use sparingly — for routine dev iteration prefer single-axis (`npm run e2e:all`) or single-combo manual testing. The CI matrix (`e2e-matrix.yml`) provides the same coverage in ~10 min wall-clock via parallel jobs.
 
 **Output file:** `e2e-matrix-results-YYYYMMDD-HHMMSS.txt` at repo root — one line per combination, pass/fail summary at the end.
-
-### .grafana-versions and version management
-
-File at repo root. 6 lines, one Grafana version per line:
-
-- **Lines 1–5** — manually curated anchors (LTS / known-good targets). Edit these directly to pin a specific version.
-- **Line 6** — latest-stable slot. Auto-bumped by the weekly workflow; do not edit manually.
-
-The workflow `.github/workflows/bump-grafana-latest.yml` runs every Monday at 09:00 UTC. It fetches the highest stable semver tag from Docker Hub and, if line 6 is behind, opens a PR to update it. Semver-aware: no downgrade PRs are opened.
-
-To pin a specific version: edit lines 1–5 of `.grafana-versions` directly and leave line 6 alone.
 
 ### CI: E2E matrix (e2e-matrix.yml)
 
