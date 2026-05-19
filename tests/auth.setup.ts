@@ -45,6 +45,23 @@ setup('authenticate', async ({ page }) => {
   // Ensure we're fully logged in
   await page.waitForLoadState('networkidle');
 
+  // Dismiss the "What's new in Grafana" splash screen modal that Grafana 13.0.1
+  // renders on every authenticated page via AppChrome (feature toggle splashScreen=true,
+  // locked AllowSelfServe:false so GF_FEATURE_TOGGLES_SPLASHSCREEN=false is ignored).
+  // Dismissal triggers a server-side useUserStorage write — once dismissed for the
+  // admin user the server remembers across all subsequent test pages.
+  const splashCloseButton = page
+    .getByRole('dialog', { name: "What's new in Grafana" })
+    .getByRole('button', { name: 'Close' });
+  try {
+    await splashCloseButton.waitFor({ state: 'visible', timeout: 5000 });
+    await splashCloseButton.click();
+    // Wait for the server-side preference write to complete before saving storageState
+    await page.waitForLoadState('networkidle');
+  } catch {
+    // Splash screen didn't appear (Grafana versions without this modal), continue
+  }
+
   // Wait for cookies to be set
   await page.waitForTimeout(1000);
 
