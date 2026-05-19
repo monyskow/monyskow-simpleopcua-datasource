@@ -18,9 +18,6 @@ jobs:
       fail-fast: false
       matrix:
         grafana_version:
-          - '10.4.19'
-          - '11.1.13'
-          - '11.4.8'
           - '12.1.5'
           - '12.3.1'
           - '12.4.3'
@@ -114,7 +111,7 @@ jobs:
 
       - name: Render summary table
         run: |
-          GRAFANA_VERSIONS="10.4.19 11.1.13 11.4.8 12.1.5 12.3.1 12.4.3 13.0.1"
+          GRAFANA_VERSIONS="12.1.5 12.3.1 12.4.3 13.0.1"
           AUTH_CONFIGS="anon-none userpass-none userpass-b256-sign cert-b256-sign cert-aes256-sign"
 
           {

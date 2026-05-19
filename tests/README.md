@@ -15,7 +15,7 @@ This directory contains End-to-End (E2E) tests for the Simple OPC-UA Grafana plu
 
 ## Overview
 
-The E2E test suite validates the complete user experience of the OPC-UA plugin across multiple Grafana versions (10.4.x, 11.x, 12.x). Tests run in a real browser (Chromium) against actual Grafana instances running in Docker containers.
+The E2E test suite validates the complete user experience of the OPC-UA plugin across multiple Grafana versions (12.x, 13.x). Tests run in a real browser (Chromium) against actual Grafana instances running in Docker containers.
 
 **Test Coverage:**
 
@@ -28,9 +28,6 @@ The E2E test suite validates the complete user experience of the OPC-UA plugin a
 
 **Grafana Versions Tested:**
 
-- 10.4.19 (Grafana 10.x LTS)
-- 11.1.13 (Grafana 11.1.x)
-- 11.4.8 (Grafana 11.4.x)
 - 12.1.5 (Grafana 12.1.x)
 - 12.3.1 (Grafana 12.3.x)
 - 13.0.1 (Grafana 13.x - latest-stable)
@@ -254,7 +251,7 @@ npm run e2e:all
 **What it does:**
 
 1. Builds plugin (frontend + backend)
-2. For each Grafana version (10.4.19, 11.1.13, 11.4.8, 12.1.5, 12.3.1, 13.0.1):
+2. For each Grafana version (12.1.5, 12.3.1, 13.0.1):
    - Starts Grafana container
    - Runs full test suite (51 tests)
    - Saves results
@@ -263,23 +260,20 @@ npm run e2e:all
 
 **Output:** `e2e-results-YYYYMMDD-HHMMSS.txt`
 
-**Expected:** ~12 minutes total (2 min per version)
+**Expected:** ~6 minutes total (2 min per version)
 
 ### All Grafana Versions (Manual Testing)
 
 ```bash
-# Start all 6 versions on different ports
+# Start all supported versions on different ports
 npm run server:all
 ```
 
 **Access URLs (login: admin / admin):**
 
-- Grafana 10.4.19: http://localhost:3000
-- Grafana 11.1.13: http://localhost:3001
-- Grafana 11.4.8: http://localhost:3002
-- Grafana 12.1.5: http://localhost:3003
-- Grafana 12.3.1: http://localhost:3004
-- Grafana 13.0.1: http://localhost:3005
+- Grafana 12.1.5: http://localhost:3000
+- Grafana 12.3.1: http://localhost:3001
+- Grafana 13.0.1: http://localhost:3002
 
 **Useful pages to test:**
 
@@ -412,12 +406,12 @@ docker inspect <container> | grep -A5 Mounts
 
 ## Performance
 
-| Metric          | Time                     |
-| --------------- | ------------------------ |
-| Single version  | ~2 minutes (51 tests)    |
-| All versions    | ~12 minutes (6 versions) |
-| Auth setup      | ~4 seconds               |
-| Individual test | ~3-10 seconds            |
+| Metric          | Time                    |
+| --------------- | ----------------------- |
+| Single version  | ~2 minutes (51 tests)   |
+| All versions    | ~6 minutes (3 versions) |
+| Auth setup      | ~4 seconds              |
+| Individual test | ~3-10 seconds           |
 
 **Optimization:**
 
@@ -437,7 +431,7 @@ docker inspect <container> | grep -A5 Mounts
 
 **Matrix:**
 
-- 7 Grafana versions × 5 auth configs = 35 jobs run in parallel
+- 4 Grafana versions × 5 auth configs = 20 jobs run in parallel
 - Playwright HTML reports uploaded as artifacts on failure (7-day retention)
 - `summary` job posts a pass/fail results table to `GITHUB_STEP_SUMMARY`
 
