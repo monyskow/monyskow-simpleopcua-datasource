@@ -50,14 +50,14 @@ for VERSION in "${VERSIONS[@]}"; do
   echo "========================================" >> "$RESULTS_FILE"
 
   # Stop any existing containers
-  docker compose down --remove-orphans 2>/dev/null || true
+  docker compose -f docker-compose.e2e.yaml down --remove-orphans 2>/dev/null || true
 
   # Ensure auth directory exists and clean up auth state from previous Grafana version
   mkdir -p playwright/.auth
   rm -f playwright/.auth/*.json 2>/dev/null || true
 
   # Start Grafana with specific version
-  GRAFANA_VERSION=$VERSION GRAFANA_IMAGE=grafana-enterprise ANONYMOUS_AUTH_ENABLED=false docker compose up -d --build
+  GRAFANA_VERSION=$VERSION GRAFANA_IMAGE=grafana-enterprise ANONYMOUS_AUTH_ENABLED=false docker compose -f docker-compose.e2e.yaml up -d --build
 
   # Wait for Grafana to be ready
   echo "Waiting for Grafana $VERSION to start..."
@@ -96,7 +96,7 @@ for VERSION in "${VERSIONS[@]}"; do
   fi
 
   # Stop Grafana
-  docker compose down --remove-orphans
+  docker compose -f docker-compose.e2e.yaml down --remove-orphans
 done
 
 echo ""
