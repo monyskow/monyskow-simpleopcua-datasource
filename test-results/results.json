@@ -1,0 +1,2172 @@
+{
+  "config": {
+    "configFile": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/playwright.config.ts",
+    "rootDir": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests",
+    "forbidOnly": false,
+    "fullyParallel": true,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 2
+    },
+    "preserveOutput": "always",
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "playwright-report"
+        }
+      ],
+      [
+        "json",
+        {
+          "outputFile": "test-results/results.json"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "quiet": false,
+    "projects": [
+      {
+        "outputDir": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "auth",
+        "name": "auth",
+        "testDir": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/auth.setup.ts"
+        ],
+        "timeout": 30000
+      },
+      {
+        "outputDir": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results",
+        "repeatEach": 1,
+        "retries": 1,
+        "metadata": {
+          "actualWorkers": 2
+        },
+        "id": "chromium",
+        "name": "chromium",
+        "testDir": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.@(spec|test).?(c|m)[jt]s?(x)"
+        ],
+        "timeout": 30000
+      }
+    ],
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.57.0",
+    "workers": 2,
+    "webServer": {
+      "command": "npm run server",
+      "url": "http://localhost:3000",
+      "timeout": 120000,
+      "reuseExistingServer": true
+    }
+  },
+  "suites": [
+    {
+      "title": "auth.setup.ts",
+      "file": "auth.setup.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "authenticate",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 30000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "auth",
+              "projectName": "auth",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5305,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-05-19T17:01:13.968Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "17e3fe6f4d9d8bd79c6b-6617aa1a9c2eab12e7e4",
+          "file": "auth.setup.ts",
+          "line": 5,
+          "column": 6
+        }
+      ]
+    },
+    {
+      "title": "cert-generation.spec.ts",
+      "file": "cert-generation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Certificate Generation",
+          "file": "cert-generation.spec.ts",
+          "line": 49,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should not show Client Certificate section when security mode is None",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5333,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:19.652Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c5fa4037647670344057-1b3f7946d579dd405857",
+              "file": "cert-generation.spec.ts",
+              "line": 50,
+              "column": 7
+            },
+            {
+              "title": "should show Client Certificate section after switching to Sign mode",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5290,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:19.651Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c5fa4037647670344057-f8933b127e10513ad7f8",
+              "file": "cert-generation.spec.ts",
+              "line": 65,
+              "column": 7
+            },
+            {
+              "title": "should show Generate Certificate button in Client Certificate section",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5439,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:25.029Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c5fa4037647670344057-b476d47020a33890756e",
+              "file": "cert-generation.spec.ts",
+              "line": 83,
+              "column": 7
+            },
+            {
+              "title": "should produce a pending certificate when Generate is clicked on a draft datasource",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5226,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:25.073Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c5fa4037647670344057-fc852c63f6e7437e6fd4",
+              "file": "cert-generation.spec.ts",
+              "line": 105,
+              "column": 7
+            },
+            {
+              "title": "should generate certificate successfully on saved datasource",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6863,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:30.304Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "c5fa4037647670344057-2634e13cb94c54b0f5d7",
+              "file": "cert-generation.spec.ts",
+              "line": 148,
+              "column": 7
+            },
+            {
+              "title": "should persist certificate after Save and Test",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 15263,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/click Save.*Test to persist/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/click Save.*Test to persist/i)\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/click Save.*Test to persist/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/click Save.*Test to persist/i)\u001b[22m\n\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts:215:66",
+                        "location": {
+                          "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts",
+                          "column": 66,
+                          "line": 215
+                        },
+                        "snippet": "  213 |\n  214 |     // Wait for pending status before saving\n> 215 |     await expect(page.getByText(/click Save.*Test to persist/i)).toBeVisible({ timeout: 10000 });\n      |                                                                  ^\n  216 |\n  217 |     // Save and Test\n  218 |     const saveButton = page"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts",
+                            "column": 66,
+                            "line": 215
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/click Save.*Test to persist/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/click Save.*Test to persist/i)\u001b[22m\n\n\n  213 |\n  214 |     // Wait for pending status before saving\n> 215 |     await expect(page.getByText(/click Save.*Test to persist/i)).toBeVisible({ timeout: 10000 });\n      |                                                                  ^\n  216 |\n  217 |     // Save and Test\n  218 |     const saveButton = page\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts:215:66"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:30.472Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/cert-generation-Certificat-d8f3c-ificate-after-Save-and-Test-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/cert-generation-Certificat-d8f3c-ificate-after-Save-and-Test-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/cert-generation-Certificat-d8f3c-ificate-after-Save-and-Test-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts",
+                        "column": 66,
+                        "line": 215
+                      }
+                    },
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 15200,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/click Save.*Test to persist/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/click Save.*Test to persist/i)\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/click Save.*Test to persist/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/click Save.*Test to persist/i)\u001b[22m\n\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts:215:66",
+                        "location": {
+                          "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts",
+                          "column": 66,
+                          "line": 215
+                        },
+                        "snippet": "  213 |\n  214 |     // Wait for pending status before saving\n> 215 |     await expect(page.getByText(/click Save.*Test to persist/i)).toBeVisible({ timeout: 10000 });\n      |                                                                  ^\n  216 |\n  217 |     // Save and Test\n  218 |     const saveButton = page"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts",
+                            "column": 66,
+                            "line": 215
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByText(/click Save.*Test to persist/i)\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByText(/click Save.*Test to persist/i)\u001b[22m\n\n\n  213 |\n  214 |     // Wait for pending status before saving\n> 215 |     await expect(page.getByText(/click Save.*Test to persist/i)).toBeVisible({ timeout: 10000 });\n      |                                                                  ^\n  216 |\n  217 |     // Save and Test\n  218 |     const saveButton = page\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts:215:66"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-05-19T17:01:45.961Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/cert-generation-Certificat-d8f3c-ificate-after-Save-and-Test-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/cert-generation-Certificat-d8f3c-ificate-after-Save-and-Test-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/cert-generation-Certificat-d8f3c-ificate-after-Save-and-Test-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/cert-generation-Certificat-d8f3c-ificate-after-Save-and-Test-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/cert-generation.spec.ts",
+                        "column": 66,
+                        "line": 215
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "c5fa4037647670344057-421bf2f13773d66a41c3",
+              "file": "cert-generation.spec.ts",
+              "line": 187,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "data-queries.spec.ts",
+      "file": "data-queries.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "OPC-UA Data Queries and Visualization",
+          "file": "data-queries.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should execute query and display results",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7767,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:37.176Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b2b6f0bec84c7b93c0a7-0917a37e48bb5f60c550",
+              "file": "data-queries.spec.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "should display data in table format",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6233,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:44.948Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b2b6f0bec84c7b93c0a7-6cc5ba29a028012889e4",
+              "file": "data-queries.spec.ts",
+              "line": 42,
+              "column": 7
+            },
+            {
+              "title": "should handle multiple nodes in single query",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6296,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:51.185Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b2b6f0bec84c7b93c0a7-f784d52e54c708bfdc0e",
+              "file": "data-queries.spec.ts",
+              "line": 82,
+              "column": 7
+            },
+            {
+              "title": "should refresh data on run query",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6767,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:01:57.485Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b2b6f0bec84c7b93c0a7-f4744a3c83b6e654773e",
+              "file": "data-queries.spec.ts",
+              "line": 122,
+              "column": 7
+            },
+            {
+              "title": "should handle query errors gracefully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 5755,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:01.561Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b2b6f0bec84c7b93c0a7-2e343b3878dab4154486",
+              "file": "data-queries.spec.ts",
+              "line": 157,
+              "column": 7
+            },
+            {
+              "title": "should display node aliases in results",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3705,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:04.257Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b2b6f0bec84c7b93c0a7-d10d24e3cc8a4d6ebf61",
+              "file": "data-queries.spec.ts",
+              "line": 190,
+              "column": 7
+            },
+            {
+              "title": "should work in dashboard panel",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 18128,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\u001b[22m\n\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts:253:41",
+                        "location": {
+                          "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts",
+                          "column": 41,
+                          "line": 253
+                        },
+                        "snippet": "  251 |       // Just verify the query editor loaded\n  252 |       const queryEditor = page.getByRole('button', { name: /add manual/i }).or(page.locator('[data-testid*=\"query\"]'));\n> 253 |       await expect(queryEditor.first()).toBeVisible({ timeout: 10000 });\n      |                                         ^\n  254 |     }\n  255 |   });\n  256 | });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts",
+                            "column": 41,
+                            "line": 253
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\u001b[22m\n\n\n  251 |       // Just verify the query editor loaded\n  252 |       const queryEditor = page.getByRole('button', { name: /add manual/i }).or(page.locator('[data-testid*=\"query\"]'));\n> 253 |       await expect(queryEditor.first()).toBeVisible({ timeout: 10000 });\n      |                                         ^\n  254 |     }\n  255 |   });\n  256 | });\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts:253:41"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:07.388Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/data-queries-OPC-UA-Data-Q-83bd1-uld-work-in-dashboard-panel-chromium/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/data-queries-OPC-UA-Data-Q-83bd1-uld-work-in-dashboard-panel-chromium/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/data-queries-OPC-UA-Data-Q-83bd1-uld-work-in-dashboard-panel-chromium/error-context.md"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts",
+                        "column": 41,
+                        "line": 253
+                      }
+                    },
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 1,
+                      "status": "failed",
+                      "duration": 18219,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\u001b[22m\n",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\u001b[22m\n\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts:253:41",
+                        "location": {
+                          "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts",
+                          "column": 41,
+                          "line": 253
+                        },
+                        "snippet": "  251 |       // Just verify the query editor loaded\n  252 |       const queryEditor = page.getByRole('button', { name: /add manual/i }).or(page.locator('[data-testid*=\"query\"]'));\n> 253 |       await expect(queryEditor.first()).toBeVisible({ timeout: 10000 });\n      |                                         ^\n  254 |     }\n  255 |   });\n  256 | });"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts",
+                            "column": 41,
+                            "line": 253
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mlocator\u001b[39m\u001b[2m).\u001b[22mtoBeVisible\u001b[2m(\u001b[22m\u001b[2m)\u001b[22m failed\n\nLocator: getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\nExpected: visible\nTimeout: 10000ms\nError: element(s) not found\n\nCall log:\n\u001b[2m  - Expect \"toBeVisible\" with timeout 10000ms\u001b[22m\n\u001b[2m  - waiting for getByRole('button', { name: /add manual/i }).or(locator('[data-testid*=\"query\"]')).first()\u001b[22m\n\n\n  251 |       // Just verify the query editor loaded\n  252 |       const queryEditor = page.getByRole('button', { name: /add manual/i }).or(page.locator('[data-testid*=\"query\"]'));\n> 253 |       await expect(queryEditor.first()).toBeVisible({ timeout: 10000 });\n      |                                         ^\n  254 |     }\n  255 |   });\n  256 | });\n    at /Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts:253:41"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 1,
+                      "startTime": "2026-05-19T17:02:25.740Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/data-queries-OPC-UA-Data-Q-83bd1-uld-work-in-dashboard-panel-chromium-retry1/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/data-queries-OPC-UA-Data-Q-83bd1-uld-work-in-dashboard-panel-chromium-retry1/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/data-queries-OPC-UA-Data-Q-83bd1-uld-work-in-dashboard-panel-chromium-retry1/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/test-results/data-queries-OPC-UA-Data-Q-83bd1-uld-work-in-dashboard-panel-chromium-retry1/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/monyskow/Source/GrafanaPlugins/monyskow-simpleopcua-datasource/tests/data-queries.spec.ts",
+                        "column": 41,
+                        "line": 253
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "b2b6f0bec84c7b93c0a7-382a244f79d86351dee5",
+              "file": "data-queries.spec.ts",
+              "line": 237,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "datasource-config.spec.ts",
+      "file": "datasource-config.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "OPC-UA Data Source Configuration",
+          "file": "datasource-config.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load the configuration page",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4993,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:07.967Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-37a91334f0465f9586d1",
+              "file": "datasource-config.spec.ts",
+              "line": 18,
+              "column": 7
+            },
+            {
+              "title": "should display endpoint URL field",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5248,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:12.964Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-cf4e592f45dbd01c0daa",
+              "file": "datasource-config.spec.ts",
+              "line": 27,
+              "column": 7
+            },
+            {
+              "title": "should display security policy selector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5373,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:18.216Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-05e5c8a6b2e6fde5c618",
+              "file": "datasource-config.spec.ts",
+              "line": 36,
+              "column": 7
+            },
+            {
+              "title": "should display security mode selector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5049,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:23.592Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-ebbd12560dc5c0ac5163",
+              "file": "datasource-config.spec.ts",
+              "line": 52,
+              "column": 7
+            },
+            {
+              "title": "should display authentication method selector",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5914,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:28.645Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-7714cb4e4cb7a84d12b5",
+              "file": "datasource-config.spec.ts",
+              "line": 68,
+              "column": 7
+            },
+            {
+              "title": "should test connection successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5179,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:34.563Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-4e2b324732fc2357f8d3",
+              "file": "datasource-config.spec.ts",
+              "line": 84,
+              "column": 7
+            },
+            {
+              "title": "should allow changing endpoint URL",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4945,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:39.746Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-ce988da3c37878bbed61",
+              "file": "datasource-config.spec.ts",
+              "line": 103,
+              "column": 7
+            },
+            {
+              "title": "should show username/password fields when auth method is username",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 6904,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:44.336Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-78e30d5b8d2fb2407038",
+              "file": "datasource-config.spec.ts",
+              "line": 113,
+              "column": 7
+            },
+            {
+              "title": "should persist configuration after save",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13238,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:44.694Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "344d468c926af8e06965-c6d27db04b566c594403",
+              "file": "datasource-config.spec.ts",
+              "line": 144,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "plugin-metadata.spec.ts",
+      "file": "plugin-metadata.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "OPC-UA Plugin Metadata and Compatibility",
+          "file": "plugin-metadata.spec.ts",
+          "line": 11,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display correct plugin information",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3497,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:51.312Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-d7c8024851daaaf0ad71",
+              "file": "plugin-metadata.spec.ts",
+              "line": 12,
+              "column": 7
+            },
+            {
+              "title": "should show plugin as installed",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4871,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:54.812Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-6f2c1f36f3616c670743",
+              "file": "plugin-metadata.spec.ts",
+              "line": 21,
+              "column": 7
+            },
+            {
+              "title": "should display plugin description and metadata",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2231,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:57.938Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-b62a92f7979628146d99",
+              "file": "plugin-metadata.spec.ts",
+              "line": 60,
+              "column": 7
+            },
+            {
+              "title": "should be categorized as data source",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 8033,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:02:59.687Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-647319bf55dedba2cebb",
+              "file": "plugin-metadata.spec.ts",
+              "line": 69,
+              "column": 7
+            },
+            {
+              "title": "should be discoverable via search",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9230,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:00.173Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-fd02ba36a9754fb031cd",
+              "file": "plugin-metadata.spec.ts",
+              "line": 87,
+              "column": 7
+            },
+            {
+              "title": "should allow creating new data source instance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 2118,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:07.723Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-c7ab16a4c7cb583708c0",
+              "file": "plugin-metadata.spec.ts",
+              "line": 117,
+              "column": 7
+            },
+            {
+              "title": "should work with current Grafana version",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4134,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:09.406Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-238349739e602f43c143",
+              "file": "plugin-metadata.spec.ts",
+              "line": 143,
+              "column": 7
+            },
+            {
+              "title": "should display backend plugin indicator",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1206,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:09.845Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-0027bd159581a6a26429",
+              "file": "plugin-metadata.spec.ts",
+              "line": 164,
+              "column": 7
+            },
+            {
+              "title": "should support alerting (has backend)",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 1070,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:11.054Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-7cb1c9475dc35974999e",
+              "file": "plugin-metadata.spec.ts",
+              "line": 182,
+              "column": 7
+            },
+            {
+              "title": "should have required plugin files",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4008,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:12.128Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1160f955988888cf0c28-f58bc0ee02040d615720",
+              "file": "plugin-metadata.spec.ts",
+              "line": 203,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "query-editor.spec.ts",
+      "file": "query-editor.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "OPC-UA Query Editor",
+          "file": "query-editor.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should display query editor with node list",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3108,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:13.545Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-dd2e8c71cbdc0f3db032",
+              "file": "query-editor.spec.ts",
+              "line": 11,
+              "column": 7
+            },
+            {
+              "title": "should have add manual button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3115,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:16.141Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-5597eb9af58bac83c608",
+              "file": "query-editor.spec.ts",
+              "line": 20,
+              "column": 7
+            },
+            {
+              "title": "should allow adding a node manually",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3662,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:16.656Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-8a8b207bd63092c8fc26",
+              "file": "query-editor.spec.ts",
+              "line": 25,
+              "column": 7
+            },
+            {
+              "title": "should allow setting node alias",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3698,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:19.261Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-073453ca6c4e5193f12d",
+              "file": "query-editor.spec.ts",
+              "line": 53,
+              "column": 7
+            },
+            {
+              "title": "should allow removing a node",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4168,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:20.322Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-1e93822d4ea8ce40597e",
+              "file": "query-editor.spec.ts",
+              "line": 77,
+              "column": 7
+            },
+            {
+              "title": "should display node browser button",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 3144,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:22.963Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-1c62565de2876bf5646e",
+              "file": "query-editor.spec.ts",
+              "line": 106,
+              "column": 7
+            },
+            {
+              "title": "should open node browser when browse button is clicked",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4140,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:24.493Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-d60ef78d4add059da28b",
+              "file": "query-editor.spec.ts",
+              "line": 137,
+              "column": 7
+            },
+            {
+              "title": "should display root nodes in browser",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4106,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:26.111Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-086aefd441aa0460bda4",
+              "file": "query-editor.spec.ts",
+              "line": 154,
+              "column": 7
+            },
+            {
+              "title": "should persist query configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4703,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:28.637Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "9186a551fb72e9705abe-742a266efb228813c8c9",
+              "file": "query-editor.spec.ts",
+              "line": 177,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "smoke.spec.ts",
+      "file": "smoke.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "OPC-UA Plugin Smoke Tests",
+          "file": "smoke.spec.ts",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "should load plugin successfully",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 9413,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:30.223Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-aa05c39230f8a3a889d8",
+              "file": "smoke.spec.ts",
+              "line": 13,
+              "column": 7
+            },
+            {
+              "title": "should have provisioned data source",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1046,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:33.345Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-62720d6cbbec35ff66e9",
+              "file": "smoke.spec.ts",
+              "line": 42,
+              "column": 7
+            },
+            {
+              "title": "should open data source configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5173,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:34.394Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-26016c06f8e1511d36da",
+              "file": "smoke.spec.ts",
+              "line": 52,
+              "column": 7
+            },
+            {
+              "title": "should display all configuration fields",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5389,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:39.570Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-65aac76f0fcfe8ca4a02",
+              "file": "smoke.spec.ts",
+              "line": 60,
+              "column": 7
+            },
+            {
+              "title": "should load query editor in explore",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4150,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:39.639Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-36e1786575f7a6c2c92a",
+              "file": "smoke.spec.ts",
+              "line": 74,
+              "column": 7
+            },
+            {
+              "title": "should allow adding nodes to query",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4678,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:43.792Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-fcc65d906c4acc207adc",
+              "file": "smoke.spec.ts",
+              "line": 83,
+              "column": 7
+            },
+            {
+              "title": "should persist endpoint configuration",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7300,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:44.963Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-5e428aea0a97d3e2505e",
+              "file": "smoke.spec.ts",
+              "line": 94,
+              "column": 7
+            },
+            {
+              "title": "should work with multiple Grafana versions",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 7439,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:48.474Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-bb0e3371e9fde66c0c3c",
+              "file": "smoke.spec.ts",
+              "line": 110,
+              "column": 7
+            },
+            {
+              "title": "should handle navigation between pages",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8944,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:52.266Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-7235b7268b516cf8c9fa",
+              "file": "smoke.spec.ts",
+              "line": 137,
+              "column": 7
+            },
+            {
+              "title": "should not crash on invalid input",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 30000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "chromium",
+                  "projectName": "chromium",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 1,
+                      "status": "passed",
+                      "duration": 4637,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-05-19T17:03:55.917Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4219922fea2e2bd3c691-e07f948c0258078da71c",
+              "file": "smoke.spec.ts",
+              "line": 149,
+              "column": 7
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-05-19T17:01:13.712Z",
+    "duration": 167522.28300000002,
+    "expected": 50,
+    "skipped": 0,
+    "unexpected": 2,
+    "flaky": 0
+  }
+}

@@ -1,154 +1,68 @@
 # CLAUDE.md
 
-Plik kontekstu dla Claude Code. Czytany na początku każdej sesji. Trzymaj go zwięzłym — to jest stale ładowane do kontekstu modelu.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
----
+Framework contract (commands, agents, model-selection rules, output style, hook contract) lives in `.claude/CLAUDE.md` and is loaded automatically. This file covers only what's specific to **this plugin**.
 
-## Kim jest użytkownik
+## What this is
 
-Solo developer pracujący w domenie **MES / ERP / manufacturing** (Infor M3, Critical Manufacturing, Operator Systems MES) plus side projecty: analytics, custom tooling.
+A Grafana datasource plugin that connects to OPC-UA servers (industrial automation protocol — IEC 62541; common in MES/SCADA). The backend speaks OPC-UA over TCP and exposes browse/read/subscribe to the frontend, which renders configuration UI and query editors. When in doubt about OPC-UA semantics (NodeIds, namespaces, security policies, message-security modes), prefer the `gopcua/opcua` source over guessing.
 
-**Stack:**
+## Tech stack
 
-- Go (backend, CLI)
-- Python z polars / duckdb (analytics, ETL)
-- TypeScript / Node (frontend, narzędzia)
-- C# (.NET, integracje z M3)
-- SQL — głównie MSSQL i DuckDB
+- **Frontend:** TypeScript 5.5, React 18, `@grafana/ui` 12.2.x, Webpack 5. Node 22.
+- **Backend:** Go 1.25, `github.com/gopcua/opcua`, `github.com/grafana/grafana-plugin-sdk-go`.
+- **Build orchestration:** Mage (backend) + npm scripts (frontend). E2E via Playwright.
 
-**Preferencje:**
+## Build / test / lint
 
-- Boring tech wins. Stdlib przed frameworkiem.
-- Prostota przed elastycznością. Nie buduj abstrakcji „na zapas".
-- Jeden plik > sześć plików, jeśli to wystarczy.
-- Mniej zależności = mniej długu.
+Non-standard commands worth remembering:
 
-**Język:**
+- `mage test` — Go tests (race detector on)
+- `mage buildAll` — backend binaries for all platforms, copied into `dist/`
+- `npm run build` — webpack frontend bundle
+- `npm run typecheck` — `tsc --noEmit`
+- `npm run lint:fix` — ESLint + Prettier combined
+- `npm run test:ci` — Jest frontend tests
+- `npm run server` — start `docker-compose.e2e.yaml` (Grafana + one test OPC-UA server)
+- `npm run server:all` — 4 Grafana versions in parallel on ports 3000–3003
+- `npm run e2e` — Playwright against default Grafana
+- `npm run e2e:all` — sequential across the supported Grafana versions
+- `npm run e2e:matrix` — full auth × Grafana version matrix (20 jobs)
 
-- Rozmowa z Claude: polski lub angielski (dopasuj się do tego, co pisze użytkownik).
-- Wszystko, co trafia do repo lub GitHuba — domyślnie **angielski**: kod, komentarze, nazwy zmiennych, commit messages, treść issues, PR-ów, komentarzy, ADR-y, notatki w `docs/`, release notes, changelog, README.
-- Wyjątek tylko gdy użytkownik wprost poprosi o inny język dla konkretnego artefaktu („ten ADR napisz po polsku") — wtedy ten jeden artefakt po polsku, ale default się nie zmienia.
+`docker-compose.full.yaml` brings up 5 OPC-UA test servers for manual exploration; `docker-compose.prosys.yaml` targets the external ProSys simulator.
 
----
+## Layout
 
-## Filozofia frameworka
+- `src/` — frontend (datasource class, config + query editors, plugin.json)
+- `pkg/plugin/` — backend; `datasource.go` handlers, `resources.go` HTTP endpoints, `opcua/` client/auth/browse/certs
+- `tests/` — Playwright e2e (auth, config, query editor, cert generation, matrix)
+- `scripts/` — multi-version bash helpers
+- `.github/workflows/` — CI, weekly Grafana-version bump, release signing
 
-Trzy filary:
+## Grafana compatibility
 
-1. **Wymuszenie mechaniczne** — hooki, branch protection, CI. Tam, gdzie maszyna może egzekwować, człowiek nie powinien się tym zajmować.
-2. **Siedem komend** pokrywających cały flow: `/cx-idea` → `/cx-architecture` → `/cx-backlog` → `/cx-issue` → `/cx-build` → `/cx-merge` → `/cx-ship`.
-3. **Siedmioro agentów + dwa wewnętrzne (parser + merger)** = dziewięć perspektyw, każda z dopasowanym modelem.
+- `plugin.json` declares `grafanaDependency: ">=12.1.0"`. Older versions lack the `Combobox` component used by the config editor and will throw in React.
+- CI matrix is intentionally trimmed to versions that work: **12.1.5, 12.3.1, 12.4.3, 13.0.1**. Don't widen it without checking `Combobox` + UID resource API support.
+- A weekly workflow (`bump-grafana-latest.yml`) auto-PRs new stable versions into the matrix.
 
----
+## Grafana 13 quirks (don't re-discover these)
 
-## Komendy
+- **UID-based resource URLs only.** G13 returns 404 on `/api/datasources/{numericId}/resources/...`. Use `/api/datasources/uid/{uid}/resources/...` (supported on G9+, so no version branching needed).
+- **"What's new" splash modal** blocks every authenticated page on first load in G13.0.1+. `GF_FEATURE_TOGGLES_SPLASHSCREEN=false` does NOT disable it (`AllowSelfServe:false`). `tests/auth.setup.ts` dismisses it by clicking close with a soft 5s timeout — fine if the modal isn't there.
+- **Dashboard panel selectors changed.** Use role-scoped locators, not text-matched OR-chains.
 
-Wszystkie komendy mają prefix `cx-` (od „claude-x", roboczo nazwa frameworka). Pełne instrukcje: `.claude/commands/`.
+## E2E rules
 
-| Komenda            | Cel                                                | Etap flow |
-| ------------------ | -------------------------------------------------- | --------- |
-| `/cx-idea`         | Szkic pomysłu → notatka w `docs/ideas/`            | Inception |
-| `/cx-architecture` | Decyzja architektoniczna → ADR w `docs/decisions/` | Design    |
-| `/cx-backlog`      | Przegląd / planowanie issues w GitHubie            | Planning  |
-| `/cx-issue`        | Tworzenie / refinement pojedynczego issue          | Planning  |
-| `/cx-build`        | Implementacja: branch → plan → kod → PR            | Execution |
-| `/cx-merge`        | Squash merge PR + sprzątanie branchy               | Execution |
-| `/cx-ship`         | Release: tag, release notes, changelog             | Delivery  |
+- **Each test creates its own datasource** with a randomized UID (`opcua-iso-{workerIndex}-{random}`) via `tests/fixtures/isolated-datasource.ts`, and deletes it on teardown. This avoids Grafana's HTTP 409 on concurrent PATCHes. Don't share datasources across tests.
+- **Playwright `workers: 2`, `retries: 1`** is deliberate. The node-opcua test server caps around 10 concurrent connections; raising workers or retries papers over real flake. If a test is flaky, fix the test — don't bump these.
+- Auth setup has multiple fallback selectors (testId → placeholder → name → position) because the login form layout shifts between Grafana versions. Keep the fallback chain when editing.
 
----
+## Plugin signing & release
 
-## Agenci (siedem perspektyw + dwa wewnętrzne)
+- Releases are signed with `@grafana/sign-plugin --signatureType community`. Requires `GRAFANA_ACCESS_POLICY_TOKEN` in CI secrets.
+- Locally the plugin is unsigned; Grafana must allow unsigned plugins for dev (`GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS` in the dev docker-compose files).
 
-Pełne definicje: `.claude/agents/`.
+## Pre-PR checklist
 
-| Agent       | Model  | Rola                                                                       |
-| ----------- | ------ | -------------------------------------------------------------------------- |
-| `pm`        | Sonnet | Refinement issues, priorytetyzacja, dopytywanie o intencję                 |
-| `architect` | Opus   | Decyzje długoterminowe: ADR, wybory technologii, granice modułów           |
-| `tech-lead` | Opus   | Plan implementacji dla dużych issues (label `epic`/`complex` lub `--plan`) |
-| `developer` | Sonnet | Pisanie kodu — głównie wykonawca w `/cx-build`                             |
-| `tester`    | Sonnet | Generowanie testów, edge cases, weryfikacja założeń                        |
-| `reviewer`  | Sonnet | Code review, zapach kodu, drobne ulepszenia                                |
-| `explorer`  | Haiku  | Szybkie szukanie po repo: gdzie jest X, kto woła Y                         |
-| `gh-parser` | Haiku  | **Wewnętrzny** parser: agregacja `gh` outputu, format, walidacja           |
-| `merger`    | Haiku  | **Wewnętrzny**: squash merge PR + cleanup branchy (lokalnie/remote)        |
-
-`gh-parser` i `merger` są **wewnętrzne** — nie wołasz ich bezpośrednio, używają ich komendy. `gh-parser` tylko czyta, `merger` wykonuje merge + cleanup po pre-checkach komendy.
-
----
-
-## Reguła doboru modelu (kluczowa)
-
-**Haiku to DEFAULT.** Eskalacja do Sonneta/Opusa wymaga uzasadnienia, nie odwrotnie.
-
-- **Haiku** — mechanika: parsing `gh`, agregacja, format, status checks, walidacje, transformacje danych.
-- **Sonnet** — osąd: kodowanie, code review, planowanie, dopytywanie o intencję.
-- **Opus** — decyzje długoterminowe: architektura (ADR), krytyczne release'y, kontrowersyjne wybory bibliotek. Oraz **plan implementacji dla dużych zadań** (`tech-lead`), gdzie błąd planu multiplikuje się przez wszystkie kolejne edycje.
-
-Jeśli zadanie polega na **przetwarzaniu danych z deterministycznym wynikiem** → Haiku.
-Jeśli wymaga **oceny jakości, intencji lub kompromisu** → Sonnet.
-Jeśli ma **długoterminowe konsekwencje** (architektura, release na produkcję) → Opus.
-
-**Widoczność wyboru (kluczowa).** Za każdym razem gdy deleguję do sub-agenta — przez `Agent` tool, w planach, w opisach kroków komendy — wprost wymieniam **agenta i model** w formacie `` `<agent>` (<Model>) ``, np. `` `developer` (Sonnet) ``, `` `tech-lead` (Opus) ``, `` `gh-parser` (Haiku) ``. To utrzymuje regułę doboru w widoku użytkownika i pozwala wcześnie wyłapać niepotrzebne eskalacje.
-
----
-
-## Default agent (zwykła rozmowa)
-
-Gdy użytkownik pisze do mnie bez wywoływania komendy — odpowiadam z perspektywy **głównej sesji**, nie sub-agenta. Zachowuję się jak doświadczony pair-programmer:
-
-- Czytam kontekst (CLAUDE.md, ostatni `git log`, zmienione pliki) zanim odpowiem na pytanie o repo.
-- Nie zgaduję domeny — pytam, jeśli nie wiem.
-- Krótkie odpowiedzi, bez ścian tekstu.
-
-Sub-agentów wołam **tylko** gdy:
-
-- Komenda explicitly tego wymaga (np. `/cx-build` deleguje do `developer`),
-- Zadanie wymaga przeszukania repo szerzej niż 3 grep/find (→ `explorer`),
-- Decyzja jest ADR-class (→ `architect`).
-
----
-
-## Anti-patterns (czego nie robić)
-
-1. **Nie commituj automatycznie.** Commit i push to ostatni krok człowieka. Wyjątek: `/cx-build` może utworzyć branch + PR, ale nie merge.
-2. **Nie nadpisuj `main`.** Hook `block-main-push.sh` wymusza, ale agent też ma to wiedzieć.
-3. **Nie dodawaj dependencies bez ADR.** Każda nowa biblioteka spoza stdlib → `/cx-architecture` najpierw.
-4. **Nie pisz testów „na pokaz".** Testy mają łapać regresje w realnych ścieżkach, nie pokrywać linie.
-5. **Nie generuj komentarzy oczywistych.** Komentarz odpowiada na „dlaczego", nie „co". Jeśli nazwa zmiennej już to mówi — usuń komentarz.
-6. **Nie wprowadzaj backwards-compat shimów** dla kodu, który nie jest jeszcze nigdzie deployed. Solo dev = nikt nie zależy od starego API.
-7. **Nie eskaluj do Opusa „na wszelki wypadek".** Haiku załatwia 70% zadań mechanicznych. Sonnet 25%. Opus 5%.
-8. **Nie twórz plików dokumentacyjnych proaktywnie.** README, CHANGELOG — jeśli framework lub komenda ich nie wymaga, nie piszemy.
-
----
-
-## Kontrakt z hookami
-
-Hooki w `.claude/hooks/` egzekwują:
-
-- `block-main-push.sh` — push do `main` blokowany lokalnie (drugi pas: branch protection na GH).
-- `validate-branch-name.sh` — branche muszą mieć prefix: `feat/`, `fix/`, `chore/`, `docs/`, `refactor/`, `test/`, `spike/`.
-- `validate-commit-msg.sh` — Conventional Commits.
-- `auto-format.sh` — uruchamia formatery dla zmienionych plików (gofmt, ruff, prettier, dotnet format).
-- `lint-feedback.sh` — lint po edycji (golangci-lint, ruff, eslint).
-- `session-context.sh` — wstrzykuje skrót `git log` + zmienione pliki na początku sesji.
-- `dangerous-ops.sh` — łapie `rm -rf`, `git reset --hard`, `force push` → wymaga potwierdzenia.
-
-Jeśli hook blokuje — **nie omijaj go z `--no-verify`**. Hook ma rację. Jeśli się myli, popraw hook.
-
----
-
-## Wersja frameworka
-
-Aktualna wersja w `VERSION` (root template'u). Każdy projekt utworzony przez `init-project.sh` zapisuje swoją wersję w `.solo-dev-version`. `update-project.sh` używa tego do wykrywania driftu.
-
----
-
-## Co jest w tym repo
-
-To repo (`solo-dev-baseline`) pełni **podwójną rolę**:
-
-- **Template repo** — używane przez GitHub „Use this template" do tworzenia nowych projektów.
-- **Source of truth** — `scripts/init-project.sh` i `scripts/update-project.sh` kopiują framework do projektów.
-
-Dla projektów docelowych: `scripts/` nie jest kopiowane — to wewnętrzne narzędzia template'u.
+`lint:fix` → `typecheck` → `test:ci` → `mage test` → `mage buildAll` → `npm run build` → at minimum `npm run e2e` (matrix runs in CI).
