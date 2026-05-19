@@ -1,0 +1,244 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e4]:
+  - link "Skip to main content" [ref=e5] [cursor=pointer]:
+    - /url: "#pageContent"
+    - generic [ref=e6]: Skip to main content
+  - generic [ref=e7]:
+    - generic [ref=e8]:
+      - generic [ref=e9]:
+        - link "Grafana" [ref=e10] [cursor=pointer]:
+          - /url: /
+          - img "Grafana" [ref=e11]
+        - generic [ref=e12]: Grafana
+      - button "Undock menu" [ref=e13] [cursor=pointer]:
+        - img [ref=e14]
+      - button "Close menu" [ref=e16] [cursor=pointer]:
+        - img [ref=e17]
+    - navigation [ref=e19]:
+      - list "Navigation" [ref=e23]:
+        - listitem [ref=e24]:
+          - link "Home" [ref=e28] [cursor=pointer]:
+            - /url: /
+            - generic [ref=e30]:
+              - img [ref=e31]
+              - paragraph [ref=e33]: Home
+        - listitem [ref=e34]:
+          - generic [ref=e35]:
+            - link "Bookmarks" [ref=e38] [cursor=pointer]:
+              - /url: /bookmarks
+              - generic [ref=e40]:
+                - img [ref=e41]
+                - paragraph [ref=e43]: Bookmarks
+            - 'button "Expand section: Bookmarks" [ref=e45] [cursor=pointer]':
+              - img [ref=e46]
+        - listitem [ref=e48]:
+          - generic [ref=e49]:
+            - link "Starred" [ref=e52] [cursor=pointer]:
+              - /url: /dashboards?starred
+              - generic [ref=e54]:
+                - img [ref=e55]
+                - paragraph [ref=e57]: Starred
+            - 'button "Expand section: Starred" [ref=e59] [cursor=pointer]':
+              - img [ref=e60]
+        - listitem [ref=e62]:
+          - generic [ref=e63]:
+            - link "Dashboards" [ref=e66] [cursor=pointer]:
+              - /url: /dashboards
+              - generic [ref=e68]:
+                - img [ref=e69]
+                - paragraph [ref=e71]: Dashboards
+            - 'button "Expand section: Dashboards" [ref=e73] [cursor=pointer]':
+              - img [ref=e74]
+        - listitem [ref=e76]:
+          - link "Explore" [ref=e80] [cursor=pointer]:
+            - /url: /explore
+            - generic [ref=e82]:
+              - img [ref=e83]
+              - paragraph [ref=e85]: Explore
+        - listitem [ref=e86]:
+          - generic [ref=e87]:
+            - link "Drilldown" [ref=e90] [cursor=pointer]:
+              - /url: /drilldown
+              - generic [ref=e92]:
+                - img [ref=e93]
+                - paragraph [ref=e98]: Drilldown
+            - 'button "Expand section: Drilldown" [ref=e100] [cursor=pointer]':
+              - img [ref=e101]
+        - listitem [ref=e103]:
+          - generic [ref=e104]:
+            - link "Alerting" [ref=e107] [cursor=pointer]:
+              - /url: /alerting
+              - generic [ref=e109]:
+                - img [ref=e110]
+                - paragraph [ref=e112]: Alerting
+            - 'button "Expand section: Alerting" [ref=e114] [cursor=pointer]':
+              - img [ref=e115]
+        - listitem [ref=e117]:
+          - generic [ref=e118]:
+            - link "Connections" [ref=e121] [cursor=pointer]:
+              - /url: /connections
+              - generic [ref=e123]:
+                - img [ref=e124]
+                - paragraph [ref=e126]: Connections
+            - 'button "Collapse section: Connections" [expanded] [ref=e128] [cursor=pointer]':
+              - img [ref=e129]
+          - list [ref=e131]:
+            - listitem [ref=e132]:
+              - link "Add new connection" [ref=e136] [cursor=pointer]:
+                - /url: /connections/add-new-connection
+                - paragraph [ref=e139]: Add new connection
+            - listitem [ref=e140]:
+              - link "Data sources" [ref=e144] [cursor=pointer]:
+                - /url: /connections/datasources
+                - paragraph [ref=e147]: Data sources
+        - listitem [ref=e148]:
+          - generic [ref=e149]:
+            - link "Administration" [ref=e152] [cursor=pointer]:
+              - /url: /admin
+              - generic [ref=e154]:
+                - img [ref=e155]
+                - paragraph [ref=e157]: Administration
+            - 'button "Expand section: Administration" [ref=e159] [cursor=pointer]':
+              - img [ref=e160]
+  - banner [ref=e162]:
+    - generic [ref=e163]:
+      - navigation "Breadcrumbs" [ref=e165]:
+        - list [ref=e166]:
+          - listitem [ref=e167]:
+            - link "Connections" [ref=e168] [cursor=pointer]:
+              - /url: /connections
+            - img [ref=e170]
+          - listitem [ref=e172]:
+            - link "Data sources" [ref=e173] [cursor=pointer]:
+              - /url: /connections/datasources
+            - img [ref=e175]
+          - listitem [ref=e177]:
+            - generic "OPC-UA Isolated 2-256d31dd" [ref=e178]
+      - generic [ref=e179]:
+        - generic [ref=e181]:
+          - img [ref=e183]
+          - button "Search..." [ref=e185] [cursor=pointer]
+          - generic [ref=e187]: ⌘+k
+        - button "New" [ref=e188] [cursor=pointer]:
+          - img [ref=e189]
+          - img [ref=e191]
+        - button "Help" [ref=e194] [cursor=pointer]:
+          - img [ref=e195]
+        - button "Profile" [ref=e198] [cursor=pointer]:
+          - img "User avatar" [ref=e199]
+  - main [ref=e202]:
+    - log [ref=e203]
+    - generic [ref=e206]:
+      - generic [ref=e207]:
+        - generic [ref=e208]:
+          - generic [ref=e209]:
+            - generic [ref=e210]:
+              - img "logo for OPC-UA Isolated 2-256d31dd" [ref=e211]
+              - heading "OPC-UA Isolated 2-256d31dd" [level=1] [ref=e213]
+            - generic [ref=e214]:
+              - generic [ref=e215]:
+                - generic [ref=e216]: Type
+                - text: Simple OPC-UA
+              - generic [ref=e218]:
+                - generic [ref=e219]: Alerting
+                - generic [ref=e220]: Supported
+          - generic [ref=e221]:
+            - link "Explore data" [ref=e222] [cursor=pointer]:
+              - /url: /explore?left=%7B%22datasource%22:%22OPC-UA%20Isolated%202-256d31dd%22,%22context%22:%22explore%22%7D
+              - generic [ref=e223]: Explore data
+            - link "Build a dashboard" [ref=e224] [cursor=pointer]:
+              - /url: dashboard/new-with-ds/opcua-iso-2-f488a7eb
+              - generic [ref=e225]: Build a dashboard
+        - generic [ref=e226]: "Type: Simple OPC-UA"
+      - tablist [ref=e229]:
+        - tab "Settings" [selected] [ref=e231] [cursor=pointer]:
+          - img [ref=e232]
+          - text: Settings
+        - tab "Permissions" [ref=e235] [cursor=pointer]:
+          - img [ref=e236]
+          - text: Permissions
+          - img [ref=e239]
+        - tab "Insights" [ref=e242] [cursor=pointer]:
+          - img [ref=e243]
+          - text: Insights
+          - img [ref=e246]
+        - tab "Cache" [ref=e249] [cursor=pointer]:
+          - img [ref=e250]
+          - text: Cache
+          - img [ref=e253]
+      - generic [ref=e256]:
+        - generic "Datasource settings page basic settings" [ref=e257]:
+          - generic [ref=e258]:
+            - generic [ref=e260]:
+              - generic [ref=e261]:
+                - text: Name
+                - img [ref=e262]
+              - textbox "Name" [ref=e267]: OPC-UA Isolated 2-256d31dd
+            - generic [ref=e268]:
+              - generic [ref=e269]: Default
+              - generic [ref=e272]:
+                - switch "Default" [ref=e273]
+                - img [ref=e275] [cursor=pointer]
+        - generic [ref=e277]:
+          - group "Connection" [ref=e278]:
+            - generic [ref=e279]: Connection
+            - generic [ref=e280]:
+              - generic [ref=e281]:
+                - text: Endpoint URL
+                - img [ref=e282]
+              - textbox "Endpoint URL" [ref=e287]:
+                - /placeholder: opc.tcp://localhost:4840
+                - text: opc.tcp://opcua-server:4840
+            - generic [ref=e288]:
+              - generic [ref=e289]:
+                - text: Security Policy
+                - img [ref=e290]
+              - generic [ref=e294]:
+                - combobox [ref=e295] [cursor=pointer]: None
+                - generic:
+                  - img
+            - generic [ref=e296]:
+              - generic [ref=e297]:
+                - text: Security Mode
+                - img [ref=e298]
+              - generic [ref=e302]:
+                - combobox [ref=e303] [cursor=pointer]: Sign
+                - generic:
+                  - img
+            - generic [ref=e304]:
+              - generic [ref=e305]:
+                - text: Timeout (seconds)
+                - img [ref=e306]
+              - spinbutton "Timeout" [ref=e311]: "10"
+          - group "Client Certificate" [ref=e312]:
+            - generic [ref=e313]: Client Certificate
+            - paragraph [ref=e314]: Secure connections (Sign/SignAndEncrypt) require a client certificate. Generate one and save the datasource to persist it across Grafana restarts.
+            - alert "Certificate Generation Error" [ref=e315]:
+              - generic [ref=e316]:
+                - img [ref=e319]
+                - generic [ref=e322]:
+                  - text: Certificate Generation Error
+                  - generic [ref=e323]: Failed to generate certificate
+            - generic [ref=e324]:
+              - generic [ref=e325]: Status
+              - generic [ref=e328]: ✗ No certificate configured
+            - button "Generate Certificate" [active] [ref=e332] [cursor=pointer]:
+              - generic [ref=e333]: Generate Certificate
+          - group "Authentication" [ref=e334]:
+            - generic [ref=e335]: Authentication
+            - generic [ref=e336]:
+              - generic [ref=e337]:
+                - text: Method
+                - img [ref=e338]
+              - generic [ref=e342]:
+                - combobox [ref=e343] [cursor=pointer]: Anonymous
+                - generic:
+                  - img
+        - generic [ref=e344]:
+          - button "Delete" [ref=e345] [cursor=pointer]:
+            - generic [ref=e346]: Delete
+          - button "Save & test" [ref=e347] [cursor=pointer]:
+            - generic [ref=e348]: Save & test
+```

@@ -43,8 +43,6 @@ coverage/
 htmlcov/
 .coverage
 .coverage.*
-playwright-report/
-test-results/
 
 # --- Go ---
 *.exe
