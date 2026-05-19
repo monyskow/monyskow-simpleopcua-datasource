@@ -1,5 +1,7 @@
 # E2E Test Documentation
 
+> **Playwright developer reference.** For test scenarios, commands, and environment setup see [TESTING.md](../TESTING.md).
+
 This directory contains End-to-End (E2E) tests for the Simple OPC-UA Grafana plugin using Playwright.
 
 ## Table of Contents
