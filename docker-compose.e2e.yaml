@@ -64,6 +64,7 @@ services:
       GF_LOG_LEVEL: debug
       GF_DATAPROXY_LOGGING: 1
       GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS: monyskow-simpleopcua-datasource
+      GF_FEATURE_TOGGLES_SPLASHSCREEN: false
     healthcheck:
       # Grafana's health endpoint returns 200 once the HTTP server is up and
       # plugins are loaded. Without this, `docker compose up --wait` exits as
