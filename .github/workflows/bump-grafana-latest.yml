@@ -21,23 +21,27 @@ jobs:
 
       - name: Fetch latest stable Grafana version
         id: latest
+        # Matches X.Y.Z and X.Y.Z-security-NN releases. sort -V ranks a
+        # security re-release above its own base patch (security-01 > base)
+        # but a newer base still wins (13.0.2 > 13.0.1-security-01).
         run: |
           set -euo pipefail
           NEW=$(curl -s 'https://hub.docker.com/v2/repositories/grafana/grafana/tags?ordering=last_updated&page_size=100' \
             | jq -r '.results[].name' \
-            | { grep -E '^[0-9]+\.[0-9]+\.[0-9]+$' || true; } \
+            | { grep -E '^[0-9]+\.[0-9]+\.[0-9]+(-security-[0-9]+)?$' || true; } \
             | sort -V \
             | tail -1)
           if [ -z "$NEW" ]; then
-            echo "No stable X.Y.Z tag found in last 100 updates" >&2
+            echo "No stable X.Y.Z or X.Y.Z-security-NN tag found in last 100 updates" >&2
             exit 1
           fi
           echo "version=$NEW" >> "$GITHUB_OUTPUT"
 
       - name: Check if bump is needed
         id: check
+        # latest-stable lives on the last line of .grafana-versions
         run: |
-          current=$(sed -n '6p' .grafana-versions)
+          current=$(tail -1 .grafana-versions)
           new="${{ steps.latest.outputs.version }}"
           higher=$(printf '%s\n%s\n' "$current" "$new" | sort -V | tail -1)
           if [ "$current" = "$new" ] || [ "$higher" = "$current" ]; then
@@ -50,9 +54,10 @@ jobs:
 
       - name: Update .grafana-versions
         if: steps.check.outputs.needed == 'true'
+        # Update the last line of .grafana-versions (latest-stable slot)
         run: |
           NEW="${{ steps.latest.outputs.version }}"
-          sed -i "6s/.*/$NEW/" .grafana-versions
+          sed -i "\$s/.*/$NEW/" .grafana-versions
 
       - name: Create PR
         if: steps.check.outputs.needed == 'true'
@@ -72,6 +77,6 @@ jobs:
 
           gh pr create \
             --title "chore: bump grafana latest-stable to ${NEW}" \
-            --body "Weekly automated bump of the latest-stable Grafana slot (line 6 of \`.grafana-versions\`) from the previous version to \`${NEW}\`." \
+            --body "Weekly automated bump of the latest-stable Grafana slot (last line of \`.grafana-versions\`) from the previous version to \`${NEW}\`." \
             --base main \
             --head "$BRANCH"
