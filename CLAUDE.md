@@ -28,7 +28,7 @@ Non-standard commands worth remembering:
 - `npm run server:all` — 4 Grafana versions in parallel on ports 3000–3003
 - `npm run e2e` — Playwright against default Grafana
 - `npm run e2e:all` — sequential across the supported Grafana versions
-- `npm run e2e:matrix` — full auth × Grafana version matrix (20 jobs)
+- `npm run e2e:matrix` — full auth × Grafana version matrix (35 jobs)
 
 `docker-compose.full.yaml` brings up 5 OPC-UA test servers for manual exploration; `docker-compose.prosys.yaml` targets the external ProSys simulator.
 
@@ -42,8 +42,8 @@ Non-standard commands worth remembering:
 
 ## Grafana compatibility
 
-- `plugin.json` declares `grafanaDependency: ">=12.1.0"`. Older versions lack the `Combobox` component used by the config editor and will throw in React.
-- CI matrix is intentionally trimmed to versions that work: **12.1.5, 12.3.1, 12.4.3, 13.0.1**. Don't widen it without checking `Combobox` + UID resource API support.
+- `plugin.json` declares `grafanaDependency: ">=10.4.0"`. The config editor uses `Select` (available since G7) and the UID-based resource API (available since G9), so 10.4 is the effective floor.
+- CI matrix covers: **10.4.0, 10.4.19, 11.0.0, 11.6.14, 12.0.0, 12.4.3, 13.0.1**. Don't widen it without checking UID resource API support (G9+, already satisfied).
 - A weekly workflow (`bump-grafana-latest.yml`) auto-PRs new stable versions into the matrix.
 
 ## Grafana 13 quirks (don't re-discover these)

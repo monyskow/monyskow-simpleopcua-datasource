@@ -1,8 +1,11 @@
+/* eslint-disable @typescript-eslint/no-deprecated */
+// Select is deprecated in @grafana/ui 12.2+ in favour of Combobox, but Combobox
+// requires Grafana >=12.1. We use Select intentionally to support Grafana >=10.4.
 import React, { useEffect, useRef, useState } from 'react';
 import { firstValueFrom } from 'rxjs';
 import { DataSourcePluginOptionsEditorProps } from '@grafana/data';
 import { getBackendSrv } from '@grafana/runtime';
-import { FieldSet, InlineField, Input, Combobox, SecretInput, SecretTextArea, Button, Alert } from '@grafana/ui';
+import { FieldSet, InlineField, Input, Select, SecretInput, SecretTextArea, Button, Alert } from '@grafana/ui';
 import { OpcuaDataSourceOptions, OpcuaSecureJsonData, AuthMethod, SecurityPolicy, SecurityMode } from '../../types';
 
 type Props = DataSourcePluginOptionsEditorProps<OpcuaDataSourceOptions, OpcuaSecureJsonData>;
@@ -186,20 +189,22 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
         </InlineField>
 
         <InlineField label="Security Policy" labelWidth={20} tooltip="Encryption algorithm for the OPC-UA connection">
-          <Combobox
+          <Select
             width={30}
             options={SECURITY_POLICY_OPTIONS}
             value={jsonData.securityPolicy || 'None'}
-            onChange={(v) => onJsonDataChange('securityPolicy', v.value)}
+            onChange={(v) => onJsonDataChange('securityPolicy', v.value!)}
+            aria-label="Security Policy"
           />
         </InlineField>
 
         <InlineField label="Security Mode" labelWidth={20} tooltip="Security mode for message signing and encryption">
-          <Combobox
+          <Select
             width={30}
             options={SECURITY_MODE_OPTIONS}
             value={jsonData.securityMode || 'None'}
-            onChange={(v) => onJsonDataChange('securityMode', v.value)}
+            onChange={(v) => onJsonDataChange('securityMode', v.value!)}
+            aria-label="Security Mode"
           />
         </InlineField>
 
@@ -271,11 +276,12 @@ export const ConfigEditor: React.FC<Props> = ({ options, onOptionsChange }) => {
           labelWidth={20}
           tooltip="Authentication method to use when connecting to the OPC-UA server"
         >
-          <Combobox
+          <Select
             width={30}
             options={AUTH_METHOD_OPTIONS}
             value={jsonData.authMethod || 'anonymous'}
-            onChange={(v) => onJsonDataChange('authMethod', v.value)}
+            onChange={(v) => onJsonDataChange('authMethod', v.value!)}
+            aria-label="Authentication Method"
           />
         </InlineField>
 
