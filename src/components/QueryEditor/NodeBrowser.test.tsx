@@ -92,8 +92,8 @@ describe('NodeBrowser', () => {
       render(<NodeBrowser datasource={makeDatasource(browseNodes)} onSelect={jest.fn()} />);
 
       await waitFor(() => expect(screen.getByText('Temperature')).toBeInTheDocument());
-      // Icon renders an SVG with data-testid matching the icon name
-      expect(screen.getByTestId('plus-circle')).toBeInTheDocument();
+      // @grafana/ui Icon renders data-testid="icon-<name>" (since 12.4.x)
+      expect(screen.getByTestId('icon-plus-circle')).toBeInTheDocument();
     });
 
     it('calls onSelect with nodeId and displayName when add icon is clicked', async () => {
@@ -101,8 +101,8 @@ describe('NodeBrowser', () => {
       const onSelect = jest.fn();
       render(<NodeBrowser datasource={makeDatasource(browseNodes)} onSelect={onSelect} />);
 
-      await waitFor(() => expect(screen.getByTestId('plus-circle')).toBeInTheDocument());
-      fireEvent.click(screen.getByTestId('plus-circle'));
+      await waitFor(() => expect(screen.getByTestId('icon-plus-circle')).toBeInTheDocument());
+      fireEvent.click(screen.getByTestId('icon-plus-circle'));
 
       expect(onSelect).toHaveBeenCalledWith('ns=2;s=Temperature', 'Temperature');
     });
