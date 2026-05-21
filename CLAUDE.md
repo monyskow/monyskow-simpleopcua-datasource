@@ -44,7 +44,7 @@ Non-standard commands worth remembering:
 
 - `plugin.json` declares `grafanaDependency: ">=10.4.0"`. The config editor uses `Select` (available since G7) and the UID-based resource API (available since G9), so 10.4 is the effective floor.
 - CI matrix covers: **10.4.0, 10.4.19, 11.0.0, 11.6.14, 12.0.0, 12.4.3, 13.0.1**. Don't widen it without checking UID resource API support (G9+, already satisfied).
-- A weekly workflow (`bump-grafana-latest.yml`) auto-PRs new stable versions into the matrix.
+- `.grafana-versions` is maintained manually — edit the file directly to pin / bump versions.
 
 ## Grafana 13 quirks (don't re-discover these)
 

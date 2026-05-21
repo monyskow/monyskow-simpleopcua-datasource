@@ -309,14 +309,7 @@ Backed by `scripts/e2e-all-versions.sh`. Reads `.grafana-versions` (currently 7 
 
 #### .grafana-versions and version management
 
-File at repo root. 7 lines, one Grafana version per line:
-
-- **Lines 1–6** — manually curated anchors (LTS / known-good targets). Edit these directly to pin a specific version.
-- **Line 7** — latest-stable slot. Auto-bumped by the weekly workflow; do not edit manually.
-
-The workflow `.github/workflows/bump-grafana-latest.yml` runs every Monday at 09:00 UTC. It fetches the highest stable semver tag from Docker Hub and, if the last line is behind, opens a PR to update it. Semver-aware: no downgrade PRs are opened.
-
-To pin a specific version: edit lines 1–6 of `.grafana-versions` directly and leave the last line alone.
+File at repo root. 7 lines, one Grafana version per line. All entries are manually curated — edit the file directly to pin / bump versions. The convention is: lines 1–6 are LTS / known-good anchors, line 7 is the latest stable. Update line 7 manually when a new Grafana release surfaces on Docker Hub that you want to start testing against.
 
 ### Full version × auth matrix locally
 

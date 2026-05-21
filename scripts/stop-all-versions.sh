@@ -1,9 +1,7 @@
 #!/bin/bash
 # Stop all Grafana test containers
 
-# Versions are read from .grafana-versions at repo root.
-# Lines 1-5: manually curated anchors. Line 6: latest-stable slot,
-# auto-bumped weekly by .github/workflows/bump-grafana-latest.yml
+# Versions are read from .grafana-versions at repo root (manually maintained).
 # while-read loop instead of `mapfile` for bash 3.2 (macOS default) compatibility.
 VERSIONS=()
 while IFS= read -r line || [ -n "$line" ]; do
