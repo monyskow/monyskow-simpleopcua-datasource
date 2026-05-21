@@ -18,11 +18,11 @@ jest.mock('@grafana/runtime', () => ({
   }),
 }));
 
-// Combobox from @grafana/ui uses canvas.measureText which isn't available in jsdom.
-// Replace it with a plain <select> that calls onChange the same way the real Combobox does.
+// Select from @grafana/ui (react-select based) uses DOM measurement not available in jsdom.
+// Replace it with a plain <select> that calls onChange the same way the real Select does.
 jest.mock('@grafana/ui', () => {
   const actual = jest.requireActual('@grafana/ui');
-  const MockCombobox = ({
+  const MockSelect = ({
     options,
     value,
     onChange,
@@ -45,7 +45,7 @@ jest.mock('@grafana/ui', () => {
       ))}
     </select>
   );
-  return { ...actual, Combobox: MockCombobox };
+  return { ...actual, Select: MockSelect };
 });
 
 type Options = DataSourcePluginOptionsEditorProps<OpcuaDataSourceOptions, OpcuaSecureJsonData>;
@@ -384,12 +384,12 @@ describe('ConfigEditor', () => {
     });
   });
 
-  describe('Combobox interactions', () => {
-    it('calls onOptionsChange with updated securityMode when Security Mode combobox changes', () => {
+  describe('Select interactions', () => {
+    it('calls onOptionsChange with updated securityMode when Security Mode select changes', () => {
       const onOptionsChange = jest.fn();
       renderEditor({}, onOptionsChange);
 
-      // Combobox order: 0=Security Policy, 1=Security Mode, 2=Auth Method
+      // Select order: 0=Security Policy, 1=Security Mode, 2=Auth Method
       const selects = screen.getAllByRole('combobox');
       fireEvent.change(selects[1], { target: { value: 'Sign' } });
 
@@ -400,11 +400,11 @@ describe('ConfigEditor', () => {
       );
     });
 
-    it('calls onOptionsChange with updated authMethod when Auth Method combobox changes', () => {
+    it('calls onOptionsChange with updated authMethod when Auth Method select changes', () => {
       const onOptionsChange = jest.fn();
       renderEditor({}, onOptionsChange);
 
-      // Combobox order: 0=Security Policy, 1=Security Mode, 2=Auth Method
+      // Select order: 0=Security Policy, 1=Security Mode, 2=Auth Method
       const selects = screen.getAllByRole('combobox');
       fireEvent.change(selects[2], { target: { value: 'userpass' } });
 

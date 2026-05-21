@@ -10,26 +10,35 @@ function getEndpointInput(page: Page) {
     .or(page.getByLabel(/endpoint url/i));
 }
 
-// Select security mode via Grafana's Combobox.
-// Grafana 12's Combobox sets option id="combobox-option-<value>" deterministically.
-// A plain text click on [role=option] sometimes fails to propagate onChange in
-// headless Chromium, so we click the option by its id.
+// Select security mode via Grafana's Select (react-select based).
+// react-select renders role="combobox" on the input, and role="option" on each list item.
+// We open the dropdown by clicking the input, then pick the option by its visible label.
 async function selectSecurityMode(page: Page, mode: string) {
-  const combobox = page.locator('input[role="combobox"]').nth(1); // Security Mode (after Security Policy)
-  await expect(combobox).toBeVisible({ timeout: 5000 });
+  // The aria-label is set on the Select wrapper; the actual input inside has role="combobox"
+  const securityModeInput = page
+    .locator('[aria-label="Security Mode"] input[role="combobox"]')
+    .or(page.locator('input[role="combobox"]').nth(1));
+  await expect(securityModeInput.first()).toBeVisible({ timeout: 5000 });
 
-  if ((await combobox.inputValue().catch(() => '')) === mode) {
-    return;
-  }
+  // Map internal value to displayed label
+  const labelMap: Record<string, string> = {
+    None: 'None',
+    Sign: 'Sign',
+    SignAndEncrypt: 'Sign and Encrypt',
+  };
+  const label = labelMap[mode] ?? mode;
 
-  await combobox.click();
-  const option = page.locator(`#combobox-option-${mode}`);
+  const securityModeContainer = page
+    .locator('[aria-label="Security Mode"]')
+    .or(page.locator('input[role="combobox"]').nth(1).locator('..').locator('..'));
+
+  await securityModeInput.first().click();
+  const option = page.getByRole('option', { name: label });
   await expect(option).toBeVisible({ timeout: 3000 });
-  // Grafana's Combobox uses a virtualized listbox; dispatchEvent bypasses
-  // Playwright's post-click navigation wait that hangs on the synthetic event.
-  await option.dispatchEvent('click');
+  await option.click();
 
-  await expect(combobox).toHaveValue(mode, { timeout: 3000 });
+  // Verify the selection is reflected in the container
+  await expect(securityModeContainer.first()).toContainText(label, { timeout: 3000 });
 }
 
 // Returns true when the provisioned datasource uses certificate auth.
@@ -37,10 +46,16 @@ async function selectSecurityMode(page: Page, mode: string) {
 // in that mode (the user supplies their own cert), so tests that exercise
 // the Generate Certificate button must be skipped.
 async function isCertificateAuthMode(page: Page): Promise<boolean> {
-  // Combobox order in ConfigEditor: [0] Security Policy, [1] Security Mode, [2] Auth Method
-  const authCombobox = page.locator('input[role="combobox"]').nth(2);
-  const value = await authCombobox.inputValue().catch(() => '');
-  return value === 'certificate';
+  // Read the displayed text in the Auth Method select container.
+  // react-select shows the selected label as visible text (not as input value).
+  const authMethodContainer = page
+    .locator('[aria-label="Authentication Method"]')
+    .or(page.locator('input[role="combobox"]').nth(2).locator('..').locator('..'));
+  const text = await authMethodContainer
+    .first()
+    .textContent()
+    .catch(() => '');
+  return text?.toLowerCase().includes('certificate') ?? false;
 }
 
 // No describe.serial needed: each test operates on its own isolated datasource

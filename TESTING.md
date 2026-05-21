@@ -22,9 +22,9 @@ Pick the row that matches your goal. All commands assume the plugin is already b
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
 | Browse the plugin manually (single combo)      | `docker compose -f docker-compose.full.yaml up -d` (14 datasources) or `GRAFANA_VERSION=x AUTH_CONFIG=y docker compose -f docker-compose.e2e.yaml up -d` (single combo) | instant start, browse freely          |
 | Single E2E run (current Grafana, default auth) | `npm run e2e`                                                                                                                                                           | ~2 min                                |
-| All Grafana versions, sequential, default auth | `npm run e2e:all`                                                                                                                                                       | ~12 min (6 versions)                  |
-| Full version × auth matrix locally             | `npm run e2e:matrix`                                                                                                                                                    | ~90–120 min (30 combos)               |
-| All versions in parallel for manual testing    | `npm run server:all`                                                                                                                                                    | instant start, ports 3000–3005        |
+| All Grafana versions, sequential, default auth | `npm run e2e:all`                                                                                                                                                       | ~14 min (7 versions)                  |
+| Full version × auth matrix locally             | `npm run e2e:matrix`                                                                                                                                                    | ~105–140 min (35 combos)              |
+| All versions in parallel for manual testing    | `npm run server:all`                                                                                                                                                    | instant start, ports 3000–3006        |
 | Trigger CI matrix                              | `gh workflow run e2e-matrix.yml`                                                                                                                                        | ~10 min wall-clock (35 parallel jobs) |
 
 ---
@@ -133,7 +133,7 @@ Default (when `AUTH_CONFIG` is unset): `anon-none`.
 
 ```bash
 docker compose -f docker-compose.e2e.yaml down 2>/dev/null
-GRAFANA_VERSION=12.3.1 AUTH_CONFIG=cert-b256-sign \
+GRAFANA_VERSION=12.4.3 AUTH_CONFIG=cert-b256-sign \
   docker compose -f docker-compose.e2e.yaml up --wait --build
 
 # Open http://localhost:3000  (Grafana: admin / admin)
@@ -301,22 +301,22 @@ npx playwright test --ui             # Interactive mode
 npm run e2e:all
 ```
 
-Backed by `scripts/e2e-all-versions.sh`. Reads `.grafana-versions` (currently 6 versions), starts each Grafana container in turn, runs the full test suite, then stops the container before moving to the next version.
+Backed by `scripts/e2e-all-versions.sh`. Reads `.grafana-versions` (currently 7 versions), starts each Grafana container in turn, runs the full test suite, then stops the container before moving to the next version.
 
-**Expected runtime:** ~12 minutes total (~2 min per version)
+**Expected runtime:** ~14 minutes total (~2 min per version)
 
 **Output file:** `e2e-results-YYYYMMDD-HHMMSS.txt` at repo root — contains pass/fail summary for every version.
 
 #### .grafana-versions and version management
 
-File at repo root. 6 lines, one Grafana version per line:
+File at repo root. 7 lines, one Grafana version per line:
 
-- **Lines 1–5** — manually curated anchors (LTS / known-good targets). Edit these directly to pin a specific version.
-- **Line 6** — latest-stable slot. Auto-bumped by the weekly workflow; do not edit manually.
+- **Lines 1–6** — manually curated anchors (LTS / known-good targets). Edit these directly to pin a specific version.
+- **Line 7** — latest-stable slot. Auto-bumped by the weekly workflow; do not edit manually.
 
-The workflow `.github/workflows/bump-grafana-latest.yml` runs every Monday at 09:00 UTC. It fetches the highest stable semver tag from Docker Hub and, if line 6 is behind, opens a PR to update it. Semver-aware: no downgrade PRs are opened.
+The workflow `.github/workflows/bump-grafana-latest.yml` runs every Monday at 09:00 UTC. It fetches the highest stable semver tag from Docker Hub and, if the last line is behind, opens a PR to update it. Semver-aware: no downgrade PRs are opened.
 
-To pin a specific version: edit lines 1–5 of `.grafana-versions` directly and leave line 6 alone.
+To pin a specific version: edit lines 1–6 of `.grafana-versions` directly and leave the last line alone.
 
 ### Full version × auth matrix locally
 
@@ -324,9 +324,9 @@ To pin a specific version: edit lines 1–5 of `.grafana-versions` directly and 
 npm run e2e:matrix
 ```
 
-Backed by `scripts/e2e-all-auth-versions.sh`. Nested loop over all versions in `.grafana-versions` (6) × all 5 auth configs = **30 combinations**. Uses `docker-compose.e2e.yaml` (provisioned data source + real OPC-UA server) — mirrors what CI runs.
+Backed by `scripts/e2e-all-auth-versions.sh`. Nested loop over all versions in `.grafana-versions` (7) × all 5 auth configs = **35 combinations**. Uses `docker-compose.e2e.yaml` (provisioned data source + real OPC-UA server) — mirrors what CI runs.
 
-**Expected runtime:** ~90–120 minutes sequential. Use sparingly — for routine dev iteration prefer single-axis (`npm run e2e:all`) or single-combo manual testing. The CI matrix (`e2e-matrix.yml`) provides the same coverage in ~10 min wall-clock via parallel jobs.
+**Expected runtime:** ~105–140 minutes sequential. Use sparingly — for routine dev iteration prefer single-axis (`npm run e2e:all`) or single-combo manual testing. The CI matrix (`e2e-matrix.yml`) provides the same coverage in ~10 min wall-clock via parallel jobs.
 
 **Output file:** `e2e-matrix-results-YYYYMMDD-HHMMSS.txt` at repo root — one line per combination, pass/fail summary at the end.
 
@@ -350,7 +350,7 @@ Defined in `.github/workflows/e2e-matrix.yml`. Runs **7 Grafana versions × 5 au
 
 **Summary:** The `summary` job collects per-job results and posts a pass/fail results table to `GITHUB_STEP_SUMMARY`.
 
-Note: the CI matrix uses 7 Grafana versions (adds `12.4.3` relative to `.grafana-versions`); the local `e2e:all` script uses the 6 versions in `.grafana-versions`.
+Note: the CI matrix and `.grafana-versions` now use the same 7 Grafana versions; the local `e2e:all` script uses the versions in `.grafana-versions`.
 
 ---
 
