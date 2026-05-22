@@ -10,26 +10,38 @@ function getEndpointInput(page: Page) {
     .or(page.getByLabel(/endpoint url/i));
 }
 
-// Select security mode via Grafana's Select (12.4.x renders as Combobox under
-// the hood: options carry `id="combobox-option-<value>"` and the listbox is
-// virtualized). A plain Playwright .click() on the option hangs (synthetic
-// event waits on post-navigation that never fires for virtualized listbox);
-// dispatchEvent('click') bypasses that. Combobox order in ConfigEditor is
-// [0] Security Policy, [1] Security Mode, [2] Auth Method — same as before.
+// Select security mode via Grafana's Select. Cross-version landmines:
+//   1. G10.4 ships react-select where every option has aria-label="Select option"
+//      (so getByRole('option', { name }) doesn't match — accessible name is the
+//      generic aria-label, not the option's text). G12.x emits id="combobox-option-X",
+//      G13.0.1 emits role=option with name=text. The only thing that's stable
+//      across all three: an element with role="option" whose textContent equals
+//      the label. Use filter+hasText with anchored regex.
+//   2. Combobox/react-select render a virtualized listbox; Playwright .click()
+//      hangs on the synthetic-event wait. dispatchEvent('click') bypasses it.
+// Combobox order in ConfigEditor is [0] Security Policy, [1] Security Mode,
+// [2] Auth Method.
 async function selectSecurityMode(page: Page, mode: string) {
   const combobox = page.locator('input[role="combobox"]').nth(1);
   await expect(combobox).toBeVisible({ timeout: 5000 });
 
-  if ((await combobox.inputValue().catch(() => '')) === mode) {
-    return;
-  }
+  const labelMap: Record<string, string> = {
+    None: 'None',
+    Sign: 'Sign',
+    SignAndEncrypt: 'Sign and Encrypt',
+  };
+  const label = labelMap[mode] ?? mode;
 
   await combobox.click();
-  const option = page.locator(`#combobox-option-${mode}`);
+  const option = page
+    .locator('[role="option"]')
+    .filter({ hasText: new RegExp(`^${label}$`) })
+    .first();
   await expect(option).toBeVisible({ timeout: 3000 });
   await option.dispatchEvent('click');
 
-  await expect(combobox).toHaveValue(mode, { timeout: 3000 });
+  // Listbox closes once the selection lands.
+  await expect(page.getByRole('listbox')).not.toBeVisible({ timeout: 3000 });
 }
 
 // Returns true when the provisioned datasource uses certificate auth.
