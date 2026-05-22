@@ -11,16 +11,14 @@ function getEndpointInput(page: Page) {
 }
 
 // Select security mode via Grafana's Select (react-select based).
-// react-select renders role="combobox" on the input, and role="option" on each list item.
-// We open the dropdown by clicking the input, then pick the option by its visible label.
+// Clicking the input element does NOT open the menu (react-select treats it as a
+// search field). Focus + ArrowDown is the supported way to open the listbox.
+// Options use role="option"; `exact: true` is required so "Sign" doesn't match
+// "Sign and Encrypt".
 async function selectSecurityMode(page: Page, mode: string) {
-  // The aria-label is set on the Select wrapper; the actual input inside has role="combobox"
-  const securityModeInput = page
-    .locator('[aria-label="Security Mode"] input[role="combobox"]')
-    .or(page.locator('input[role="combobox"]').nth(1));
-  await expect(securityModeInput.first()).toBeVisible({ timeout: 5000 });
+  const securityModeInput = page.locator('[aria-label="Security Mode"]').first();
+  await expect(securityModeInput).toBeVisible({ timeout: 5000 });
 
-  // Map internal value to displayed label
   const labelMap: Record<string, string> = {
     None: 'None',
     Sign: 'Sign',
@@ -28,34 +26,29 @@ async function selectSecurityMode(page: Page, mode: string) {
   };
   const label = labelMap[mode] ?? mode;
 
-  const securityModeContainer = page
-    .locator('[aria-label="Security Mode"]')
-    .or(page.locator('input[role="combobox"]').nth(1).locator('..').locator('..'));
-
-  await securityModeInput.first().click();
-  const option = page.getByRole('option', { name: label });
+  await securityModeInput.focus();
+  await page.keyboard.press('ArrowDown');
+  const option = page.getByRole('option', { name: label, exact: true });
   await expect(option).toBeVisible({ timeout: 3000 });
   await option.click();
 
-  // Verify the selection is reflected in the container
-  await expect(securityModeContainer.first()).toContainText(label, { timeout: 3000 });
+  // Menu closes after a successful pick.
+  await expect(option).not.toBeVisible({ timeout: 3000 });
 }
 
 // Returns true when the provisioned datasource uses certificate auth.
 // The 'Client Certificate' auto-generate section is intentionally hidden
 // in that mode (the user supplies their own cert), so tests that exercise
 // the Generate Certificate button must be skipped.
-async function isCertificateAuthMode(page: Page): Promise<boolean> {
-  // Read the displayed text in the Auth Method select container.
-  // react-select shows the selected label as visible text (not as input value).
-  const authMethodContainer = page
-    .locator('[aria-label="Authentication Method"]')
-    .or(page.locator('input[role="combobox"]').nth(2).locator('..').locator('..'));
-  const text = await authMethodContainer
-    .first()
-    .textContent()
-    .catch(() => '');
-  return text?.toLowerCase().includes('certificate') ?? false;
+//
+// Source of truth: AUTH_CONFIG env var set by the matrix workflow (`cert-*`
+// configs activate certificate provisioning). Default (unset, single-version
+// run) is `anon-none`, so this returns false locally without the matrix.
+// We avoid scraping react-select DOM because aria-label sits on the input
+// element itself, not on a wrapper containing the visible selected label.
+async function isCertificateAuthMode(_page: Page): Promise<boolean> {
+  const authConfig = process.env.AUTH_CONFIG ?? '';
+  return authConfig.startsWith('cert-');
 }
 
 // No describe.serial needed: each test operates on its own isolated datasource
