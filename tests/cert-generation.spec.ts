@@ -10,26 +10,34 @@ function getEndpointInput(page: Page) {
     .or(page.getByLabel(/endpoint url/i));
 }
 
-// Select security mode via Grafana's Select (12.4.x renders as Combobox under
-// the hood: options carry `id="combobox-option-<value>"` and the listbox is
-// virtualized). A plain Playwright .click() on the option hangs (synthetic
-// event waits on post-navigation that never fires for virtualized listbox);
-// dispatchEvent('click') bypasses that. Combobox order in ConfigEditor is
-// [0] Security Policy, [1] Security Mode, [2] Auth Method — same as before.
+// Select security mode via Grafana's Select. Two cross-version traps here:
+//   1. The option DOM differs across Grafana 12.x/13.x: G12.2 emits
+//      `id="combobox-option-<value>"`, G13.0.1 emits only role=option without
+//      that id. Use accessibility-tree lookup (`getByRole('option', { name })`),
+//      with `exact: true` so "Sign" doesn't match "Sign and Encrypt".
+//   2. Combobox renders a virtualized listbox; a normal Playwright .click()
+//      on the option hangs on a synthetic-event wait. `dispatchEvent('click')`
+//      bypasses it.
+// Combobox order in ConfigEditor is [0] Security Policy, [1] Security Mode,
+// [2] Auth Method.
 async function selectSecurityMode(page: Page, mode: string) {
   const combobox = page.locator('input[role="combobox"]').nth(1);
   await expect(combobox).toBeVisible({ timeout: 5000 });
 
-  if ((await combobox.inputValue().catch(() => '')) === mode) {
-    return;
-  }
+  const labelMap: Record<string, string> = {
+    None: 'None',
+    Sign: 'Sign',
+    SignAndEncrypt: 'Sign and Encrypt',
+  };
+  const label = labelMap[mode] ?? mode;
 
   await combobox.click();
-  const option = page.locator(`#combobox-option-${mode}`);
+  const option = page.getByRole('option', { name: label, exact: true });
   await expect(option).toBeVisible({ timeout: 3000 });
   await option.dispatchEvent('click');
 
-  await expect(combobox).toHaveValue(mode, { timeout: 3000 });
+  // Listbox closes once the selection lands.
+  await expect(page.getByRole('listbox')).not.toBeVisible({ timeout: 3000 });
 }
 
 // Returns true when the provisioned datasource uses certificate auth.
