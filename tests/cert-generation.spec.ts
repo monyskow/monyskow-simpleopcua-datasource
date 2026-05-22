@@ -10,14 +10,15 @@ function getEndpointInput(page: Page) {
     .or(page.getByLabel(/endpoint url/i));
 }
 
-// Select security mode via Grafana's Select. Two cross-version traps here:
-//   1. The option DOM differs across Grafana 12.x/13.x: G12.2 emits
-//      `id="combobox-option-<value>"`, G13.0.1 emits only role=option without
-//      that id. Use accessibility-tree lookup (`getByRole('option', { name })`),
-//      with `exact: true` so "Sign" doesn't match "Sign and Encrypt".
-//   2. Combobox renders a virtualized listbox; a normal Playwright .click()
-//      on the option hangs on a synthetic-event wait. `dispatchEvent('click')`
-//      bypasses it.
+// Select security mode via Grafana's Select. Cross-version landmines:
+//   1. G10.4 ships react-select where every option has aria-label="Select option"
+//      (so getByRole('option', { name }) doesn't match — accessible name is the
+//      generic aria-label, not the option's text). G12.x emits id="combobox-option-X",
+//      G13.0.1 emits role=option with name=text. The only thing that's stable
+//      across all three: an element with role="option" whose textContent equals
+//      the label. Use filter+hasText with anchored regex.
+//   2. Combobox/react-select render a virtualized listbox; Playwright .click()
+//      hangs on the synthetic-event wait. dispatchEvent('click') bypasses it.
 // Combobox order in ConfigEditor is [0] Security Policy, [1] Security Mode,
 // [2] Auth Method.
 async function selectSecurityMode(page: Page, mode: string) {
@@ -32,7 +33,10 @@ async function selectSecurityMode(page: Page, mode: string) {
   const label = labelMap[mode] ?? mode;
 
   await combobox.click();
-  const option = page.getByRole('option', { name: label, exact: true });
+  const option = page
+    .locator('[role="option"]')
+    .filter({ hasText: new RegExp(`^${label}$`) })
+    .first();
   await expect(option).toBeVisible({ timeout: 3000 });
   await option.dispatchEvent('click');
 
