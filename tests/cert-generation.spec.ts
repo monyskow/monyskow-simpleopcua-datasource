@@ -10,30 +10,26 @@ function getEndpointInput(page: Page) {
     .or(page.getByLabel(/endpoint url/i));
 }
 
-// Select security mode via Grafana's Select (react-select based).
-// Clicking the input element does NOT open the menu (react-select treats it as a
-// search field). Focus + ArrowDown is the supported way to open the listbox.
-// Options use role="option"; `exact: true` is required so "Sign" doesn't match
-// "Sign and Encrypt".
+// Select security mode via Grafana's Select (12.4.x renders as Combobox under
+// the hood: options carry `id="combobox-option-<value>"` and the listbox is
+// virtualized). A plain Playwright .click() on the option hangs (synthetic
+// event waits on post-navigation that never fires for virtualized listbox);
+// dispatchEvent('click') bypasses that. Combobox order in ConfigEditor is
+// [0] Security Policy, [1] Security Mode, [2] Auth Method — same as before.
 async function selectSecurityMode(page: Page, mode: string) {
-  const securityModeInput = page.locator('[aria-label="Security Mode"]').first();
-  await expect(securityModeInput).toBeVisible({ timeout: 5000 });
+  const combobox = page.locator('input[role="combobox"]').nth(1);
+  await expect(combobox).toBeVisible({ timeout: 5000 });
 
-  const labelMap: Record<string, string> = {
-    None: 'None',
-    Sign: 'Sign',
-    SignAndEncrypt: 'Sign and Encrypt',
-  };
-  const label = labelMap[mode] ?? mode;
+  if ((await combobox.inputValue().catch(() => '')) === mode) {
+    return;
+  }
 
-  await securityModeInput.focus();
-  await page.keyboard.press('ArrowDown');
-  const option = page.getByRole('option', { name: label, exact: true });
+  await combobox.click();
+  const option = page.locator(`#combobox-option-${mode}`);
   await expect(option).toBeVisible({ timeout: 3000 });
-  await option.click();
+  await option.dispatchEvent('click');
 
-  // Menu closes after a successful pick.
-  await expect(option).not.toBeVisible({ timeout: 3000 });
+  await expect(combobox).toHaveValue(mode, { timeout: 3000 });
 }
 
 // Returns true when the provisioned datasource uses certificate auth.
