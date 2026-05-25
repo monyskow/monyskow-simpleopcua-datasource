@@ -18,6 +18,7 @@
     "server": "docker compose -f docker-compose.full.yaml down >/dev/null 2>&1; docker compose -f docker-compose.e2e.yaml up --build",
     "server:all": "./scripts/start-all-versions.sh",
     "server:all:stop": "./scripts/stop-all-versions.sh",
+    "server:dev": "./scripts/start-dev.sh",
     "server:opcua": "docker compose -f docker-compose.opcua.yaml up -d",
     "sign": "npx --yes @grafana/sign-plugin@latest --signatureType community"
   },
