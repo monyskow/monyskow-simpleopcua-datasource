@@ -7,7 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.0.0] - 2024-12-25
+## [1.1.0] - 2026-05-27
+
+### Added
+
+- `npm run server:dev` script for quick local development against a single Grafana version + auth combo (#67)
+
+### Fixed
+
+- Client certificate `KeyUsage` now includes `ContentCommitment` (nonRepudiation) per OPC-UA Part 6 §6.2.2. Strict-compliant servers (e.g. ProSys Simulation Server) reject certs without this bit during `OpenSecureChannel`, which surfaced as `connect: connect: EOF` (#69)
+- README links in the Documentation table now use absolute GitHub URLs so they resolve when the README is rendered on the Grafana plugin catalog (#76)
+
+### Changed
+
+- Documentation reorganized: lean `README.md` with link table, topical files moved to `docs/installation.md`, `docs/configuration.md`, `docs/usage.md`, `docs/development.md`, `docs/testing.md`, `docs/troubleshooting.md`. `CONTRIBUTING.md` is now a redirect stub (#74)
+- Repo hygiene: untracked ~100MB of accidentally-committed test artifacts and release zips, tightened `.gitignore`, archived completed plan files (#72)
+
+### Internal
+
+- CI: pinned `golangci-lint` to v2.12.2 and bumped `golangci-lint-action` to v7 for Go 1.25 support (#70, #71)
+
+## [1.0.0] - 2026-01-30
 
 ### Added
 
