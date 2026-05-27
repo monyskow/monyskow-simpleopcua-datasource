@@ -276,7 +276,7 @@ Before first run with `docker-compose.prosys.yaml`: `npm run server:prosys-certs
 
 ## Automated Testing
 
-For comprehensive E2E testing documentation, see [tests/README.md](tests/README.md).
+For comprehensive E2E testing documentation, see [tests/README.md](../tests/README.md).
 
 **Test coverage**: 51 tests across plugin metadata, configuration, query editor, data queries, and cert generation.
 
@@ -437,6 +437,6 @@ Expected: All 51 tests pass across smoke, configuration, query editor, data quer
 
 ## Need Help?
 
-- [README.md](README.md) - Full documentation
-- [tests/README.md](tests/README.md) - E2E testing details
+- [README.md](../README.md) - Full documentation
+- [tests/README.md](../tests/README.md) - E2E testing details
 - [GitHub Issues](https://github.com/monyskow/monyskow-simpleopcua-datasource/issues) - Report issues
