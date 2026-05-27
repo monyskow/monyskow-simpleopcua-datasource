@@ -273,6 +273,32 @@ func TestCertificateRegistrySeparation(t *testing.T) {
 	RemoveCertificateManager(uid2)
 }
 
+func TestGenerateCertificate_KeyUsageIncludesNonRepudiation(t *testing.T) {
+	// Regression test for #68: ProSys (and other OPC-UA strict-compliant servers)
+	// reject client certs without nonRepudiation (Go: ContentCommitment).
+	// See: OPC-UA Part 6 §6.2.2.
+	certPEM, _, _, err := generateCertificate()
+	if err != nil {
+		t.Fatalf("generateCertificate: %v", err)
+	}
+	block, _ := pem.Decode(certPEM)
+	if block == nil {
+		t.Fatal("pem.Decode returned nil")
+	}
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		t.Fatalf("x509.ParseCertificate: %v", err)
+	}
+	if cert.KeyUsage&x509.KeyUsageContentCommitment == 0 {
+		t.Errorf("KeyUsage missing ContentCommitment (nonRepudiation); got %b", cert.KeyUsage)
+	}
+	// Sanity — remaining required flags must also be present.
+	required := x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment | x509.KeyUsageDataEncipherment
+	if cert.KeyUsage&required != required {
+		t.Errorf("KeyUsage missing one of DigitalSignature|KeyEncipherment|DataEncipherment; got %b", cert.KeyUsage)
+	}
+}
+
 func TestCertificateRegistryConcurrentAccess(t *testing.T) {
 	logger := log.DefaultLogger
 	uid := "concurrent-test-uid"
