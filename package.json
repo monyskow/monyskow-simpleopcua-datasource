@@ -20,6 +20,7 @@
     "server:all:stop": "./scripts/stop-all-versions.sh",
     "server:dev": "./scripts/start-dev.sh",
     "server:opcua": "docker compose -f docker-compose.opcua.yaml up -d",
+    "server:prosys-certs": "./scripts/gen-prosys-certs.sh",
     "sign": "npx --yes @grafana/sign-plugin@latest --signatureType community"
   },
   "author": "monyskow",

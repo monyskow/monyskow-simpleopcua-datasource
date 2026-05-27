@@ -268,6 +268,8 @@ Choose the right environment for your testing needs:
 | `docker-compose.full.yaml`   | 14 (docker-based) | Yes        | 5 containers               | 3000 | **Complete integration testing** ⭐                                                    |
 | `docker-compose.prosys.yaml` | 14 (ProSys)       | Yes        | ProSys on host             | 3001 | ProSys simulator testing                                                               |
 
+Before first run with `docker-compose.prosys.yaml`: `npm run server:prosys-certs` to generate the client cert + render the datasources YAML.
+
 **Recommendation**: Use `docker-compose.full.yaml` for comprehensive plugin testing.
 
 ---
