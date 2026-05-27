@@ -1,6 +1,6 @@
 {
   "name": "monyskow-simpleopcua-datasource",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A simple OPC-UA data source plugin for Grafana. Supports anonymous, username/password, and certificate authentication.",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
