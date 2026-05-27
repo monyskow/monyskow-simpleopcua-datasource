@@ -143,3 +143,14 @@ temp/
 # .solo-dev-version is checked in (tracks framework version per project)
 # .claude/settings.local.json is per-developer overrides (NOT checked in)
 .claude/settings.local.json
+
+# Test artifacts (Playwright + custom matrix runner)
+playwright-report/
+test-results/
+e2e-matrix-results-*.txt
+
+# Lint cache
+.eslintcache
+
+# Release bundles built locally (only signed zips from CI should ship)
+/*.zip
