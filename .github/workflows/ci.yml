@@ -61,11 +61,11 @@ jobs:
           cache: true
       - run: go build ./...
       - run: go test ./... -race -count=1
-      - uses: golangci/golangci-lint-action@v6
+      - uses: golangci/golangci-lint-action@v7
         with:
-          # `latest` resolves to v1.64.x (built with Go 1.24) and refuses to lint
-          # code targeting Go 1.25+. Pin to v2.x explicitly until the action's
-          # `latest` follows v2.
+          # golangci-lint v2 (built with Go 1.25+) is required to lint code
+          # targeting Go 1.25; the v1.x `latest` is built with Go 1.24 and
+          # refuses to load. Action v7 is also required — v6 rejects v2 versions.
           version: v2.12.2
 
   python:
