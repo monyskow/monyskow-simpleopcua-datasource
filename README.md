@@ -17,14 +17,14 @@ A Grafana data source plugin for connecting to OPC-UA servers. Read industrial d
 
 ## Documentation
 
-| Doc                                        | Description                                            |
-| ------------------------------------------ | ------------------------------------------------------ |
-| [Installation](docs/installation.md)       | From catalog, manual install, unsigned plugin setup    |
-| [Configuration](docs/configuration.md)     | Connection settings, security policies, authentication |
-| [Usage](docs/usage.md)                     | Building queries, template variables                   |
-| [Development](docs/development.md)         | Build commands, project layout, test servers           |
-| [Testing](docs/testing.md)                 | Manual testing guide, E2E tests, CI matrix             |
-| [Troubleshooting](docs/troubleshooting.md) | Known issues, Grafana 13 quirks, EOF errors            |
+| Doc                                                                                                              | Description                                            |
+| ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| [Installation](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/docs/installation.md)       | From catalog, manual install, unsigned plugin setup    |
+| [Configuration](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/docs/configuration.md)     | Connection settings, security policies, authentication |
+| [Usage](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/docs/usage.md)                     | Building queries, template variables                   |
+| [Development](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/docs/development.md)         | Build commands, project layout, test servers           |
+| [Testing](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/docs/testing.md)                 | Manual testing guide, E2E tests, CI matrix             |
+| [Troubleshooting](https://github.com/monyskow/monyskow-simpleopcua-datasource/blob/main/docs/troubleshooting.md) | Known issues, Grafana 13 quirks, EOF errors            |
 
 ## License
 
