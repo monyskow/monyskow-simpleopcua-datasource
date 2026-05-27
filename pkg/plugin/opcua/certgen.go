@@ -157,9 +157,11 @@ func generateCertificate() (certPEM, keyPEM []byte, notAfter time.Time, err erro
 			Organization: []string{"Grafana"},
 			Country:      []string{"US"},
 		},
-		NotBefore:             notBefore,
-		NotAfter:              notAfter,
-		KeyUsage:              x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment | x509.KeyUsageDataEncipherment,
+		NotBefore: notBefore,
+		NotAfter:  notAfter,
+		// OPC-UA Part 6 §6.2.2 requires nonRepudiation (Go: ContentCommitment) on client certs.
+		// Strict-compliant servers (ProSys) reject without it during OpenSecureChannel.
+		KeyUsage:              x509.KeyUsageContentCommitment | x509.KeyUsageDigitalSignature | x509.KeyUsageKeyEncipherment | x509.KeyUsageDataEncipherment,
 		ExtKeyUsage:           []x509.ExtKeyUsage{x509.ExtKeyUsageClientAuth, x509.ExtKeyUsageServerAuth},
 		BasicConstraintsValid: true,
 		IsCA:                  false,
