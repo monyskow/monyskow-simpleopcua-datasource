@@ -25,6 +25,9 @@
   },
   "author": "monyskow",
   "license": "Apache-2.0",
+  "overrides": {
+    "serialize-javascript": "^7.0.5"
+  },
   "devDependencies": {
     "@grafana/eslint-config": "^8.2.0",
     "@grafana/plugin-e2e": "^2.2.0",
