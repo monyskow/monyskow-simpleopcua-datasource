@@ -63,7 +63,10 @@ jobs:
       - run: go test ./... -race -count=1
       - uses: golangci/golangci-lint-action@v6
         with:
-          version: latest
+          # `latest` resolves to v1.64.x (built with Go 1.24) and refuses to lint
+          # code targeting Go 1.25+. Pin to v2.x explicitly until the action's
+          # `latest` follows v2.
+          version: v2.12.2
 
   python:
     needs: changes
@@ -73,7 +76,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
-          python-version: "3.12"
+          python-version: '3.12'
       - name: Install uv
         run: pip install uv
       - name: Install deps
@@ -98,7 +101,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: '20'
           cache: ${{ hashFiles('pnpm-lock.yaml') != '' && 'pnpm' || 'npm' }}
       - name: Install
         run: |
@@ -123,7 +126,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: "8.0.x"
+          dotnet-version: '8.0.x'
       - run: dotnet restore
       - run: dotnet build --no-restore --configuration Release
       - run: dotnet test --no-build --configuration Release --verbosity normal
